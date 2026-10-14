@@ -1,7 +1,7 @@
 # tafbase — the GAKS corpus
 
 This folder is a **static GAKS bundle**, GAKS 0.11.0, made on 2026-10-14.
-It holds 2 Markdown files. The last check found the corpus not clean.
+It holds 2 Markdown files. The last check found the corpus clean.
 
 GAKS keeps the architecture knowledge of a project: decisions, features, plans,
 research and specifications. Each one is a typed Markdown document with
@@ -130,8 +130,6 @@ When the decision is made, the head changes to
 ## The last check
 
 ```
-frontmatter-missing  decisions/ADR-taf-v1-001-01-tafbase-stands-alone.md  no frontmatter
-frontmatter-missing  plans/PLAN-taf-v1-001-01-tafbase.md  no frontmatter
 kind-undeclared: 0
 id-not-filename: 0
 id-duplicate: 0
@@ -139,7 +137,7 @@ status-unknown: 0
 subproject-unknown: 0
 decision-malformed: 0
 wikilink-unresolved: 0  (ratchet, ceiling 0)
-frontmatter-missing: 2
+frontmatter-missing: 0
 kind-folder: 0
 code-link-unresolved: 0
 ```

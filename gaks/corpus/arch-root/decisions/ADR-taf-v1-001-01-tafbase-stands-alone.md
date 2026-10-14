@@ -1,6 +1,16 @@
+---
+id: ADR-taf-v1-001-01-tafbase-stands-alone
+status: accepted
+subproject: taf
+authored: 2026-10-14
+authors:
+  - George Petrov
+  - Devin
+---
+
 # ADR-taf-v1-001-01 — tafbase stands alone
 
-Status: accepted · 2026-10-14
+Decided: 2026-10-14 · George Petrov + Devin
 
 ## Decisions
 
