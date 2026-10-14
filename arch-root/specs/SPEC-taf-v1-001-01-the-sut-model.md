@@ -167,13 +167,17 @@ every refusal as `{clause, reason, message}` and emits nothing:
 
 | reason | when |
 |---|---|
+| `:not-json` | the document is not a JSON object |
+| `:missing-field` | a required key is absent (top-level, `sut`, a state marker, a journey start, an endpoint's method/path) |
 | `:empty-model` | no states and no journeys |
-| `:bad-locator` | an element matches no rung of the ladder |
-| `:unknown-state` | `from`/`to`/`start`/`expect-final` names no state |
+| `:bad-locator` | an element or marker matches no rung of the ladder |
+| `:unknown-state` | `from`/`to`/`start`/`expect-final`/`navigate`/`wait-for` names no state |
 | `:unknown-element` | a step names no element |
 | `:unknown-endpoint` | an `api` step names no endpoint |
 | `:unknown-action` | a journey names no action |
-| `:edge-gap` | a journey's steps do not chain (`to` of one ≠ `from` of next) |
+| `:unknown-step` | a step's key is no declared step form |
+| `:edge-gap` | a journey's steps do not chain (`to` of one ≠ `from` of next, or first `from` ≠ `start`) |
+| `:mixed-steps` | a journey names actions *and* writes steps inline |
 | `:unreachable` | a state has no path from any journey's `start` |
 | `:duplicate-name` | a name declared twice in one clause |
 

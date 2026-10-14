@@ -1,0 +1,41 @@
+{
+  "sut": {
+    "name": "ikc3-tracker",
+    "base-url": "http://127.0.0.1:4856"
+  },
+  "states": {
+    "board": {
+      "route": "/index.html?island=board",
+      "marker": {"css": ".ikc-dock-theme"}
+    },
+    "tot": {
+      "route": "/index.html?island=tot",
+      "marker": {"css": ".ikc-dock-theme"}
+    }
+  },
+  "elements": {},
+  "actions": {
+    "open-board": {
+      "to": "board",
+      "do": [{"navigate": "board"}]
+    },
+    "open-tot": {
+      "from": "board",
+      "to": "tot",
+      "do": [{"navigate": "tot"}]
+    }
+  },
+  "journeys": {
+    "the-board-is-up": {
+      "start": "board",
+      "steps": [],
+      "expect-final": {"state": "board"}
+    },
+    "board-to-tot": {
+      "start": "board",
+      "steps": ["open-tot"],
+      "expect-final": {"state": "tot"}
+    }
+  },
+  "endpoints": {}
+}
