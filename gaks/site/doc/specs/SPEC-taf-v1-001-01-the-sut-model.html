@@ -144,16 +144,24 @@ every refusal as <code>{clause, reason, message}</code> and emits nothing:</p>
 </tr>
 </thead>
 <tbody><tr>
+<td><code>:not-json</code></td>
+<td>the document is not a JSON object</td>
+</tr>
+<tr>
+<td><code>:missing-field</code></td>
+<td>a required key is absent (top-level, <code>sut</code>, a state marker, a journey start, an endpoint&#39;s method/path)</td>
+</tr>
+<tr>
 <td><code>:empty-model</code></td>
 <td>no states and no journeys</td>
 </tr>
 <tr>
 <td><code>:bad-locator</code></td>
-<td>an element matches no rung of the ladder</td>
+<td>an element or marker matches no rung of the ladder</td>
 </tr>
 <tr>
 <td><code>:unknown-state</code></td>
-<td><code>from</code>/<code>to</code>/<code>start</code>/<code>expect-final</code> names no state</td>
+<td><code>from</code>/<code>to</code>/<code>start</code>/<code>expect-final</code>/<code>navigate</code>/<code>wait-for</code> names no state</td>
 </tr>
 <tr>
 <td><code>:unknown-element</code></td>
@@ -168,8 +176,16 @@ every refusal as <code>{clause, reason, message}</code> and emits nothing:</p>
 <td>a journey names no action</td>
 </tr>
 <tr>
+<td><code>:unknown-step</code></td>
+<td>a step&#39;s key is no declared step form</td>
+</tr>
+<tr>
 <td><code>:edge-gap</code></td>
-<td>a journey&#39;s steps do not chain (<code>to</code> of one ≠ <code>from</code> of next)</td>
+<td>a journey&#39;s steps do not chain (<code>to</code> of one ≠ <code>from</code> of next, or first <code>from</code> ≠ <code>start</code>)</td>
+</tr>
+<tr>
+<td><code>:mixed-steps</code></td>
+<td>a journey names actions <em>and</em> writes steps inline</td>
 </tr>
 <tr>
 <td><code>:unreachable</code></td>
@@ -213,6 +229,6 @@ declared lane in the plan, none is guessed at here.</p>
 </main>
 <nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">4</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-14 13:47 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-14 14:53 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>
