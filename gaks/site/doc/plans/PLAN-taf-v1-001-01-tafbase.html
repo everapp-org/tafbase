@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / plans</div><h1 class="page-title" id="plan-taf-v1-001-01--tafbase-a-dsl-first-test-automation-framework">PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework</h1><table class="props"><tr><th>id</th><td>PLAN-taf-v1-001-01</td></tr><tr><th>kind</th><td><a href="../../reports/PLAN.html">Plan</a></td></tr><tr><th>source</th><td><code>plans/PLAN-taf-v1-001-01-tafbase.md</code></td></tr></table><article class="doc"><p>Status: in progress</p>
+<p>tafbase declares a system under test (SUT) once, as data, and generates real
+test suites from the declaration. Python+Playwright is the first emitter;
+Java is the second, and the second exists to make the parity claim true.
+Generated suites report into pluggable tracker adapters; the first adapter
+is IKC3&#39;s fault reports, so a red test files a bug into the very platform
+the tests exercise.</p>
+<h2 id="release-note-draft">Release note (draft)<a class="anchor" href="#release-note-draft" aria-label="Link to this section">#</a></h2>
+<ul>
+<li>New: a SUT declared once in JSON runs as a Python+Playwright suite; the
+same declaration refuses the same broken model the same way.
+Accepted by: T-taf-001 (parity of refusal, <code>env -i</code>, python3 only)</li>
+<li>New: a failed generated test files a fault report into a configured
+tracker through a declared adapter; the IKC3 adapter is the first.
+Accepted by: T-taf-002</li>
+<li>Internal: the Java+Playwright emitter proves the same declaration
+generates equivalent suites in two languages.
+Accepted by: T-taf-003 (Python and Java emitters agree on the suite)</li>
+</ul>
+<h3 id="what-this-does-not-do">What this does not do<a class="anchor" href="#what-this-does-not-do" aria-label="Link to this section">#</a></h3>
+<p>v1 generates static journeys only. Model-based generation — walks of the
+SUT graph, coverage-directed paths, journal replay — is declared in
+ADR-taf-v1-002-01 and arrives by lanes, not all at once.</p>
+<h2 id="lanes">Lanes<a class="anchor" href="#lanes" aria-label="Link to this section">#</a></h2>
+<h3 id="lane-tafplan-taf-v1-001-01a-1--the-sut-model-is-json">▶ Lane TAF/PLAN-taf-v1-001-01/A-1 — the SUT model is JSON<a class="anchor" href="#lane-tafplan-taf-v1-001-01a-1--the-sut-model-is-json" aria-label="Link to this section">#</a></h3>
+<p>A SUT declares states, transitions and journeys in one JSON document. The
+loader validates shape, refusals name the broken clause, and no ambiguous
+form is guessed — one form only.</p>
+<p><strong>Release note (draft)</strong></p>
+<ul>
+<li>New: <code>sut.model.json</code> declares pages, actions and journeys; a broken
+model names its fault.
+Accepted by: T-taf-001</li>
+</ul>
+<h3 id="lane-tafplan-taf-v1-001-01b-2--the-pythonplaywright-emitter">▶ Lane TAF/PLAN-taf-v1-001-01/B-2 — the Python+Playwright emitter<a class="anchor" href="#lane-tafplan-taf-v1-001-01b-2--the-pythonplaywright-emitter" aria-label="Link to this section">#</a></h3>
+<p>From a valid model, <code>taf emit --lang python</code> writes a runnable
+Playwright+pytest suite: page objects, journey tests, and a manifest
+mapping each test back to the model element that produced it.</p>
+<p><strong>Release note (draft)</strong></p>
+<ul>
+<li>New: one declaration produces a committed, reviewable pytest suite.
+Accepted by: T-taf-004</li>
+</ul>
+<h3 id="lane-tafplan-taf-v1-001-01c-3--tracker-adapters-and-fault-reports">▶ Lane TAF/PLAN-taf-v1-001-01/C-3 — tracker adapters and fault reports<a class="anchor" href="#lane-tafplan-taf-v1-001-01c-3--tracker-adapters-and-fault-reports" aria-label="Link to this section">#</a></h3>
+<p>A test outcome flows to a declared sink. The IKC3 adapter files a fault
+report and links it to the test&#39;s model element; adapters are a declared
+kind so JIRA or GitHub Issues are additions, not rewrites.</p>
+<p><strong>Release note (draft)</strong></p>
+<ul>
+<li>New: a red test files a fault report into IKC3, named for its model
+element; the report repairs when the fix lands.
+Accepted by: T-taf-002</li>
+</ul>
+<h3 id="lane-tafplan-taf-v1-001-01d-4--the-java-emitter-proves-parity">▶ Lane TAF/PLAN-taf-v1-001-01/D-4 — the Java emitter proves parity<a class="anchor" href="#lane-tafplan-taf-v1-001-01d-4--the-java-emitter-proves-parity" aria-label="Link to this section">#</a></h3>
+<p><code>--lang java</code> emits the equivalent Playwright-Java + JUnit suite. Parity
+means: same model, same refusal text, same test names, same journey steps —
+the discipline measured in PLAN-ikc-v3-079-01 applied to a second axis.</p>
+<p><strong>Release note (draft)</strong></p>
+<ul>
+<li>New: the same declaration generates the Java suite; both emitters agree
+or both refuse.
+Accepted by: T-taf-003</li>
+</ul>
+<h3 id="lane-tafplan-taf-v1-001-01e-5--the-tracker-is-the-first-sut">▶ Lane TAF/PLAN-taf-v1-001-01/E-5 — the tracker is the first SUT<a class="anchor" href="#lane-tafplan-taf-v1-001-01e-5--the-tracker-is-the-first-sut" aria-label="Link to this section">#</a></h3>
+<p>IKC3&#39;s tracker is the demo SUT: real UI (reader/tot islands), real API
+(the bus), and a fault report in it is a live record. Its own DSL
+declarations (<code>workflow.edn</code>, <code>support.edn</code>) later feed the white-box model.</p>
+<p><strong>Release note (draft)</strong></p>
+<ul>
+<li>New: tafbase runs journeys over a live IKC3 tracker and files its
+findings into it.
+Accepted by: T-taf-005 (a full loop: fail → report → fix → repaired)</li>
+</ul>
+<h3 id="lane-tafplan-taf-v1-001-01f-6--the-sut-graph-mbt">▶ Lane TAF/PLAN-taf-v1-001-01/F-6 — the SUT graph (MBT)<a class="anchor" href="#lane-tafplan-taf-v1-001-01f-6--the-sut-graph-mbt" aria-label="Link to this section">#</a></h3>
+<p>The model grows from journeys to a graph: states and transitions as data,
+black-box first, then white-box — a DSL First SUT carries its own model,
+so the declared command/event surface becomes the test oracle. Static
+routes → random walks with seed replay → coverage-directed paths →
+journal replay as generated tests.</p>
+<p><strong>Release note (draft)</strong></p>
+<ul>
+<li>New: the emitter can walk the SUT graph; a walk with a seed replays a
+found failure exactly.
+Accepted by: T-taf-006</li>
+</ul>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">1</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-14 10:49 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

@@ -1,0 +1,91 @@
+{
+  "gaks-version" : "0.11.0",
+  "root" : "arch-root",
+  "id-pattern" : "^([A-Z]+-[a-z0-9-]+?-v[0-9]+)-([0-9]{3})-([0-9]{2})(?:-.*)?\\.md$",
+  "kinds" : [ {
+    "prefix" : "ADR",
+    "name" : "Decision record",
+    "folder" : "decisions",
+    "template" : [ "Context", "Decision", "Consequences", "The pillars, tested" ]
+  }, {
+    "prefix" : "PLAN",
+    "name" : "Plan",
+    "folder" : "plans",
+    "template" : [ "Release note (draft)", "The pillars, tested", "The lanes" ]
+  }, {
+    "prefix" : "F",
+    "name" : "Feature",
+    "folder" : "features",
+    "template" : [ "Summary", "Acceptance criteria" ]
+  }, {
+    "prefix" : "RESEARCH",
+    "name" : "Research",
+    "folder" : "research",
+    "template" : [ "Why this exists", "How it was measured", "The summary", "The decisions that are George's" ]
+  }, {
+    "prefix" : "CONCEPT",
+    "name" : "Concept",
+    "folder" : "concepts",
+    "template" : [ "Definition", "Why it exists" ]
+  }, {
+    "prefix" : "PRINCIPLE",
+    "name" : "Principle",
+    "folder" : "principles",
+    "template" : [ "Statement", "Demands" ]
+  }, {
+    "prefix" : "SPEC",
+    "name" : "Specification",
+    "folder" : "specs"
+  }, {
+    "prefix" : "SPIKE",
+    "name" : "Spike",
+    "folder" : "spikes"
+  }, {
+    "prefix" : "AC",
+    "name" : "Acceptance criteria",
+    "folder" : "acceptance"
+  }, {
+    "prefix" : "HANDOFF",
+    "name" : "Handoff",
+    "folder" : "plans"
+  } ],
+  "statuses" : {
+    "editable" : [ "backlog", "brainstorm", "captured", "draft", "in-progress", "needs-triage", "not yet specified", "open", "planned", "pre-item", "proposed", "queued", "review", "running", "shaping", "spec-ready", "specified" ],
+    "frozen" : [ "abandoned", "accepted", "accepted-with-known-limitation", "active", "approved", "archived", "awaiting-answers", "closed", "complete", "deprecated", "done", "dropped", "frozen", "graduated", "implemented", "informational", "investigated", "met", "parked", "superseded" ]
+  },
+  "page-states" : {
+    "order" : [ "draft", "review", "accepted", "superseded", "archived" ],
+    "meaning" : {
+      "accepted" : "Accepted. A change is a new -VV sibling.",
+      "archived" : "Kept for the record.",
+      "draft" : "Being written.",
+      "review" : "Written, and it waits for a person to accept it.",
+      "superseded" : "A newer document replaces it."
+    },
+    "words" : {
+      "accepted" : [ "accepted", "accepted-with-known-limitation", "active", "approved", "closed", "complete", "done", "frozen", "graduated", "implemented", "informational", "investigated", "met" ],
+      "archived" : [ "abandoned", "archived", "dropped", "parked" ],
+      "draft" : [ "backlog", "brainstorm", "captured", "draft", "in-progress", "not yet specified", "open", "planned", "pre-item", "proposed", "queued", "running", "shaping" ],
+      "review" : [ "awaiting-answers", "needs-triage", "review", "spec-ready", "specified" ],
+      "superseded" : [ "deprecated", "superseded" ]
+    },
+    "prefix-words" : {
+      "superseded by" : "superseded"
+    }
+  },
+  "decision" : {
+    "callout" : "decision",
+    "states" : [ "open", "decided", "withdrawn" ],
+    "fields" : [ "Recommendation", "Answer", "Opens", "Why" ],
+    "key-pattern" : "^[A-Z][A-Z0-9-]*[0-9]+$"
+  },
+  "code" : {
+    "extensions" : [ ".c", ".clj", ".cljc", ".cljs", ".cpp", ".cs", ".go", ".groovy", ".h", ".java", ".js", ".kt", ".kts", ".mjs", ".py", ".rb", ".rs", ".scala", ".sh", ".sql", ".ts", ".tsx" ],
+    "skip-dirs" : [ "__pycache__", "build", "dist", "node_modules", "out", "target", "venv" ],
+    "annotation-pattern" : "@([a-z]+)[ \\t]+([A-Z]+-[a-z0-9-]+?-v[0-9]+-[0-9]{3}-[0-9]{2}(?:-[a-z0-9]+)*)"
+  },
+  "rules" : [ "kind-undeclared", "id-not-filename", "id-duplicate", "status-unknown", "subproject-unknown", "decision-malformed", "wikilink-unresolved", "frontmatter-missing", "kind-folder", "code-link-unresolved" ],
+  "ratchets" : {
+    "wikilink-unresolved" : 0
+  }
+}

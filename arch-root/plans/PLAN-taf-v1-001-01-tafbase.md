@@ -1,3 +1,14 @@
+---
+id: PLAN-taf-v1-001-01-tafbase
+subproject: taf
+status: in-progress
+type: implementation-plan
+authored: 2026-10-14
+authors:
+  - George Petrov
+  - Devin
+---
+
 # PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework
 
 Status: in progress

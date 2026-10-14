@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADR-taf-v1-001-01 — tafbase stands alone · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / decisions</div><h1 class="page-title" id="adr-taf-v1-001-01--tafbase-stands-alone">ADR-taf-v1-001-01 — tafbase stands alone</h1><table class="props"><tr><th>id</th><td>ADR-taf-v1-001-01</td></tr><tr><th>kind</th><td><a href="../../reports/ADR.html">Decision record</a></td></tr><tr><th>source</th><td><code>decisions/ADR-taf-v1-001-01-tafbase-stands-alone.md</code></td></tr></table><article class="doc"><p>Status: accepted · 2026-10-14</p>
+<h2 id="decisions">Decisions<a class="anchor" href="#decisions" aria-label="Link to this section">#</a></h2>
+<ol>
+<li><p><strong>tafbase is its own repository and its own corpus.</strong> It does not live
+inside IKC3. <code>gaks.project.json</code> declares it; the static GAKS bundle of
+PLAN-ikc-v3-079-01 delivers the corpus tools. This is the first real
+consumer of the foreign-project path.</p>
+</li>
+<li><p><strong>The DSL is JSON, not EDN.</strong> The SUT model must be readable and writable
+from Java and Python with no Clojure dependency — the same reason
+<code>gaks.project.json</code> replaced the EDN declaration in IKC3.</p>
+</li>
+<li><p><strong>Generate, don&#39;t interpret.</strong> Emitters write committed, reviewable test
+files (<code>test_login.py</code>, <code>LoginJourneyTest.java</code>). A generic runtime
+interpreter was considered and refused: generated code diffs in a PR are
+legible; hidden magic is not.</p>
+</li>
+<li><p><strong>Tracker integrations are declared adapters, not a hard dependency.</strong>
+tafbase core runs with no IKC3. The IKC3 adapter (fault reports,
+repaired-on-merge) is the first sink and the demo loop; JIRA and GitHub
+Issues adapters are additions of the same kind.</p>
+</li>
+<li><p><strong>The IKC3 tracker is the first SUT</strong>, not a component of tafbase.
+Dogfooding means tests exercise the real platform and file reports into
+it — not that tafbase embeds it.</p>
+</li>
+<li><p><strong>MIT license.</strong> The goals are exposure and adoption; copyleft and
+dual-licensing are refused.</p>
+</li>
+</ol>
+<h2 id="consequences">Consequences<a class="anchor" href="#consequences" aria-label="Link to this section">#</a></h2>
+<ul>
+<li>Doc ids take the <code>taf</code> subproject prefix (<code>PLAN-taf-v1-NNN-NN</code>); numbering
+is this repository&#39;s own.</li>
+<li>The IKC3 deployment tracker can file tickets for tafbase work only if
+this corpus is registered as a vault of the deployment — an open
+question, deferred to the first lane.</li>
+</ul>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">1</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-14 10:49 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>
