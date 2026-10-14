@@ -1,6 +1,6 @@
 {
   "name": "tafbase",
   "subprojects": ["taf"],
-  "kinds": ["ADR", "CONCEPT", "PLAN", "F", "RESEARCH", "SPEC"],
+  "kinds": ["ADR", "CONCEPT", "PLAN", "F", "RESEARCH", "SPEC", "PRINCIPLE"],
   "ratchets": {}
 }

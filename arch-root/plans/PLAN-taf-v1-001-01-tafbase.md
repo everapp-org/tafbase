@@ -114,3 +114,20 @@ journal replay as generated tests.
 - New: the emitter can walk the SUT graph; a walk with a seed replays a
   found failure exactly.
   Accepted by: T-taf-006
+
+### ▶ Lane TAF/PLAN-taf-v1-001-01/G-7 — the corpus teaches
+
+tafbase is a learning surface (ADR-taf-v1-002-01): every concept the
+generated code embodies is a CONCEPT document — Python and pytest,
+Playwright, test design, and the DSL itself — and generated files cite
+them with `@concept` lines the corpus checker enforces. A guided index
+(CONCEPT-taf-v1-001-01-the-learning-path) orders them junior-first. Every
+other lane ships the concepts its code cites; this lane seeds the corpus
+and the rule.
+
+**Release note (draft)**
+
+- New: every generated file names the concepts it demonstrates, and each
+  names a corpus page a learner can open; a citation with no page, or a
+  page nothing cites, fails the corpus check.
+  Accepted by: T-taf-007 (the checker refuses an orphan either way)

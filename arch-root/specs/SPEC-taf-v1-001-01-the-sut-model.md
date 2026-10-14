@@ -189,6 +189,17 @@ state markers → endpoints). This is the traceability clause — a failing
 test names its model element, and the tracker adapter files the fault
 report against it.
 
+## The learning surface
+
+Generated code is teaching material (ADR-taf-v1-002-01). Each emitted
+file carries `@concept CONCEPT-taf-v1-NNN-NN-*` comment lines naming the
+concepts it demonstrates — a `conftest.py` cites fixture scope and
+`yield`, a page object cites the page object and the locator ladder. The
+emitter chooses the citations; the corpus checker's
+`code-link-unresolved` refuses a citation with no document. The manifest
+records each test's concept ids, so the site renders "used in" from
+backlinks and a learner travels code → concept → code.
+
 ## The parity contract
 
 Two emitters agree when, for the same valid model: same test names, same
