@@ -36,11 +36,13 @@ the tests exercise.
 
 v1 generates static journeys only. Model-based generation — walks of the
 SUT graph, coverage-directed paths, journal replay — is declared in
-ADR-taf-v1-002-01 and arrives by lanes, not all at once.
+ADR-taf-v1-001-01 and arrives by lanes, not all at once.
 
 ## Lanes
 
 ### ▶ Lane TAF/PLAN-taf-v1-001-01/A-1 — the SUT model is JSON
+
+The contract: [[SPEC-taf-v1-001-01-the-sut-model]].
 
 A SUT declares states, transitions and journeys in one JSON document. The
 loader validates shape, refusals name the broken clause, and no ambiguous

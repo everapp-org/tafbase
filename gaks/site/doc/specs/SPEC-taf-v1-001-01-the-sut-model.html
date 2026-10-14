@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPEC-taf-v1-001-01 — the SUT model · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / specs</div><h1 class="page-title" id="spec-taf-v1-001-01--the-sut-model">SPEC-taf-v1-001-01 — the SUT model <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>SPEC-taf-v1-001-01-the-sut-model</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-14</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/SPEC.html">Specification</a></td></tr><tr><th>source</th><td><code>specs/SPEC-taf-v1-001-01-the-sut-model.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-14</td></tr></table></details><article class="doc"><p>Related:</p>
+<ul>
+<li><a class="wikilink" href="../plans/PLAN-taf-v1-001-01-tafbase.html" title="PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework">PLAN-taf-v1-001-01-tafbase</a></li>
+<li><a class="wikilink" href="../decisions/ADR-taf-v1-001-01-tafbase-stands-alone.html" title="ADR-taf-v1-001-01 — tafbase stands alone">ADR-taf-v1-001-01-tafbase-stands-alone</a></li>
+</ul>
+<p>The design input of lane TAF/PLAN-taf-v1-001-01/A-1. This document is the
+contract: a loader and an emitter are correct together when each refusal and
+each generated behavior below holds.</p>
+<h2 id="purpose">Purpose<a class="anchor" href="#purpose" aria-label="Link to this section">#</a></h2>
+<p>A system under test (SUT) is declared once, as one JSON document. The
+declaration is the model. From it, emitters write runnable suites
+(Python+Playwright, later Java+Playwright) that follow Playwright&#39;s own
+rules: semantic locators, auto-waiting assertions, one journey per test.
+The same document is the graph the MBT lanes walk later — states and
+transitions are first-class from v1, so no model is written twice.</p>
+<h2 id="the-document">The document<a class="anchor" href="#the-document" aria-label="Link to this section">#</a></h2>
+<p>One file per SUT, <code>sut.model.json</code> by convention. Top level:</p>
+<pre><code class="language-json">{
+  &quot;sut&quot;:       {&quot;name&quot;: &quot;ikc3-tracker&quot;, &quot;base-url&quot;: &quot;http://127.0.0.1:4855&quot;},
+  &quot;states&quot;:    {},
+  &quot;elements&quot;:  {},
+  &quot;actions&quot;:   {},
+  &quot;journeys&quot;:  {},
+  &quot;endpoints&quot;: {}
+}
+</code></pre>
+<h3 id="sut"><code>sut</code><a class="anchor" href="#sut" aria-label="Link to this section">#</a></h3>
+<p><code>name</code> (string, required) names the SUT in refusals and the manifest.
+<code>base-url</code> (string, required) is where journeys begin. No environment
+indirection in v1: a different deployment is a different file, or a later
+lane adds <code>env</code>.</p>
+<h3 id="states"><code>states</code><a class="anchor" href="#states" aria-label="Link to this section">#</a></h3>
+<p>A state is a place a journey can be — a page, a dialog, a verified
+condition. A state is recognized, not assumed:</p>
+<pre><code class="language-json">&quot;states&quot;: {
+  &quot;board&quot;: {
+    &quot;route&quot;: &quot;/index.html?island=board&quot;,
+    &quot;marker&quot;: {&quot;role&quot;: &quot;heading&quot;, &quot;name&quot;: &quot;Board&quot;}
+  }
+}
+</code></pre>
+<p><code>route</code> (optional) is the path under <code>base-url</code> that reaches the state
+directly. <code>marker</code> (required) is a locator that a generated test asserts
+visible after every arrival — a state is entered only when the SUT proves
+it. That one rule is what makes generated tests self-verifying instead of
+hopeful.</p>
+<h3 id="elements"><code>elements</code><a class="anchor" href="#elements" aria-label="Link to this section">#</a></h3>
+<p>Named locators, declared once, reused everywhere:</p>
+<pre><code class="language-json">&quot;elements&quot;: {
+  &quot;new-ticket-button&quot;: {&quot;role&quot;: &quot;button&quot;, &quot;name&quot;: &quot;New ticket&quot;},
+  &quot;title-field&quot;:       {&quot;label&quot;: &quot;Title&quot;},
+  &quot;report-card&quot;:       {&quot;testid&quot;: &quot;report-card&quot;},
+  &quot;legacy-panel&quot;:      {&quot;css&quot;: &quot;.panel--legacy&quot;}
+}
+</code></pre>
+<p>THE LOCATOR LADDER is the &quot;proper use&quot; clause, encoded, not documented:</p>
+<ol>
+<li><code>role</code> + <code>name</code> — the accessibility query, preferred</li>
+<li><code>label</code> / <code>text</code> / <code>placeholder</code> — user-visible queries</li>
+<li><code>testid</code> — the deliberate escape (<code>data-testid</code>)</li>
+<li><code>css</code> / <code>xpath</code> — the last resort, allowed and flagged <code>fragile</code> in the
+manifest</li>
+</ol>
+<p>A locator with no usable form is refused <code>:bad-locator</code>. The ladder is the
+emitter&#39;s only ordering; a model does not say which rung a locator sits on,
+the shape does.</p>
+<h3 id="actions"><code>actions</code><a class="anchor" href="#actions" aria-label="Link to this section">#</a></h3>
+<p>An action is a step the SUT offers — the transitions of the graph:</p>
+<pre><code class="language-json">&quot;actions&quot;: {
+  &quot;move-to-triage&quot;: {
+    &quot;from&quot;: &quot;backlog&quot;,
+    &quot;to&quot;:   &quot;triage&quot;,
+    &quot;do&quot;:   [
+      {&quot;click&quot;: &quot;new-ticket-button&quot;},
+      {&quot;fill&quot;:  {&quot;element&quot;: &quot;title-field&quot;, &quot;value&quot;: &quot;the report&quot;}},
+      {&quot;click&quot;: &quot;save-button&quot;},
+      {&quot;api&quot;:   &quot;move-ticket&quot;, &quot;args&quot;: {&quot;category&quot;: &quot;triage&quot;}}
+    ]
+  }
+}
+</code></pre>
+<p><code>from</code> and <code>to</code> name states and are optional per action, required for the
+graph to be a graph: an action with both is an edge. <code>do</code> is an ordered
+list of steps:</p>
+<ul>
+<li><code>click</code> / <code>fill</code> / <code>check</code> / <code>select</code> — on a named element</li>
+<li><code>navigate</code> — to a state&#39;s <code>route</code></li>
+<li><code>wait-for</code> — on an element or state marker</li>
+<li><code>api</code> — a named endpoint, with <code>args</code>; asserts the declared status</li>
+<li><code>expect</code> — an assertion on an element (<code>visible</code>, <code>hidden</code>,
+<code>text</code>, <code>count</code>, <code>attr</code>) or on a saved value</li>
+</ul>
+<h3 id="journeys"><code>journeys</code><a class="anchor" href="#journeys" aria-label="Link to this section">#</a></h3>
+<p>A journey is a named path — the v1 test:</p>
+<pre><code class="language-json">&quot;journeys&quot;: {
+  &quot;file-and-triage&quot;: {
+    &quot;start&quot;: &quot;board&quot;,
+    &quot;steps&quot;: [&quot;open-ticket&quot;, &quot;fill-what&quot;, &quot;save&quot;, &quot;see-in-backlog&quot;],
+    &quot;expect-final&quot;: {&quot;state&quot;: &quot;triage&quot;}
+  }
+}
+</code></pre>
+<p><code>steps</code> name actions; the emitter emits one test per journey, asserting
+each action&#39;s <code>to</code> marker on arrival and <code>expect-final</code> at the end. A
+journey may inline a step list of the same step forms as <code>do</code> — a journey
+is a path, whichever way it is written, but the two forms are not mixed.</p>
+<h3 id="endpoints"><code>endpoints</code><a class="anchor" href="#endpoints" aria-label="Link to this section">#</a></h3>
+<p>The API-testing surface, declared like the rest:</p>
+<pre><code class="language-json">&quot;endpoints&quot;: {
+  &quot;list-tickets&quot;: {&quot;method&quot;: &quot;GET&quot;,  &quot;path&quot;: &quot;/api/tickets&quot;,
+                   &quot;expect&quot;: {&quot;status&quot;: 200}},
+  &quot;move-ticket&quot;:  {&quot;method&quot;: &quot;POST&quot;, &quot;path&quot;: &quot;/api/tickets/{id}/move&quot;,
+                   &quot;expect&quot;: {&quot;status&quot;: 200}}
+}
+</code></pre>
+<p>A journey&#39;s <code>api</code> step calls one; the emitted code asserts <code>expect.status</code>
+and may <code>save</code> a JSON path (<code>&quot;save&quot;: {&quot;count&quot;: &quot;$.length&quot;}</code>) for a later
+<code>expect</code> step. Deeper response assertions are an MBT-era lane, not v1.</p>
+<h2 id="refusals">Refusals<a class="anchor" href="#refusals" aria-label="Link to this section">#</a></h2>
+<p>A broken model is refused, named, and silent elsewhere — the loader gives
+every refusal as <code>{clause, reason, message}</code> and emits nothing:</p>
+<table>
+<thead>
+<tr>
+<th>reason</th>
+<th>when</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>:empty-model</code></td>
+<td>no states and no journeys</td>
+</tr>
+<tr>
+<td><code>:bad-locator</code></td>
+<td>an element matches no rung of the ladder</td>
+</tr>
+<tr>
+<td><code>:unknown-state</code></td>
+<td><code>from</code>/<code>to</code>/<code>start</code>/<code>expect-final</code> names no state</td>
+</tr>
+<tr>
+<td><code>:unknown-element</code></td>
+<td>a step names no element</td>
+</tr>
+<tr>
+<td><code>:unknown-endpoint</code></td>
+<td>an <code>api</code> step names no endpoint</td>
+</tr>
+<tr>
+<td><code>:unknown-action</code></td>
+<td>a journey names no action</td>
+</tr>
+<tr>
+<td><code>:edge-gap</code></td>
+<td>a journey&#39;s steps do not chain (<code>to</code> of one ≠ <code>from</code> of next)</td>
+</tr>
+<tr>
+<td><code>:unreachable</code></td>
+<td>a state has no path from any journey&#39;s <code>start</code></td>
+</tr>
+<tr>
+<td><code>:duplicate-name</code></td>
+<td>a name declared twice in one clause</td>
+</tr>
+</tbody></table>
+<p>Both emitters must produce the identical refusal list for the identical
+broken model — refusal parity is tested, per the discipline of
+PLAN-ikc-v3-079-01.</p>
+<h2 id="the-manifest">The manifest<a class="anchor" href="#the-manifest" aria-label="Link to this section">#</a></h2>
+<p>Every emitted suite writes <code>taf.manifest.json</code> beside the tests: for each
+test id, the model elements it came from (journey → actions → elements →
+state markers → endpoints). This is the traceability clause — a failing
+test names its model element, and the tracker adapter files the fault
+report against it.</p>
+<h2 id="the-parity-contract">The parity contract<a class="anchor" href="#the-parity-contract" aria-label="Link to this section">#</a></h2>
+<p>Two emitters agree when, for the same valid model: same test names, same
+step order, same assertions, same manifest contents (byte-identical),
+same file tree modulo language idioms (imports, casing). For the same
+broken model: the same refusal list. Divergence is a defect of the
+emitters, never of the model.</p>
+<h2 id="out-of-scope-in-v1">Out of scope in v1<a class="anchor" href="#out-of-scope-in-v1" aria-label="Link to this section">#</a></h2>
+<p>Test data management, authentication flows, multi-environment <code>env</code>,
+screenshot/video configuration, visual assertions, and the graph walks
+themselves (random, coverage-directed, journal-replay) — each is a
+declared lane in the plan, none is guessed at here.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../plans/PLAN-taf-v1-001-01-tafbase.html">PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework</a> <span class="muted">PLAN-taf-v1-001-01-tafbase</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">1</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-14 11:14 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>
