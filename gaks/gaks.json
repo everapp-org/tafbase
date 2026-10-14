@@ -33,6 +33,11 @@
     "prefix" : "SPEC",
     "name" : "Specification",
     "folder" : "specs"
+  }, {
+    "prefix" : "PRINCIPLE",
+    "name" : "Principle",
+    "folder" : "principles",
+    "template" : [ "Statement", "Demands" ]
   } ],
   "subprojects" : [ "taf" ],
   "statuses" : {

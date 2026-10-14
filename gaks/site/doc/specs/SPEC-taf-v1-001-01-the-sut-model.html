@@ -189,6 +189,15 @@ test id, the model elements it came from (journey → actions → elements →
 state markers → endpoints). This is the traceability clause — a failing
 test names its model element, and the tracker adapter files the fault
 report against it.</p>
+<h2 id="the-learning-surface">The learning surface<a class="anchor" href="#the-learning-surface" aria-label="Link to this section">#</a></h2>
+<p>Generated code is teaching material (ADR-taf-v1-002-01). Each emitted
+file carries <code>@concept CONCEPT-taf-v1-NNN-NN-*</code> comment lines naming the
+concepts it demonstrates — a <code>conftest.py</code> cites fixture scope and
+<code>yield</code>, a page object cites the page object and the locator ladder. The
+emitter chooses the citations; the corpus checker&#39;s
+<code>code-link-unresolved</code> refuses a citation with no document. The manifest
+records each test&#39;s concept ids, so the site renders &quot;used in&quot; from
+backlinks and a learner travels code → concept → code.</p>
 <h2 id="the-parity-contract">The parity contract<a class="anchor" href="#the-parity-contract" aria-label="Link to this section">#</a></h2>
 <p>Two emitters agree when, for the same valid model: same test names, same
 step order, same assertions, same manifest contents (byte-identical),
@@ -202,8 +211,8 @@ themselves (random, coverage-directed, journal-replay) — each is a
 declared lane in the plan, none is guessed at here.</p>
 </article><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../plans/PLAN-taf-v1-001-01-tafbase.html">PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework</a> <span class="muted">PLAN-taf-v1-001-01-tafbase</span></li></ul></section>
 </main>
-<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">1</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">4</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-14 11:14 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-14 12:49 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

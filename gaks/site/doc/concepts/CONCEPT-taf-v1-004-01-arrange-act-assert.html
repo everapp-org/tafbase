@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arrange–Act–Assert · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / concepts</div><h1 class="page-title" id="arrangeactassert">Arrange–Act–Assert <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-taf-v1-004-01-arrange-act-assert</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-14</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>source</th><td><code>concepts/CONCEPT-taf-v1-004-01-arrange-act-assert.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-14</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>The shape of a readable test: <strong>arrange</strong> the preconditions, <strong>act</strong> once,
+<strong>assert</strong> the outcome. Three phases, in that order, visible in the code.</p>
+<pre><code class="language-python">def test_ticket_moves_to_triage(board_page):
+    ticket = board_page.new_ticket(&quot;the report&quot;)   # arrange
+    ticket.move_to(&quot;triage&quot;)                        # act
+    expect(board_page.ticket(&quot;the report&quot;)).to_be_in(&quot;triage&quot;)  # assert
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>A test is documentation that runs. When the three phases are separated,
+a reader sees <em>what</em> is tested before <em>how</em>; when they interleave, the
+intent drowns in mechanics. In tafbase the phases come from the model:
+a journey&#39;s setup is its <code>start</code> state, the act is its <code>steps</code>, and the
+assertions are the state markers and <code>expect-final</code> the emitter writes
+for every arrival — so generated tests are AAA by construction.</p>
+<h2 id="in-this-repo">In this repo<a class="anchor" href="#in-this-repo" aria-label="Link to this section">#</a></h2>
+<p>Generated suites under <code>tools/</code> (lane B-2). Emitted tests carry
+<code>@concept CONCEPT-taf-v1-004-01-arrange-act-assert</code>.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="CONCEPT-taf-v1-001-01-the-learning-path.html">The learning path</a> <span class="muted">CONCEPT-taf-v1-001-01-the-learning-path</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">4</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-14 12:49 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

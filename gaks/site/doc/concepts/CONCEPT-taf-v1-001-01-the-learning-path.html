@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The learning path · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / concepts</div><h1 class="page-title" id="the-learning-path">The learning path <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-taf-v1-001-01-the-learning-path</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-14</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>source</th><td><code>concepts/CONCEPT-taf-v1-001-01-the-learning-path.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-14</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>The ordered index of this corpus&#39;s concept documents, junior-first. The
+corpus is flat and wiki-linked; this page is the sequence a reader new to
+test automation can follow, each entry naming its prerequisites.</p>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>ADR-taf-v1-002-01 makes the delivered project a learning surface: every
+concept the generated code embodies is a page here, and generated files
+cite their concepts with <code>@concept</code> lines the checker enforces. This page
+answers &quot;where do I start?&quot;</p>
+<h2 id="the-path">The path<a class="anchor" href="#the-path" aria-label="Link to this section">#</a></h2>
+<ol>
+<li>What a test is → <a class="wikilink" href="CONCEPT-taf-v1-004-01-arrange-act-assert.html" title="Arrange–Act–Assert">CONCEPT-taf-v1-004-01-arrange-act-assert</a></li>
+<li>Finding things on a page → <a class="wikilink" href="CONCEPT-taf-v1-003-01-the-locator-ladder.html" title="The locator ladder">CONCEPT-taf-v1-003-01-the-locator-ladder</a></li>
+<li>Knowing where you are → the state marker (SPEC-taf-v1-001-01, <code>states</code>)</li>
+<li>The model → <a class="wikilink" href="CONCEPT-taf-v1-002-01-the-sut-model.html" title="The SUT model">CONCEPT-taf-v1-002-01-the-sut-model</a></li>
+<li>From model to suite → the emitter and the manifest (SPEC-taf-v1-001-01)</li>
+<li>pytest mechanics — fixtures, <code>yield</code>, markers, parametrize (as the
+Python emitter lands)</li>
+<li>Playwright mechanics — auto-waiting, contexts, isolation (same)</li>
+<li>Java parity — what &quot;equivalent suite&quot; means (lane D-4)</li>
+<li>The graph — walks, seeds, coverage (lane F-6)</li>
+</ol>
+<p>Entries 6–9 are placeholders: the concept pages arrive with the lanes
+that embody them, because the checker refuses a citation with no page and
+a page nothing cites.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">4</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-14 12:49 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

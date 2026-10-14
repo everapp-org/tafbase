@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADR-taf-v1-002-01 — the delivered project is a learning surface · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / decisions</div><h1 class="page-title" id="adr-taf-v1-002-01--the-delivered-project-is-a-learning-surface">ADR-taf-v1-002-01 — the delivered project is a learning surface <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>ADR-taf-v1-002-01-the-learning-surface</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-14</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/ADR.html">Decision record</a></td></tr><tr><th>source</th><td><code>decisions/ADR-taf-v1-002-01-the-learning-surface.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-14</td></tr></table></details><article class="doc"><p>Decided: 2026-10-14 · George Petrov + Devin</p>
+<h2 id="context">Context<a class="anchor" href="#context" aria-label="Link to this section">#</a></h2>
+<p>The precedent is <code>Python-Selenium-Chrome-Demo/v.0.1/docs/concepts.md</code>: a
+hand-written glossary of ~60 concepts — Python, Selenium, pytest, design
+patterns, testing — each with a definition, an example, and a &quot;Used in&quot;
+pointer. It was good teaching material and it could rot: the pointers were
+prose, checked by nobody.</p>
+<h2 id="decisions">Decisions<a class="anchor" href="#decisions" aria-label="Link to this section">#</a></h2>
+<ol start="7">
+<li><p><strong>The corpus teaches.</strong> CONCEPT documents in <code>arch-root/concepts/</code>
+cover the implicit and explicit concepts the project embodies, across
+four domains: the language and runner (Python: fixtures, <code>yield</code>,
+dataclasses; pytest/JUnit: discovery, markers, parametrize), the tool
+(Playwright/Selenium: locators, auto-waiting, browser contexts), test
+design (AAA, page object, isolation, flaky tests), and the DSL itself
+(model, emitter, manifest, parity, refusal). A concept is a page — a
+definition, a small example, where it lives in this repo — never a
+reference manual.</p>
+</li>
+<li><p><strong>Citations are checked, not promised.</strong> Generated code carries
+<code>@concept CONCEPT-taf-v1-NNN-NN-*</code> comment lines, the form the GAKS
+<code>code.annotation-pattern</code> already checks (<code>code-link-unresolved</code> fails
+when a cited concept has no document). The emitter decides which
+concepts each generated file demonstrates and writes the annotations;
+the manifest records the concept ids per test. A concept nobody
+embodies and an annotation without a document are both defects.</p>
+</li>
+<li><p><strong>A guided path orders the glossary.</strong> The corpus is flat and
+wiki-linked, but a learner needs a sequence. One concept document —
+<code>CONCEPT-taf-v1-001-01-the-learning-path</code> — is the ordered index:
+what a test is → AAA → locators → fixtures → the model → the emitters.
+Junior-first; each entry names its prerequisites.</p>
+</li>
+<li><p><strong>PRINCIPLE documents join the corpus.</strong> tafbase&#39;s <code>gaks.project.json</code>
+declares the PRINCIPLE kind so the platform&#39;s own rules (DSL First,
+release-note-first, one-form-only) are corpus documents that code and
+plans can cite, not folklore in a README.</p>
+</li>
+</ol>
+<h2 id="consequences">Consequences<a class="anchor" href="#consequences" aria-label="Link to this section">#</a></h2>
+<ul>
+<li>Every emitter lane ships the concept documents its generated code cites;
+the corpus check is the gate — a lane that emits an uncited concept does
+not pass.</li>
+<li>The learning surface is a property of the delivered bundle, not of
+ikc3: <code>gaks/site/</code> renders the concepts and their backlinks with no
+server, on tafbase.com or off a disk.</li>
+</ul>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">4</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-14 12:49 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

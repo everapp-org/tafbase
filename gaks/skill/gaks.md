@@ -63,6 +63,7 @@ Example: `ADR-shop-v1-004-01-pick-a-store.md`.
 | `F` | Feature | `features/` | `Summary` · `Acceptance criteria` |
 | `RESEARCH` | Research | `research/` | `Why this exists` · `How it was measured` · `The summary` · `The decisions that are George's` |
 | `SPEC` | Specification | `specs/` | none |
+| `PRINCIPLE` | Principle | `principles/` | `Statement` · `Demands` |
 
 A document of a kind goes into the folder of that kind. The checker gives the
 finding `kind-folder` when a document is in the folder of another kind.
