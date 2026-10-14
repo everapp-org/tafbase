@@ -128,6 +128,7 @@ and the rule.
 **Release note (draft)**
 
 - New: every generated file names the concepts it demonstrates, and each
-  names a corpus page a learner can open; a citation with no page, or a
-  page nothing cites, fails the corpus check.
-  Accepted by: T-taf-007 (the checker refuses an orphan either way)
+  names a corpus page a learner can open; a citation with no page fails
+  the corpus check. A page may precede its code — the index says which
+  lane embodies it.
+  Accepted by: T-taf-007 (code-link-unresolved refuses a dead citation)

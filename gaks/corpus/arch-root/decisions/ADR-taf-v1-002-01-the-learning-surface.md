@@ -37,8 +37,11 @@ prose, checked by nobody.
    `code.annotation-pattern` already checks (`code-link-unresolved` fails
    when a cited concept has no document). The emitter decides which
    concepts each generated file demonstrates and writes the annotations;
-   the manifest records the concept ids per test. A concept nobody
-   embodies and an annotation without a document are both defects.
+   the manifest records the concept ids per test. An annotation with no
+   document is a defect the checker refuses. A document nothing cites is
+   not: a concept may be written before the code that embodies it — the
+   learning path marks such pages as waiting on their lane, and a corpus
+   report may list them, but the check does not fail on them.
 
 9. **A guided path orders the glossary.** The corpus is flat and
    wiki-linked, but a learner needs a sequence. One concept document —

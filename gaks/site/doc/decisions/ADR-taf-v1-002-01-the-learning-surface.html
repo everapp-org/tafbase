@@ -39,8 +39,11 @@ reference manual.</p>
 <code>code.annotation-pattern</code> already checks (<code>code-link-unresolved</code> fails
 when a cited concept has no document). The emitter decides which
 concepts each generated file demonstrates and writes the annotations;
-the manifest records the concept ids per test. A concept nobody
-embodies and an annotation without a document are both defects.</p>
+the manifest records the concept ids per test. An annotation with no
+document is a defect the checker refuses. A document nothing cites is
+not: a concept may be written before the code that embodies it — the
+learning path marks such pages as waiting on their lane, and a corpus
+report may list them, but the check does not fail on them.</p>
 </li>
 <li><p><strong>A guided path orders the glossary.</strong> The corpus is flat and
 wiki-linked, but a learner needs a sequence. One concept document —
@@ -67,6 +70,6 @@ server, on tafbase.com or off a disk.</li>
 </main>
 <nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">4</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-14 12:49 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-14 13:47 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>
