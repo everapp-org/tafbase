@@ -1,7 +1,7 @@
 # Hacking on tafbase
 
 The contract for *what* the framework does is
-[`arch-root/specs/SPEC-taf-v1-001-03-the-sut-language.md`](arch-root/specs/SPEC-taf-v1-001-03-the-sut-language.md).
+[`arch-root/specs/SPEC-taf-v1-001-04-tafbase.md`](arch-root/specs/SPEC-taf-v1-001-04-tafbase.md).
 This file is how to work *on* it.
 
 ## Setup
@@ -64,7 +64,7 @@ see `bin/gaks-bundle` there) after corpus changes.
 ## Conventions
 
 - JSON is the only authoring format; EDN is not.
-- Refuse ambiguity with a named reason; never guess (`SPEC …-02`, SM-7).
+- Refuse ambiguity with a named reason; never guess (`SPEC …-04`, TAF-6).
 - Generate, don't interpret — emitted code is the artifact.
 - One concept page per idea; cite where used, link where taught.
 

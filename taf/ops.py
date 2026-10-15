@@ -2,7 +2,7 @@
 
 @concept CONCEPT-taf-v1-002-01-the-sut-model
 
-The parity contract of SPEC-taf-v1-001-03 says two emitters produce the
+The parity contract of SPEC-taf-v1-001-04 says two emitters produce the
 same suite modulo language idioms. "Same" is made concrete here: every
 emitter derives its work from these canonical ops — the naming, the
 assertion sequence of a journey, the locator rung — and renders only

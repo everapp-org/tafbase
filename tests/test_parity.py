@@ -1,4 +1,4 @@
-"""The parity contract of SPEC-taf-v1-001-03 — lane D-4.
+"""The parity contract of SPEC-taf-v1-001-04 — lane D-4.
 
 Test IDs: T-parity-001..T-parity-006, T-taf-003 (the lane acceptance:
 the same declaration generates equivalent suites in two languages,

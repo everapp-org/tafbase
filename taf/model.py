@@ -3,7 +3,7 @@
 @concept CONCEPT-taf-v1-002-01-the-sut-model
 @concept CONCEPT-taf-v1-003-01-the-locator-ladder
 
-Implements SPEC-taf-v1-001-03: loads a sut.model.json document, validates
+Implements SPEC-taf-v1-001-04: loads a sut.model.json document, validates
 every clause, and reports every refusal as {"clause", "reason", "message"}.
 A model with any refusal is not a model: load() raises ModelRefusal and the
 emitters never see it. One form only — nothing is guessed.
