@@ -18,10 +18,10 @@ tafbase is a test automation framework: a web application is described
 once, as one JSON document, and that document is compiled into runnable
 browser and API test suites — Playwright for Python and Java today.
 
-This document specifies that document. It is the contract between a
-model's author and every emitter: a loader and an emitter are correct
-together when each clause below holds. It is written to stand alone —
-the reader needs no other document of this project.
+This document specifies that JSON document. It is the contract between
+a model author and the emitters: the implementation is correct when all
+clauses in this document hold. Read this document on its own — it uses
+no other document of this project.
 
 Keywords **must**, **must not**, **should**, and **may** are normative,
 in the RFC 2119 sense. Clauses carry identifiers (`SM-n`) so a test, a

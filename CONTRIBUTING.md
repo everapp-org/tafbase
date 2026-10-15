@@ -67,3 +67,26 @@ see `bin/gaks-bundle` there) after corpus changes.
 - Refuse ambiguity with a named reason; never guess (`SPEC …-02`, SM-7).
 - Generate, don't interpret — emitted code is the artifact.
 - One concept page per idea; cite where used, link where taught.
+
+## Writing — Simplified Technical English
+
+Corpus documents are written toward
+[ASD-STE100](https://en.wikipedia.org/wiki/Simplified_Technical_English)
+habits, not certified to it. In practice:
+
+- Short sentences, one idea each. If a sentence needs an em-dash and a
+  colon to survive, split it.
+- Active voice, imperative mood for rules: "the loader refuses the
+  model", not "the model is refused by the loader" — and never prose
+  that hides the actor.
+- One word, one meaning: a *model*, a *journey*, a *refusal* are terms
+  from the spec's table — do not use them loosely, and do not coin a
+  synonym for elegance.
+- Approved vocabulary first; jargon is allowed when the spec's terms
+  table defines it. "Document", "document" games and noun-chains
+  ("the design input of lane …") fail this rule on sight.
+- A reader who does not know the project is the audience. Cold-open
+  every spec: name the artifact in the first sentence.
+
+The test, applied to a draft: read one paragraph aloud. If it sounds
+like a crossword clue, it is one.
