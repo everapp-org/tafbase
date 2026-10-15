@@ -60,6 +60,16 @@ mapping each test back to the model element that produced it.</p>
 Accepted by: T-taf-004</li>
 </ul>
 <h3 id="lane-tafplan-taf-v1-001-01c-3--tracker-adapters-and-fault-reports">▶ Lane TAF/PLAN-taf-v1-001-01/C-3 — tracker adapters and fault reports<a class="anchor" href="#lane-tafplan-taf-v1-001-01c-3--tracker-adapters-and-fault-reports" aria-label="Link to this section">#</a></h3>
+<p><strong>Progress (2026-10-15).</strong> The IKC3 sink exists and works live:
+<code>taf/sink_ikc3.py</code> dispatches <code>:support/file-report</code> over <code>/bus-ws</code>
+(EDN envelope, <code>ikc3-bus</code> subprotocol, no token needed where authz is
+off). Emitted verbatim into each Python suite as <code>ikc3_sink.py</code>; the
+generated <code>pytest_runtest_makereport</code> hook files on any red test when
+<code>TAF_IKC3_WS</code> is set, carrying page URL + DOM. Proven against a probe
+bus: a suite pointed at a dead SUT filed one report per red test
+(<code>tests/test_live.py</code>, opt-in). Still open: the Java-side hook,
+screenshot/attachment upload, auth-token support, a second
+(JIRA-shaped) adapter.</p>
 <p>A test outcome flows to a declared sink. The IKC3 adapter files a fault
 report and links it to the test&#39;s model element; adapters are a declared
 kind so JIRA or GitHub Issues are additions, not rewrites.</p>
@@ -124,8 +134,8 @@ Accepted by: T-taf-007 (code-link-unresolved refuses a dead citation)</li>
 </ul>
 </article><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../specs/SPEC-taf-v1-001-01-the-sut-model.html">SPEC-taf-v1-001-01 — the SUT model</a> <span class="muted">SPEC-taf-v1-001-01-the-sut-model</span></li></ul></section>
 </main>
-<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">9</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">10</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-15 16:21 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-15 16:25 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

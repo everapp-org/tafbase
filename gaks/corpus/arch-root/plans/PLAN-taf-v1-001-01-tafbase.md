@@ -67,6 +67,18 @@ mapping each test back to the model element that produced it.
 
 ### ▶ Lane TAF/PLAN-taf-v1-001-01/C-3 — tracker adapters and fault reports
 
+**Progress (2026-10-15).** The IKC3 sink exists and works live:
+`taf/sink_ikc3.py` dispatches `:support/file-report` over `/bus-ws`
+(EDN envelope, `ikc3-bus` subprotocol, no token needed where authz is
+off). Emitted verbatim into each Python suite as `ikc3_sink.py`; the
+generated `pytest_runtest_makereport` hook files on any red test when
+`TAF_IKC3_WS` is set, carrying page URL + DOM. Proven against a probe
+bus: a suite pointed at a dead SUT filed one report per red test
+(`tests/test_live.py`, opt-in). Still open: the Java-side hook,
+screenshot/attachment upload, auth-token support, a second
+(JIRA-shaped) adapter.
+
+
 A test outcome flows to a declared sink. The IKC3 adapter files a fault
 report and links it to the test's model element; adapters are a declared
 kind so JIRA or GitHub Issues are additions, not rewrites.

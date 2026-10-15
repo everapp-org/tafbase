@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The result sink · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / concepts</div><h1 class="page-title" id="the-result-sink">The result sink <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-taf-v1-010-01-the-result-sink</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-15</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>source</th><td><code>concepts/CONCEPT-taf-v1-010-01-the-result-sink.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-15</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Where a finished test run sends what it found. A sink is a side channel:
+the suite never waits on it, and a sink that cannot file warns instead of
+failing the suite a second time. The first sink is the IKC3 tracker — a
+red test dispatches <code>:support/file-report</code> over the bus&#39;s WebSocket, and
+the tracker writes a <code>:fault-report</code> frame with its own page. Because the
+manifest maps each test to its journey, the report names the model
+element that failed, not only the test.</p>
+<pre><code class="language-python">rid = ikc3_sink.file_report(
+    &quot;ws://127.0.0.1:4856/bus-ws&quot;,
+    &quot;taf journey failed: board_to_tot — TimeoutError …&quot;,
+    url=page.url, dom=page.content()[:50000])
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>A suite that only turns red ends the loop in a log file. The sink closes
+it: fail → report → ticket → fix → repaired is the quality loop the whole
+platform demonstrates, and the tracker is both the SUT and the tracker.</p>
+<h2 id="in-this-repo">In this repo<a class="anchor" href="#in-this-repo" aria-label="Link to this section">#</a></h2>
+<p><code>taf/sink_ikc3.py</code> — the wire protocol and <code>file_report</code>. Emitted
+verbatim into every Python suite (<code>ikc3_sink.py</code>) and driven by the
+<code>pytest_runtest_makereport</code> hook in <code>conftest.py</code> when <code>TAF_IKC3_WS</code> is
+set. Verified live in <code>tests/test_live.py</code> (opt-in <code>TAF_LIVE=1</code>).</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">10</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-15 16:25 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>
