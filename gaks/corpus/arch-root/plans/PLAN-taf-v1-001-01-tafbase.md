@@ -42,7 +42,7 @@ ADR-taf-v1-001-01 and arrives by lanes, not all at once.
 
 ### ▶ Lane TAF/PLAN-taf-v1-001-01/A-1 — the SUT model is JSON
 
-The contract: [[SPEC-taf-v1-001-03-the-sut-language]].
+The contract: [[SPEC-taf-v1-001-04-tafbase]].
 
 A SUT declares states, transitions and journeys in one JSON document. The
 loader validates shape, refusals name the broken clause, and no ambiguous

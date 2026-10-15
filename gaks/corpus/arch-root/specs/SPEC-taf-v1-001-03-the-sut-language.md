@@ -1,6 +1,7 @@
 ---
 id: SPEC-taf-v1-001-03-the-sut-language
-status: draft
+status: superseded
+superseded-by: SPEC-taf-v1-001-04-tafbase
 subproject: taf
 authored: 2026-10-15
 authors:
@@ -11,6 +12,10 @@ supersedes:
 ---
 
 # SPEC-taf-v1-001-03 — the SUT language
+
+**Superseded by [[SPEC-taf-v1-001-04-tafbase]]** — the subject is the
+framework, not the language; the DSL is its interface, usable without
+knowing it is one. Kept as history.
 
 ## Purpose
 

@@ -1,7 +1,7 @@
 # tafbase — the GAKS corpus
 
 This folder is a **static GAKS bundle**, GAKS 0.11.0, made on 2026-10-15.
-It holds 18 Markdown files. The last check found the corpus clean.
+It holds 19 Markdown files. The last check found the corpus clean.
 
 GAKS keeps the architecture knowledge of a project: decisions, features, plans,
 research and specifications. Each one is a typed Markdown document with
