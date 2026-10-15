@@ -36,4 +36,4 @@ declares, so the class also knows when its page is real.
 ## In this repo
 
 `generated/*/pages.py` — one class per declared state, generated from
-`states` in the model (SPEC-taf-v1-001-01).
+`states` in the model (SPEC-taf-v1-001-02).

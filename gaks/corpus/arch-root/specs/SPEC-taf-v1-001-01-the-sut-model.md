@@ -1,6 +1,7 @@
 ---
 id: SPEC-taf-v1-001-01-the-sut-model
-status: draft
+status: superseded
+superseded-by: SPEC-taf-v1-001-02-the-sut-model
 subproject: taf
 authored: 2026-10-14
 authors:
@@ -9,6 +10,9 @@ authors:
 ---
 
 # SPEC-taf-v1-001-01 — the SUT model
+
+**Superseded by [[SPEC-taf-v1-001-02-the-sut-model]]** — same contract,
+rewritten normative with numbered clauses; kept as history.
 
 Related:
   - [[PLAN-taf-v1-001-01-tafbase]]

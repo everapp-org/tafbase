@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPEC-taf-v1-001-02 — the SUT model · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / specs</div><h1 class="page-title" id="spec-taf-v1-001-02--the-sut-model">SPEC-taf-v1-001-02 — the SUT model <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>SPEC-taf-v1-001-02-the-sut-model</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-15</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/SPEC.html">Specification</a></td></tr><tr><th>source</th><td><code>specs/SPEC-taf-v1-001-02-the-sut-model.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-15</td></tr><tr><th>supersedes</th><td>[[SPEC-taf-v1-001-01-the-sut-model]]</td></tr></table></details><article class="doc"><h2 id="purpose">Purpose<a class="anchor" href="#purpose" aria-label="Link to this section">#</a></h2>
+<p>tafbase is a test automation framework: a web application is described
+once, as one JSON document, and that document is compiled into runnable
+browser and API test suites — Playwright for Python and Java today.</p>
+<p>This document specifies that document. It is the contract between a
+model&#39;s author and every emitter: a loader and an emitter are correct
+together when each clause below holds. It is written to stand alone —
+the reader needs no other document of this project.</p>
+<p>Keywords <strong>must</strong>, <strong>must not</strong>, <strong>should</strong>, and <strong>may</strong> are normative,
+in the RFC 2119 sense. Clauses carry identifiers (<code>SM-n</code>) so a test, a
+review, or a refusal can name what it verifies.</p>
+<p>Related:</p>
+<ul>
+<li><a class="wikilink" href="../plans/PLAN-taf-v1-001-01-tafbase.html" title="PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework">PLAN-taf-v1-001-01-tafbase</a></li>
+<li><a class="wikilink" href="../decisions/ADR-taf-v1-001-01-tafbase-stands-alone.html" title="ADR-taf-v1-001-01 — tafbase stands alone">ADR-taf-v1-001-01-tafbase-stands-alone</a></li>
+<li><a class="wikilink" href="../decisions/ADR-taf-v1-002-01-the-learning-surface.html" title="ADR-taf-v1-002-01 — the delivered project is a learning surface">ADR-taf-v1-002-01-the-learning-surface</a></li>
+</ul>
+<h2 id="terms">Terms<a class="anchor" href="#terms" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>term</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SUT</td>
+<td>the <em>system under test</em> — the application the generated suite exercises</td>
+</tr>
+<tr>
+<td>model</td>
+<td>one JSON document declaring a SUT&#39;s states, elements, actions, journeys, endpoints</td>
+</tr>
+<tr>
+<td>state</td>
+<td>a recognizable place in the SUT — a page, a dialog — proven by its marker</td>
+</tr>
+<tr>
+<td>marker</td>
+<td>a locator a generated test asserts visible on arrival at a state</td>
+</tr>
+<tr>
+<td>locator</td>
+<td>one form of finding an element — role+name, label, text, placeholder, testid, css, xpath</td>
+</tr>
+<tr>
+<td>action</td>
+<td>a named step the SUT offers; with <code>from</code>/<code>to</code> it is an edge of the graph</td>
+</tr>
+<tr>
+<td>journey</td>
+<td>a named path through the graph; emitted as one test</td>
+</tr>
+<tr>
+<td>refusal</td>
+<td>a named rejection <code>{clause, reason, message}</code>; a broken model emits nothing</td>
+</tr>
+<tr>
+<td>emitter</td>
+<td>a code generator: a model in, a runnable suite out</td>
+</tr>
+<tr>
+<td>manifest</td>
+<td><code>taf.manifest.json</code> — emitted beside the tests, mapping each test to its model elements</td>
+</tr>
+</tbody></table>
+<h2 id="sm-1--one-file-json">SM-1 · One file, JSON<a class="anchor" href="#sm-1--one-file-json" aria-label="Link to this section">#</a></h2>
+<p>A SUT is declared in one file, <code>*.sut.model.json</code> by convention. It
+<strong>must</strong> be a JSON object; a document that is not is refused
+<code>:not-json</code>. A name declared twice in one clause is refused
+<code>:duplicate-name</code> — JSON&#39;s silent last-write-wins is not accepted.</p>
+<p>Top level:</p>
+<pre><code class="language-json">{
+  &quot;sut&quot;:       {&quot;name&quot;: &quot;ikc3-tracker&quot;, &quot;base-url&quot;: &quot;http://127.0.0.1:4856&quot;},
+  &quot;states&quot;:    {},
+  &quot;elements&quot;:  {},
+  &quot;actions&quot;:   {},
+  &quot;journeys&quot;:  {},
+  &quot;endpoints&quot;: {}
+}
+</code></pre>
+<p><code>sut.name</code> and <code>sut.base-url</code> are required (<code>:missing-field</code>). A model
+with no states and no journeys is refused <code>:empty-model</code>. <code>elements</code>,
+<code>actions</code>, and <code>endpoints</code> <strong>may</strong> be absent or empty.</p>
+<h2 id="sm-2--states-are-recognized-not-assumed">SM-2 · States are recognized, not assumed<a class="anchor" href="#sm-2--states-are-recognized-not-assumed" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-json">&quot;states&quot;: {
+  &quot;board&quot;: {&quot;route&quot;: &quot;/index.html?island=board&quot;,
+            &quot;marker&quot;: {&quot;role&quot;: &quot;heading&quot;, &quot;name&quot;: &quot;Board&quot;}}
+}
+</code></pre>
+<p>A state <strong>must</strong> declare <code>marker</code>, a locator (SM-3); a generated test
+<strong>must</strong> assert it visible on every arrival — the SUT proves the state,
+the test does not assume it (<code>:missing-field</code> without one). <code>route</code> is
+optional; when present it is the path under <code>base-url</code> that reaches the
+state directly.</p>
+<p>A state no journey can reach is refused <code>:unreachable</code> — a declared
+state with no path to it is a dead declaration.</p>
+<h2 id="sm-3--the-locator-ladder">SM-3 · The locator ladder<a class="anchor" href="#sm-3--the-locator-ladder" aria-label="Link to this section">#</a></h2>
+<p>A locator <strong>must</strong> take exactly one preferred form, in order:</p>
+<table>
+<thead>
+<tr>
+<th>rung</th>
+<th>form</th>
+<th>standing</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>role</code> + <code>name</code></td>
+<td>the accessibility query — preferred</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>label</code> / <code>text</code> / <code>placeholder</code></td>
+<td>user-visible queries</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>testid</code></td>
+<td>the deliberate escape, <code>data-testid</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>css</code> / <code>xpath</code></td>
+<td>the last resort; the manifest <strong>must</strong> flag it <code>fragile</code></td>
+</tr>
+</tbody></table>
+<p>The ladder is encoded, not documented: the shape of a locator chooses
+its rung; a model never declares one. A locator matching no rung is
+refused <code>:bad-locator</code>. Elements are named locators declared once in
+<code>elements</code> and referenced by name everywhere else; a reference to a name
+that is not declared is refused <code>:unknown-element</code>.</p>
+<h2 id="sm-4--actions-are-edges">SM-4 · Actions are edges<a class="anchor" href="#sm-4--actions-are-edges" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-json">&quot;actions&quot;: {
+  &quot;move-to-triage&quot;: {
+    &quot;from&quot;: &quot;backlog&quot;, &quot;to&quot;: &quot;triage&quot;,
+    &quot;do&quot;: [{&quot;click&quot;: &quot;new-ticket-button&quot;},
+           {&quot;fill&quot;: {&quot;element&quot;: &quot;title-field&quot;, &quot;value&quot;: &quot;the report&quot;}},
+           {&quot;api&quot;: &quot;move-ticket&quot;, &quot;args&quot;: {&quot;category&quot;: &quot;triage&quot;}}]
+  }
+}
+</code></pre>
+<p><code>from</code>/<code>to</code> name states (<code>:unknown-state</code> otherwise). An action with
+both is an edge of the graph — the same declaration the MBT lanes walk
+(<code>taf walk</code>), so no model is written twice. <code>do</code> is an ordered list of
+steps, each exactly one of:</p>
+<table>
+<thead>
+<tr>
+<th>step</th>
+<th>argument</th>
+<th>semantics</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>click</code> / <code>check</code> / <code>select</code></td>
+<td>element name</td>
+<td>act on the element</td>
+</tr>
+<tr>
+<td><code>fill</code></td>
+<td><code>{element, value}</code></td>
+<td>set the element&#39;s value</td>
+</tr>
+<tr>
+<td><code>navigate</code></td>
+<td>state name</td>
+<td>go to the state&#39;s <code>route</code></td>
+</tr>
+<tr>
+<td><code>wait-for</code></td>
+<td>element name or state name</td>
+<td>wait for visibility</td>
+</tr>
+<tr>
+<td><code>api</code></td>
+<td>endpoint name + optional <code>args</code></td>
+<td>call it; assert its <code>expect.status</code> (SM-6)</td>
+</tr>
+<tr>
+<td><code>save</code></td>
+<td><code>{name: &quot;$.json.path&quot;}</code></td>
+<td>remember a response value</td>
+</tr>
+<tr>
+<td><code>expect</code></td>
+<td><code>{element, assertion…}</code> or <code>{saved, …}</code></td>
+<td>assert on element or saved value</td>
+</tr>
+</tbody></table>
+<p>A step key that is none of these is refused <code>:unknown-step</code>.</p>
+<h2 id="sm-5--journeys-are-paths-one-per-test">SM-5 · Journeys are paths, one per test<a class="anchor" href="#sm-5--journeys-are-paths-one-per-test" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-json">&quot;journeys&quot;: {
+  &quot;file-and-triage&quot;: {&quot;start&quot;: &quot;board&quot;,
+                      &quot;steps&quot;: [&quot;open-ticket&quot;, &quot;fill-what&quot;, &quot;save&quot;],
+                      &quot;expect-final&quot;: {&quot;state&quot;: &quot;triage&quot;}}
+}
+</code></pre>
+<p>A journey <strong>must</strong> declare <code>start</code>, a state (<code>:missing-field</code>,
+<code>:unknown-state</code>). <code>steps</code> <strong>must</strong> be either a list of action names or
+a list of inline step objects — never both in one journey
+(<code>:mixed-steps</code>); a name that is no action is refused <code>:unknown-action</code>.
+Named-action steps <strong>must</strong> chain: the <code>to</code> of one is the <code>from</code> of the
+next, and the first starts at <code>start</code> (<code>:edge-gap</code>). <code>expect-final</code> is
+optional; its <code>state</code> is asserted at the end of the emitted test.</p>
+<p>The emitter <strong>must</strong> emit exactly one test per journey, in which the
+journey&#39;s start state is arranged, each action&#39;s <code>to</code> marker is asserted
+on arrival, and <code>expect-final</code> is asserted last.</p>
+<h2 id="sm-6--endpoints--the-api-surface">SM-6 · Endpoints — the API surface<a class="anchor" href="#sm-6--endpoints--the-api-surface" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-json">&quot;endpoints&quot;: {
+  &quot;move-ticket&quot;: {&quot;method&quot;: &quot;POST&quot;, &quot;path&quot;: &quot;/api/tickets/{id}/move&quot;,
+                  &quot;expect&quot;: {&quot;status&quot;: 200}}
+}
+</code></pre>
+<p><code>method</code> and <code>path</code> are required (<code>:missing-field</code>); <code>{name}</code> markers in
+<code>path</code> are substituted from the step&#39;s <code>args</code>. An <code>api</code> step <strong>must</strong>
+name a declared endpoint (<code>:unknown-endpoint</code>), and the emitted test
+<strong>must</strong> assert the response status equals <code>expect.status</code> (default
+200). A <code>save</code> step <strong>may</strong> capture a dotted JSON path for a later
+<code>expect</code> step.</p>
+<h2 id="sm-7--refusals">SM-7 · Refusals<a class="anchor" href="#sm-7--refusals" aria-label="Link to this section">#</a></h2>
+<p>A broken model is refused, named, and silent: the loader returns the
+complete list of <code>{clause, reason, message}</code> and no emitter runs.</p>
+<table>
+<thead>
+<tr>
+<th>reason</th>
+<th>clause</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>:not-json</code></td>
+<td>the document is not a JSON object</td>
+</tr>
+<tr>
+<td><code>:missing-field</code></td>
+<td>a required key is absent</td>
+</tr>
+<tr>
+<td><code>:empty-model</code></td>
+<td>no states and no journeys</td>
+</tr>
+<tr>
+<td><code>:bad-locator</code></td>
+<td>a locator matches no rung of SM-3</td>
+</tr>
+<tr>
+<td><code>:unknown-state</code></td>
+<td>a name in <code>from</code>/<code>to</code>/<code>start</code>/<code>expect-final</code>/<code>navigate</code>/<code>wait-for</code> declares no state</td>
+</tr>
+<tr>
+<td><code>:unknown-element</code></td>
+<td>a step names no element</td>
+</tr>
+<tr>
+<td><code>:unknown-endpoint</code></td>
+<td>an <code>api</code> step names no endpoint</td>
+</tr>
+<tr>
+<td><code>:unknown-action</code></td>
+<td>a journey names no action</td>
+</tr>
+<tr>
+<td><code>:unknown-step</code></td>
+<td>a step&#39;s key is no form of SM-4</td>
+</tr>
+<tr>
+<td><code>:edge-gap</code></td>
+<td>a journey&#39;s named actions do not chain</td>
+</tr>
+<tr>
+<td><code>:mixed-steps</code></td>
+<td>a journey mixes named actions and inline steps</td>
+</tr>
+<tr>
+<td><code>:unreachable</code></td>
+<td>a state has no path from any journey&#39;s <code>start</code></td>
+</tr>
+<tr>
+<td><code>:duplicate-name</code></td>
+<td>a name declared twice in one clause</td>
+</tr>
+</tbody></table>
+<h2 id="sm-8--the-manifest">SM-8 · The manifest<a class="anchor" href="#sm-8--the-manifest" aria-label="Link to this section">#</a></h2>
+<p>Every emitted suite <strong>must</strong> contain <code>taf.manifest.json</code>: for each test,
+its journey, the actions and states it crosses. The manifest names no
+language — it describes the suite&#39;s semantics, so two emitters&#39; copies
+are byte-identical (SM-9). This is the traceability clause: a failing
+test names its model element, and a result sink files the fault report
+against it.</p>
+<h2 id="sm-9--parity">SM-9 · Parity<a class="anchor" href="#sm-9--parity" aria-label="Link to this section">#</a></h2>
+<p>Every emitter agrees on the same model. For a valid model: the same test
+names modulo language idiom, the same step order, the same assertion
+sequence, a byte-identical manifest, the same file tree modulo language
+idiom. For a broken model: the identical refusal list — in v1 this holds
+by construction, because all emitters run behind the shared loader.
+Divergence is a defect of the emitters, never of the model.</p>
+<h2 id="sm-10--citations">SM-10 · Citations<a class="anchor" href="#sm-10--citations" aria-label="Link to this section">#</a></h2>
+<p>Each emitted file <strong>must</strong> carry <code>@concept CONCEPT-taf-v1-NNN-NN-*</code>
+comment lines naming the corpus concepts it demonstrates, and the corpus
+checker&#39;s <code>code-link-unresolved</code> <strong>must</strong> refuse a citation with no
+document. (ADR-taf-v1-002-01 — generated code is teaching material.)</p>
+<h2 id="verification">Verification<a class="anchor" href="#verification" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>clause</th>
+<th>verified by</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SM-1…SM-7</td>
+<td><code>tests/test_model.py</code> — the accept path and every refusal</td>
+</tr>
+<tr>
+<td>SM-5, SM-8</td>
+<td><code>tests/test_emit_python.py</code>, generated <code>taf.manifest.json</code></td>
+</tr>
+<tr>
+<td>SM-9</td>
+<td><code>tests/test_parity.py</code> — T-taf-003, byte-identical manifest</td>
+</tr>
+<tr>
+<td>live run</td>
+<td><code>tests/test_live.py</code> — T-taf-004, opt-in <code>TAF_LIVE=1</code></td>
+</tr>
+<tr>
+<td>walks</td>
+<td><code>tests/test_graph.py</code> — T-taf-006</td>
+</tr>
+</tbody></table>
+<h2 id="out-of-scope-in-v1">Out of scope in v1<a class="anchor" href="#out-of-scope-in-v1" aria-label="Link to this section">#</a></h2>
+<p>Test data management, authentication flows, multi-environment <code>env</code>
+indirection, screenshot/video configuration, visual assertions, and the
+graph walks&#39; generation strategies beyond the seeded walk — each is a
+declared lane in <a class="wikilink" href="../plans/PLAN-taf-v1-001-01-tafbase.html" title="PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework">PLAN-taf-v1-001-01-tafbase</a>, none is guessed here.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">2</span></h2><ul><li><a href="../plans/PLAN-taf-v1-001-01-tafbase.html">PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework</a> <span class="muted">PLAN-taf-v1-001-01-tafbase</span></li><li><a href="SPEC-taf-v1-001-01-the-sut-model.html">SPEC-taf-v1-001-01 — the SUT model</a> <span class="muted">SPEC-taf-v1-001-01-the-sut-model</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">12</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">2</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-15 17:46 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>
