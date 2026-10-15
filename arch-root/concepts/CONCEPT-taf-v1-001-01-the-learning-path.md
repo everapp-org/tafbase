@@ -30,12 +30,16 @@ answers "where do I start?"
 3. Knowing where you are → the state marker (SPEC-taf-v1-001-01, `states`)
 4. The model → [[CONCEPT-taf-v1-002-01-the-sut-model]]
 5. From model to suite → the emitter and the manifest (SPEC-taf-v1-001-01)
-6. pytest mechanics — fixtures, `yield`, markers, parametrize (as the
-   Python emitter lands)
-7. Playwright mechanics — auto-waiting, contexts, isolation (same)
-8. Java parity — what "equivalent suite" means (lane D-4)
-9. The graph — walks, seeds, coverage (lane F-6)
+6. pytest mechanics → [[CONCEPT-taf-v1-005-01-the-pytest-fixture]]
+7. Playwright mechanics → [[CONCEPT-taf-v1-006-01-the-browser-context]],
+   [[CONCEPT-taf-v1-007-01-auto-waiting]]
+8. Organizing a suite → [[CONCEPT-taf-v1-008-01-the-page-object]]
+9. Configuring a run → [[CONCEPT-taf-v1-012-01-the-environment]]
+10. Closing the loop → [[CONCEPT-taf-v1-010-01-the-result-sink]]
+11. Java parity — what "equivalent suite" means →
+    [[CONCEPT-taf-v1-009-01-the-junit-lifecycle]]
+12. The graph — walks, seeds, coverage →
+    [[CONCEPT-taf-v1-011-01-the-seeded-walk]]
 
-Entries 6–9 are placeholders: the concept pages arrive with the lanes
-that embody them, because the checker refuses a citation with no page and
-a page nothing cites.
+Every entry is a checked citation — the corpus checker refuses a link to
+a page that does not exist.

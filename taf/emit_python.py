@@ -108,6 +108,7 @@ import pytest
 from playwright.sync_api import sync_playwright
 
 
+# @concept CONCEPT-taf-v1-012-01-the-environment
 @pytest.fixture(scope="session")
 def base_url():
     return os.environ.get("TAF_BASE_URL", "%s")

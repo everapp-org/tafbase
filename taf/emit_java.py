@@ -150,6 +150,7 @@ import org.junit.jupiter.api.*;
 /** The fixture's Java face: one browser for the run, one fresh context
     per test — isolation by construction. */
 public abstract class BaseTest {
+    // @concept CONCEPT-taf-v1-012-01-the-environment
     protected static String baseUrl =
         System.getenv().getOrDefault("TAF_BASE_URL", "%s");
     private static Playwright playwright;
