@@ -38,11 +38,7 @@ diff generated/python/ikc3-tracker/taf.manifest.json generated/java/ikc3-tracker
 
 ## Hacking on it
 
-```
-python3 -m venv .venv && .venv/bin/pip install pytest
-.venv/bin/python -m pytest            # the suite
-python3 gaks/tools/py/gaks_check.py --rules gaks/gaks.json --root arch-root --code taf
-                                      # the corpus check, code citations included
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) — setup, tests (incl. the opt-in
+live run), regenerating emitted suites, and the corpus check.
 
 Developed in public. MIT licensed.
