@@ -63,3 +63,23 @@ def test_red_suite_files_reports(tmp_path):
     )
     assert r.returncode != 0                      # the suite really went red
     assert "fault report filed:" in r.stdout      # and the loop filed it
+
+
+@pytest.mark.skipif(not os.environ.get("TAF_LIVE"), reason="live run — set TAF_LIVE=1")
+def test_java_suite_runs_against_live_sut(tmp_path):
+    """The Java emitter's output is real: mvn test, green, live SUT.
+    Verified 2026-10-15: 2 tests, 0 failures, probe bus :4856."""
+    import shutil
+    from taf import emit_java
+
+    if not shutil.which("mvn"):
+        pytest.skip("no maven")
+    m = model.load(MODEL)
+    outdir = str(tmp_path / "java-suite")
+    emit_java.emit(m, outdir)
+    r = subprocess.run(
+        ["mvn", "-q", "test"], cwd=outdir,
+        env={**os.environ, "TAF_BASE_URL": os.environ.get("TAF_BASE_URL", m["sut"]["base-url"])},
+        capture_output=True, text=True, timeout=600,
+    )
+    assert r.returncode == 0, r.stdout[-3000:] + r.stderr[-3000:]
