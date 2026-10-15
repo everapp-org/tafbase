@@ -56,7 +56,7 @@ def test_journey_test_is_aaa(tmp_path):
 
 def test_the_manifest_traces_tests_to_model(tmp_path):
     man = json.loads(read(emit(tmp_path), "taf.manifest.json"))
-    assert man["sut"] == "ikc3-tracker" and man["lang"] == "python"
+    assert man["sut"] == "ikc3-tracker"
     t = {t["test"]: t for t in man["tests"]}
     assert t["test_board_to_tot"]["journey"] == "board-to-tot"
     assert t["test_board_to_tot"]["actions"] == ["open-tot"]

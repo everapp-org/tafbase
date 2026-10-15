@@ -18,9 +18,22 @@ The plan and the architecture decisions are the corpus:
 arch-root/        the corpus: plans, decisions, concepts, specs
 gaks.project.json the project's declaration of itself
 gaks/             the delivered static GAKS bundle (generated — never edit)
-taf/              the framework: the model loader now, the emitters next
+taf/              the framework: model loader, canonical ops, emitters
 suts/             declared systems under test (*.sut.model.json)
+generated/        emitted suites, committed for review
+  python/<sut>/   pytest + Playwright
+  java/<sut>/     JUnit 5 + Playwright-Java (Maven)
 tests/            pytest suite for the framework itself
+```
+
+## What it does today
+
+```
+.venv/bin/python -m taf check suts/ikc3-tracker.sut.model.json   # validate
+.venv/bin/python -m taf emit --lang python suts/ikc3-tracker.sut.model.json -o generated/python/ikc3-tracker
+.venv/bin/python -m taf emit --lang java   suts/ikc3-tracker.sut.model.json -o generated/java/ikc3-tracker
+diff generated/python/ikc3-tracker/taf.manifest.json generated/java/ikc3-tracker/taf.manifest.json
+                                                # identical — the parity contract
 ```
 
 ## Hacking on it

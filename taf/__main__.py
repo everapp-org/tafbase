@@ -7,7 +7,7 @@
 import argparse
 import sys
 
-from taf import emit_python, model
+from taf import emit_java, emit_python, model
 
 
 def main(argv=None):
@@ -19,7 +19,7 @@ def main(argv=None):
 
     e = sub.add_parser("emit", help="generate a test suite from a model")
     e.add_argument("model")
-    e.add_argument("--lang", choices=["python"], required=True)
+    e.add_argument("--lang", choices=["python", "java"], required=True)
     e.add_argument("-o", "--outdir", required=True)
 
     args = ap.parse_args(argv)
@@ -34,8 +34,7 @@ def main(argv=None):
         print("model ok: %s" % m["sut"]["name"])
         return 0
 
-    if args.lang == "python":
-        written = emit_python.emit(m, args.outdir)
+    written = (emit_python if args.lang == "python" else emit_java).emit(m, args.outdir)
     for p in written:
         print("wrote %s" % p)
     return 0
