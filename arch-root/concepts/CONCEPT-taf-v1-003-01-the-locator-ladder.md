@@ -30,5 +30,5 @@ the preference is enforced by the model, not by habit.
 
 ## In this repo
 
-SPEC-taf-v1-001-02, `elements` clause. The emitters translate each rung
+SPEC-taf-v1-001-03, `elements` clause. The emitters translate each rung
 to the platform's locator API (`get_by_role` → `getByRole`).

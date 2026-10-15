@@ -1,7 +1,7 @@
 # Hacking on tafbase
 
 The contract for *what* the framework does is
-[`arch-root/specs/SPEC-taf-v1-001-02-the-sut-model.md`](arch-root/specs/SPEC-taf-v1-001-02-the-sut-model.md).
+[`arch-root/specs/SPEC-taf-v1-001-03-the-sut-language.md`](arch-root/specs/SPEC-taf-v1-001-03-the-sut-language.md).
 This file is how to work *on* it.
 
 ## Setup

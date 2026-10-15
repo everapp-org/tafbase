@@ -27,9 +27,9 @@ answers "where do I start?"
 
 1. What a test is → [[CONCEPT-taf-v1-004-01-arrange-act-assert]]
 2. Finding things on a page → [[CONCEPT-taf-v1-003-01-the-locator-ladder]]
-3. Knowing where you are → the state marker (SPEC-taf-v1-001-02, `states`)
+3. Knowing where you are → the state marker (SPEC-taf-v1-001-03, `states`)
 4. The model → [[CONCEPT-taf-v1-002-01-the-sut-model]]
-5. From model to suite → the emitter and the manifest (SPEC-taf-v1-001-02)
+5. From model to suite → the emitter and the manifest (SPEC-taf-v1-001-03)
 6. pytest mechanics → [[CONCEPT-taf-v1-005-01-the-pytest-fixture]]
 7. Playwright mechanics → [[CONCEPT-taf-v1-006-01-the-browser-context]],
    [[CONCEPT-taf-v1-007-01-auto-waiting]]

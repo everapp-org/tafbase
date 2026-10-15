@@ -16,7 +16,7 @@ One JSON document that declares a system under test: its states (places a
 journey can be, each with a marker that proves arrival), its elements
 (named locators), its actions (steps the SUT offers — the edges of the
 graph), its journeys (named paths through the actions) and its endpoints
-(the API surface). The contract is SPEC-taf-v1-001-02.
+(the API surface). The contract is SPEC-taf-v1-001-03.
 
 ## Why it exists
 
@@ -30,4 +30,4 @@ visible in a pull request.
 ## In this repo
 
 `sut.model.json` per SUT (none yet — lane A-1 builds the loader). Read
-SPEC-taf-v1-001-02 for the clauses and the nine refusals.
+SPEC-taf-v1-001-03 for the clauses and the nine refusals.

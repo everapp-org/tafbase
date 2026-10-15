@@ -1,4 +1,4 @@
-"""Tests of taf/model.py — the SPEC-taf-v1-001-02 refusal contract.
+"""Tests of taf/model.py — the SPEC-taf-v1-001-03 refusal contract.
 
 Test IDs: T-model-001..T-model-013, T-taf-001 (the lane A-1 acceptance:
 a valid model loads, a broken model names its fault).
