@@ -101,6 +101,12 @@ declarations (`workflow.edn`, `support.edn`) later feed the white-box model.
   findings into it.
   Accepted by: T-taf-005 (a full loop: fail → report → fix → repaired)
 
+**Progress (2026-10-15).** First half met: the generated suite ran green
+against a live probe bus — `the-board-is-up` and `board-to-tot`, 2 passed
+in ~4 s (T-taf-004, opt-in `TAF_LIVE=1`; `TAF_BASE_URL` retargets the
+emitted suites without regenerating). The `.ikc-dock-theme` markers and
+`?island=` routes verified as real. The filing half is lane C-3's.
+
 ### ▶ Lane TAF/PLAN-taf-v1-001-01/F-6 — the SUT graph (MBT)
 
 The model grows from journeys to a graph: states and transitions as data,

@@ -103,13 +103,14 @@ def _conftest(m):
 @concept CONCEPT-taf-v1-006-01-the-browser-context
 """
 
+import os
 import pytest
 from playwright.sync_api import sync_playwright
 
 
 @pytest.fixture(scope="session")
 def base_url():
-    return "%s"
+    return os.environ.get("TAF_BASE_URL", "%s")
 
 
 @pytest.fixture(scope="session")

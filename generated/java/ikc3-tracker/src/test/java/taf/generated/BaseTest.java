@@ -11,7 +11,8 @@ import org.junit.jupiter.api.*;
 /** The fixture's Java face: one browser for the run, one fresh context
     per test — isolation by construction. */
 public abstract class BaseTest {
-    protected static String baseUrl = "http://127.0.0.1:4856";
+    protected static String baseUrl =
+        System.getenv().getOrDefault("TAF_BASE_URL", "http://127.0.0.1:4856");
     private static Playwright playwright;
     private static Browser browser;
     protected BrowserContext context;
