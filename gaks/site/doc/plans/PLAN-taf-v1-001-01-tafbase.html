@@ -116,6 +116,14 @@ journal replay as generated tests.</p>
 found failure exactly.
 Accepted by: T-taf-006</li>
 </ul>
+<p><strong>Progress (2026-10-15).</strong> <code>taf/graph.py</code> + <code>taf walk</code> land: edges derive
+from declared <code>from</code>/<code>to</code>, a seeded RNG walks them deterministically,
+<code>--cover</code> prefers untaken edges. Output is a journey declaration —
+<code>taf emit --journeys walk.json</code> merges it (duplicate-name refusal on
+collision). Live-verified: a seed-7 walk on the tracker model emitted
+<code>test_walked</code> and ran green on the probe bus. Still open: white-box
+oracle from <code>workflow.edn</code>/<code>support.edn</code>, coverage-directed suite
+generation, journal replay.</p>
 <h3 id="lane-tafplan-taf-v1-001-01g-7--the-corpus-teaches">▶ Lane TAF/PLAN-taf-v1-001-01/G-7 — the corpus teaches<a class="anchor" href="#lane-tafplan-taf-v1-001-01g-7--the-corpus-teaches" aria-label="Link to this section">#</a></h3>
 <p>tafbase is a learning surface (ADR-taf-v1-002-01): every concept the
 generated code embodies is a CONCEPT document — Python and pytest,
@@ -134,8 +142,8 @@ Accepted by: T-taf-007 (code-link-unresolved refuses a dead citation)</li>
 </ul>
 </article><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../specs/SPEC-taf-v1-001-01-the-sut-model.html">SPEC-taf-v1-001-01 — the SUT model</a> <span class="muted">SPEC-taf-v1-001-01-the-sut-model</span></li></ul></section>
 </main>
-<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">10</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">11</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">1</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-15 16:25 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-15 16:28 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>
