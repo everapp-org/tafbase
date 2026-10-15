@@ -1,0 +1,25 @@
+{
+  "lang": "python",
+  "sut": "ikc3-tracker",
+  "tests": [
+    {
+      "actions": [],
+      "journey": "the-board-is-up",
+      "states": [
+        "board"
+      ],
+      "test": "test_the_board_is_up"
+    },
+    {
+      "actions": [
+        "open-tot"
+      ],
+      "journey": "board-to-tot",
+      "states": [
+        "board",
+        "tot"
+      ],
+      "test": "test_board_to_tot"
+    }
+  ]
+}
