@@ -128,6 +128,36 @@ def page(browser):
     pg = ctx.new_page()
     yield pg
     ctx.close()
+
+
+# @concept CONCEPT-taf-v1-010-01-the-result-sink
+def pytest_runtest_makereport(item, call):
+    """A red test files a fault report into the tracker — when a sink is
+    configured (TAF_IKC3_WS=ws://host:port/bus-ws). A sink that cannot
+    file warns; it never fails the suite a second time."""
+    if call.when != "call" or call.excinfo is None:
+        return
+    ws_url = os.environ.get("TAF_IKC3_WS")
+    if not ws_url:
+        return
+    try:
+        import ikc3_sink
+        page = item.funcargs.get("page")
+        err = str(call.excinfo.value).splitlines()[0][:200]
+        url, dom = "", ""
+        if page:
+            try:  # a mid-navigation page has no readable content
+                url, dom = page.url, page.content()[:50000]
+            except Exception:
+                pass
+        rid = ikc3_sink.file_report(
+            ws_url,
+            "taf journey failed: %%s — %%s" %% (item.name, err),
+            url=url, dom=dom,
+        )
+        print("fault report filed:", rid)
+    except Exception as e:  # noqa: BLE001 — the sink is a side channel
+        print("ikc3 sink could not file the report:", e)
 ''' % m["sut"]["base-url"]
 
 
@@ -227,10 +257,19 @@ def _manifest(m):
     return json.dumps(ops.manifest(m), indent=2, sort_keys=True) + "\n"
 
 
+def _sink_source():
+    """The emitted ikc3_sink.py is taf/sink_ikc3.py verbatim — one source
+    for the emitter's own code and the artifact it ships."""
+    with open(os.path.join(os.path.dirname(__file__), "sink_ikc3.py"),
+              encoding="utf-8") as f:
+        return f.read()
+
+
 def emit(model, outdir):
     """Write the suite into `outdir`; returns the list of files written."""
     os.makedirs(outdir, exist_ok=True)
     files = {"conftest.py": _conftest(model),
+             "ikc3_sink.py": _sink_source(),
              "pages.py": _pages(model),
              "actions.py": _actions(model),
              "elements.py": _elements(model),

@@ -31,3 +31,33 @@ def page(browser):
     pg = ctx.new_page()
     yield pg
     ctx.close()
+
+
+# @concept CONCEPT-taf-v1-010-01-the-result-sink
+def pytest_runtest_makereport(item, call):
+    """A red test files a fault report into the tracker — when a sink is
+    configured (TAF_IKC3_WS=ws://host:port/bus-ws). A sink that cannot
+    file warns; it never fails the suite a second time."""
+    if call.when != "call" or call.excinfo is None:
+        return
+    ws_url = os.environ.get("TAF_IKC3_WS")
+    if not ws_url:
+        return
+    try:
+        import ikc3_sink
+        page = item.funcargs.get("page")
+        err = str(call.excinfo.value).splitlines()[0][:200]
+        url, dom = "", ""
+        if page:
+            try:  # a mid-navigation page has no readable content
+                url, dom = page.url, page.content()[:50000]
+            except Exception:
+                pass
+        rid = ikc3_sink.file_report(
+            ws_url,
+            "taf journey failed: %s — %s" % (item.name, err),
+            url=url, dom=dom,
+        )
+        print("fault report filed:", rid)
+    except Exception as e:  # noqa: BLE001 — the sink is a side channel
+        print("ikc3 sink could not file the report:", e)
