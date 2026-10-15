@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The interview surface · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / research</div><h1 class="page-title" id="the-interview-surface">The interview surface <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>RESEARCH-taf-v1-001-01-the-interview-surface</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-15</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/RESEARCH.html">Research</a></td></tr><tr><th>source</th><td><code>research/RESEARCH-taf-v1-001-01-the-interview-surface.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-15</td></tr></table></details><article class="doc"><h2 id="what-this-is">What this is<a class="anchor" href="#what-this-is" aria-label="Link to this section">#</a></h2>
+<p>A coverage map: the corpus&#39;s concepts against the questions the market
+actually asks. Source: a widely-shared &quot;Top 25 Playwright interview
+questions&quot; list (LinkedIn, 2026 SDET interview prep). The corpus&#39;s
+stated job is to serve as a learning surface and interview prep — this
+document measures that promise against an external yardstick and names
+the gaps as work.</p>
+<h2 id="the-map">The map<a class="anchor" href="#the-map" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>interview asks</th>
+<th>covered by</th>
+<th>state</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Playwright vs Selenium</td>
+<td>—</td>
+<td>gap</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Project setup (TypeScript assumed)</td>
+<td>—</td>
+<td>gap</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Browser / BrowserContext / Page</td>
+<td><a class="wikilink" href="../concepts/CONCEPT-taf-v1-006-01-the-browser-context.html" title="The browser context">CONCEPT-taf-v1-006-01-the-browser-context</a></td>
+<td>part</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Auto-waiting, actionability</td>
+<td><a class="wikilink" href="../concepts/CONCEPT-taf-v1-007-01-auto-waiting.html" title="Auto-waiting assertions">CONCEPT-taf-v1-007-01-auto-waiting</a></td>
+<td>covered</td>
+</tr>
+<tr>
+<td>5</td>
+<td>locator() vs page.$()</td>
+<td><a class="wikilink" href="../concepts/CONCEPT-taf-v1-003-01-the-locator-ladder.html" title="The locator ladder">CONCEPT-taf-v1-003-01-the-locator-ladder</a></td>
+<td>part — locator-vs-$ deserves a line</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Dynamic elements, flaky tests</td>
+<td>—</td>
+<td>gap</td>
+</tr>
+<tr>
+<td>7</td>
+<td>getByRole vs getByText vs css/xpath</td>
+<td><a class="wikilink" href="../concepts/CONCEPT-taf-v1-003-01-the-locator-ladder.html" title="The locator ladder">CONCEPT-taf-v1-003-01-the-locator-ladder</a></td>
+<td>covered</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Dropdowns, checkboxes, alerts, iframes</td>
+<td>—</td>
+<td>gap</td>
+</tr>
+<tr>
+<td>9</td>
+<td>File upload/download</td>
+<td>—</td>
+<td>gap</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Screenshots/videos on failure</td>
+<td><a class="wikilink" href="../concepts/CONCEPT-taf-v1-010-01-the-result-sink.html" title="The result sink">CONCEPT-taf-v1-010-01-the-result-sink</a> (our answer is richer: DOM + report)</td>
+<td>part</td>
+</tr>
+<tr>
+<td>11</td>
+<td>API testing via request context</td>
+<td>the model&#39;s <code>api</code>/<code>save</code>/<code>expect</code> steps</td>
+<td>covered</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Authentication reuse</td>
+<td>—</td>
+<td>gap</td>
+</tr>
+<tr>
+<td>13</td>
+<td>storageState</td>
+<td>—</td>
+<td>gap</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Parallel execution, workers</td>
+<td>—</td>
+<td>gap</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Sharding</td>
+<td>—</td>
+<td>gap</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Retries, flaky-test investigation</td>
+<td>—</td>
+<td>gap</td>
+</tr>
+<tr>
+<td>17</td>
+<td>beforeEach/afterEach</td>
+<td><a class="wikilink" href="../concepts/CONCEPT-taf-v1-009-01-the-junit-lifecycle.html" title="The JUnit lifecycle">CONCEPT-taf-v1-009-01-the-junit-lifecycle</a>, <a class="wikilink" href="../concepts/CONCEPT-taf-v1-005-01-the-pytest-fixture.html" title="The pytest fixture">CONCEPT-taf-v1-005-01-the-pytest-fixture</a></td>
+<td>covered (in two idioms)</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Framework architecture: POM + fixtures</td>
+<td><a class="wikilink" href="../concepts/CONCEPT-taf-v1-008-01-the-page-object.html" title="The page object">CONCEPT-taf-v1-008-01-the-page-object</a> + the whole generated layout</td>
+<td>covered — our strongest answer</td>
+</tr>
+<tr>
+<td>19</td>
+<td>HTML reports</td>
+<td>the manifest + sink</td>
+<td>part — ours is better (traceable), say so</td>
+</tr>
+<tr>
+<td>20</td>
+<td>CI/CD integration</td>
+<td>—</td>
+<td>gap</td>
+</tr>
+<tr>
+<td>21</td>
+<td>Cross-browser (chromium/firefox/webkit)</td>
+<td>—</td>
+<td>gap — model has no browser clause yet</td>
+</tr>
+<tr>
+<td>22</td>
+<td>API mocking, network interception</td>
+<td>—</td>
+<td>gap</td>
+</tr>
+<tr>
+<td>23</td>
+<td>Debugging: trace viewer, headed, inspector</td>
+<td>—</td>
+<td>gap</td>
+</tr>
+<tr>
+<td>—</td>
+<td><em>not asked but we answer it</em></td>
+<td>seeded walks, parity contracts, checked citations, refusals</td>
+<td>our differentiators</td>
+</tr>
+</tbody></table>
+<h2 id="what-the-map-says">What the map says<a class="anchor" href="#what-the-map-says" aria-label="Link to this section">#</a></h2>
+<p><strong>Seven covered outright, ~4 partial, 14 gaps.</strong> The gaps cluster into
+themes, each of which is a lane, not just a page:</p>
+<ul>
+<li><strong>Flakiness &amp; resilience</strong> (6, 16): retry policy, quarantine — a real
+feature lane, not only docs.</li>
+<li><strong>Element dynamics</strong> (8, 9): dropdowns/iframes/uploads — the step
+language grows (<code>select</code> exists; <code>frame</code>, <code>upload</code>, <code>dialog</code> don&#39;t).</li>
+<li><strong>Auth &amp; state reuse</strong> (12, 13): <code>storageState</code> maps cleanly to a
+model clause — declared once, applied to journeys that need it.</li>
+<li><strong>Execution control</strong> (14, 15, 20, 21): workers, shards, CI matrix,
+browsers — belongs in a <code>run</code> clause or per-suite config.</li>
+<li><strong>Observability</strong> (10, 19, 22, 23): screenshots on failure,
+Playwright trace, API mocking — lanes of their own.</li>
+</ul>
+<h2 id="the-typescript-question">The TypeScript question<a class="anchor" href="#the-typescript-question" aria-label="Link to this section">#</a></h2>
+<p>The market&#39;s assumed Playwright language is TypeScript (the question
+list presumes it). A third emitter is the right move — and cheap:
+<code>taf/ops.py</code> already carries the canonical plan, so <code>emit_ts.py</code> renders
+syntax only, and the parity tests generalize to three suites with the
+same byte-identical manifest. TypeScript also demos Playwright&#39;s native
+API surface (<code>test()</code>/<code>expect</code> fixtures via <code>test.extend</code>) — arguably
+the most idiomatic target of the three.</p>
+<p>Worth doing, ordered: (a) the flaky/auth/execution gaps are product
+substance; (b) <code>emit_ts.py</code> is visibility — it makes the parity claim
+three-legged and lands in the market&#39;s assumed idiom. Both are lanes;
+the concept pages for each land as they&#39;re implemented, per ADR-002.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">12</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-15 19:12 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>
