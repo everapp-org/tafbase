@@ -133,6 +133,16 @@ journal replay as generated tests.
   found failure exactly.
   Accepted by: T-taf-006
 
+**Progress (2026-10-15).** `taf/graph.py` + `taf walk` land: edges derive
+from declared `from`/`to`, a seeded RNG walks them deterministically,
+`--cover` prefers untaken edges. Output is a journey declaration —
+`taf emit --journeys walk.json` merges it (duplicate-name refusal on
+collision). Live-verified: a seed-7 walk on the tracker model emitted
+`test_walked` and ran green on the probe bus. Still open: white-box
+oracle from `workflow.edn`/`support.edn`, coverage-directed suite
+generation, journal replay.
+
+
 ### ▶ Lane TAF/PLAN-taf-v1-001-01/G-7 — the corpus teaches
 
 tafbase is a learning surface (ADR-taf-v1-002-01): every concept the
