@@ -1,6 +1,7 @@
 ---
 id: SPEC-taf-v1-001-02-the-sut-model
-status: draft
+status: superseded
+superseded-by: SPEC-taf-v1-001-03-the-sut-language
 subproject: taf
 authored: 2026-10-15
 authors:
@@ -11,6 +12,10 @@ supersedes:
 ---
 
 # SPEC-taf-v1-001-02 — the SUT model
+
+**Superseded by [[SPEC-taf-v1-001-03-the-sut-language]]** — the same
+contract reframed as a language specification: the JSON is the concrete
+syntax of the DSL, not the subject. Kept as history.
 
 ## Purpose
 
