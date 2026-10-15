@@ -116,8 +116,12 @@ def base_url():
 
 @pytest.fixture(scope="session")
 def browser():
+    """Headed by default — a learner should see the journey happen.
+    TAF_HEADLESS=1 for CI; TAF_SLOWMO=<ms> slows each action."""
     with sync_playwright() as p:
-        b = p.chromium.launch()
+        b = p.chromium.launch(
+            headless=os.environ.get("TAF_HEADLESS") == "1",
+            slow_mo=int(os.environ.get("TAF_SLOWMO", "0")))
         yield b
         b.close()
 

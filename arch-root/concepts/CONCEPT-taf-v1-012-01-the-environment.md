@@ -28,6 +28,8 @@ at runtime:
 |-----------------|--------------------------|--------------------------------------------|
 | `TAF_BASE_URL`  | `conftest.py` (both langs) | where the SUT lives — probe, staging, prod |
 | `TAF_IKC3_WS`   | `pytest_runtest_makereport` | when set, a red test files a fault report |
+| `TAF_HEADLESS`  | `conftest.py` / `BaseTest` | set `1` for CI; headed is the default so a learner watches the journey |
+| `TAF_SLOWMO`    | `conftest.py` / `BaseTest` | milliseconds between actions — watch it walk |
 | `TAF_LIVE`      | `tests/test_live.py`     | opt the live acceptance tests in           |
 
 ## Why it exists

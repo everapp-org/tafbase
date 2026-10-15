@@ -161,7 +161,12 @@ public abstract class BaseTest {
     @BeforeAll
     static void launch() {
         playwright = Playwright.create();
-        browser = playwright.chromium().launch();
+        // Headed by default — a learner should see the journey happen.
+        // TAF_HEADLESS=1 for CI; TAF_SLOWMO=<ms> slows each action.
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+            .setHeadless("1".equals(System.getenv("TAF_HEADLESS")))
+            .setSlowMo(Double.parseDouble(
+                System.getenv().getOrDefault("TAF_SLOWMO", "0"))));
     }
 
     @BeforeEach
