@@ -34,9 +34,47 @@ is another way to write JSON, not a second pipeline.</p>
 traversal generates a journey for every edge — the FSM&#39;s transitions
 become the test set.</p>
 <h2 id="in-this-project">In this project<a class="anchor" href="#in-this-project" aria-label="Link to this section">#</a></h2>
-<p>Today: black-box only — <code>suts/*.sut.model.json</code> is hand-authored; <code>taf walk</code> is the seeded start of traversal. Planned: <code>taf derive</code> (a white-
-box input, first source: IKC3&#39;s EDN declarations; later OpenAPI and
-crawl) and edge-coverage journey generation. Lane N-13.</p>
+<p>Today: black-box only — <code>suts/*.sut.model.json</code> is hand-authored; <code>taf walk</code> is the seeded start of traversal. Planned: <code>taf derive</code> and
+edge-coverage journey generation. Lane N-13.</p>
+<p>The input sources, by what feeds them:</p>
+<table>
+<thead>
+<tr>
+<th>source</th>
+<th>mode</th>
+<th>example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>the author</td>
+<td>black-box</td>
+<td>the JSON model today; BDD/Gherkin notation later</td>
+</tr>
+<tr>
+<td>documents</td>
+<td>grey</td>
+<td><code>taf derive --from-spec prd.md</code> — assisted extraction, never silent guessing</td>
+</tr>
+<tr>
+<td>SUT artifacts</td>
+<td>white-box</td>
+<td>IKC3&#39;s <code>workflow.edn</code>/<code>support.edn</code>, route tables, OpenAPI → <code>endpoints</code></td>
+</tr>
+<tr>
+<td>the live SUT</td>
+<td>white-box</td>
+<td>a crawl: links/forms → states + edges, confidence-marked</td>
+</tr>
+<tr>
+<td>existing tests</td>
+<td>white-box</td>
+<td>mine an old suite&#39;s locators and actions</td>
+</tr>
+</tbody></table>
+<p>A derived draft carries its ignorance honestly — <code>underived:</code> for what
+the source couldn&#39;t classify, <code>openQuestions:</code> for what needs a human —
+never an empty field pretending confidence (the honesty schema from
+RESEARCH-taf-v1-003-01&#39;s qaiq findings).</p>
 <h2 id="touch-it">Touch it<a class="anchor" href="#touch-it" aria-label="Link to this section">#</a></h2>
 <pre><code class="language-bash">.venv/bin/python -m taf walk suts/ikc3-tracker.sut.model.json --from board --seed 7 --steps 4
 </code></pre>
@@ -49,6 +87,6 @@ model absorbs the SUT&#39;s own declarations.</p>
 </main>
 <nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">35</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-16 16:44 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-16 16:47 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

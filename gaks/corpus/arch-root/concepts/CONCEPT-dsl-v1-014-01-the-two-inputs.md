@@ -36,9 +36,23 @@ become the test set.
 ## In this project
 
 Today: black-box only — `suts/*.sut.model.json` is hand-authored; `taf
-walk` is the seeded start of traversal. Planned: `taf derive` (a white-
-box input, first source: IKC3's EDN declarations; later OpenAPI and
-crawl) and edge-coverage journey generation. Lane N-13.
+walk` is the seeded start of traversal. Planned: `taf derive` and
+edge-coverage journey generation. Lane N-13.
+
+The input sources, by what feeds them:
+
+| source | mode | example |
+|---|---|---|
+| the author | black-box | the JSON model today; BDD/Gherkin notation later |
+| documents | grey | `taf derive --from-spec prd.md` — assisted extraction, never silent guessing |
+| SUT artifacts | white-box | IKC3's `workflow.edn`/`support.edn`, route tables, OpenAPI → `endpoints` |
+| the live SUT | white-box | a crawl: links/forms → states + edges, confidence-marked |
+| existing tests | white-box | mine an old suite's locators and actions |
+
+A derived draft carries its ignorance honestly — `underived:` for what
+the source couldn't classify, `openQuestions:` for what needs a human —
+never an empty field pretending confidence (the honesty schema from
+RESEARCH-taf-v1-003-01's qaiq findings).
 
 ## Touch it
 
