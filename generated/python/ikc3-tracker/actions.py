@@ -5,9 +5,11 @@
 from pages import ROUTES
 
 def open_board(page, base_url):
+    print("→ open the ticket board")
     page.goto(base_url + ROUTES["board"])
 
 def open_tot(page, base_url):
+    print("→ open the TOT island")
     page.goto(base_url + ROUTES["tot"])
     page.wait_for_timeout(800)
 

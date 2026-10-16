@@ -17,7 +17,7 @@ import json
 LOCATOR_RUNGS = ("role", "label", "text", "placeholder", "testid", "css", "xpath")
 
 STEP_FORMS = ("click", "fill", "check", "select", "navigate", "wait-for",
-              "api", "expect", "dwell")
+              "api", "expect", "dwell", "wait-any", "maybe")
 
 REQUIRED_TOP = ("sut", "states", "journeys")
 
@@ -103,6 +103,21 @@ def _check_step(step, elements, states, endpoints, clause, refusals):
         if not isinstance(arg, (int, float)) or isinstance(arg, bool) or arg < 0:
             refusals.append(_refusal(clause, "bad-dwell",
                                      "dwell takes milliseconds, a number >= 0: %r" % (arg,)))
+    elif form == "wait-any":
+        if not isinstance(arg, list) or len(arg) < 2:
+            refusals.append(_refusal(clause, "bad-wait-any",
+                                     "wait-any takes a list of 2+ element names: %r" % (arg,)))
+        else:
+            for name in arg:
+                if name not in elements:
+                    refusals.append(_refusal(clause, "unknown-element",
+                                           "wait-any names no element: %r" % (name,)))
+    elif form == "maybe":
+        if not isinstance(arg, dict):
+            refusals.append(_refusal(clause, "bad-maybe",
+                                     "maybe wraps one step: %r" % (arg,)))
+        else:
+            _check_step(arg, elements, states, endpoints, clause + ".maybe", refusals)
     elif form == "expect":
         el = arg.get("element") if isinstance(arg, dict) else None
         if el is not None and el not in elements:

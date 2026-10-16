@@ -71,9 +71,27 @@ def _emit_step(step, states, endpoints, pad):
     if form == "dwell":
         # A pause for a watching human — observation, not synchronization.
         return [f"{pad}page.wait_for_timeout({arg})"]
+    if form == "wait-any":
+        locs = f"elements.{_py(arg[0])}(page)" + "".join(
+            f".or_(elements.{_py(n)}(page))" for n in arg[1:])
+        return [f"{pad}expect({locs}).to_be_visible()"]
+    if form == "maybe":
+        # An ifPresent step: try it, never fail.
+        inner = _emit_step(arg, states, endpoints, pad + "    ")
+        return [f"{pad}try:"] + inner + [
+            f"{pad}except Exception:",
+            f"{pad}    pass  # maybe: the step did not apply"]
     if form == "expect":
         if isinstance(arg, dict) and "element" in arg:
             el = f"elements.{_py(arg['element'])}(page)"
+            if arg.get("soft"):
+                # A soft expect: warn and continue — it never fails the step.
+                inner = _emit_step({"expect": {k: v for k, v in arg.items()
+                                               if k != "soft"}},
+                                   states, endpoints, pad + "    ")
+                return [f"{pad}try:"] + inner + [
+                    f"{pad}except AssertionError as _e:",
+                    f'{pad}    print("soft expect failed:", _e)']
             if arg.get("hidden"):
                 return [f"{pad}expect({el}).to_be_hidden()"]
             if "text" in arg:
@@ -214,8 +232,11 @@ def _actions(m):
              "from pages import ROUTES\n\n"]
     for name, act in m["actions"].items():
         body = _emit_steps(act.get("do", []), m["states"], m.get("endpoints") or {}, "    ")
+        # Every action narrates itself — the label; the run reads as a story.
+        title = act.get("title", name)
+        narrate = f'    print("→ {title}")\n'
         lines.append(f"def {_py(name)}(page, base_url):\n"
-                     f"{body or '    pass'}\n\n")
+                     f"{narrate}{body or '    pass'}\n\n")
     return "".join(lines)
 
 

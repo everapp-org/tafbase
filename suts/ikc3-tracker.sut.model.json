@@ -17,11 +17,13 @@
   "actions": {
     "open-board": {
       "to": "board",
+      "title": "open the ticket board",
       "do": [{"navigate": "board"}]
     },
     "open-tot": {
       "from": "board",
       "to": "tot",
+      "title": "open the TOT island",
       "do": [{"navigate": "tot"}, {"dwell": 800}]
     }
   },

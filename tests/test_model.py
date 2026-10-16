@@ -162,6 +162,35 @@ def test_bad_dwell_refuses():
         assert any(r["reason"] == "bad-dwell" for r in rs), (bad, rs)
 
 
+def test_wait_any_and_maybe_validate():
+    doc = minimal()
+    doc["actions"]["go-b"]["do"] = [
+        {"wait-any": ["go", "go"]},
+        {"maybe": {"click": "go"}},
+        {"expect": {"element": "go", "soft": True}},
+    ]
+    assert refusals_of(doc) == []
+
+
+def test_wait_any_bad_args_refuse():
+    for bad in ("go", ["go"], ["go", "nope"]):
+        doc = minimal()
+        doc["actions"]["go-b"]["do"] = [{"wait-any": bad}]
+        rs = refusals_of(doc)
+        assert rs, bad
+        assert any(r["reason"] in ("bad-wait-any", "unknown-element")
+                   for r in rs), (bad, rs)
+
+
+def test_maybe_wraps_and_validates_inner():
+    doc = minimal()
+    doc["actions"]["go-b"]["do"] = [{"maybe": {"click": "nope"}}]
+    assert any(r["reason"] == "unknown-element" for r in refusals_of(doc))
+    doc = minimal()
+    doc["actions"]["go-b"]["do"] = [{"maybe": 5}]
+    assert any(r["reason"] == "bad-maybe" for r in refusals_of(doc))
+
+
 def test_mixed_steps():
     doc = minimal()
     doc["journeys"]["go"]["steps"] = ["go-b", {"navigate": "a"}]

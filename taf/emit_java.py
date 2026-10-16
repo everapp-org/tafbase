@@ -83,9 +83,25 @@ def _emit_step(step, endpoints, pad):
     if form == "dwell":
         # A pause for a watching human — observation, not synchronization.
         return [f"{pad}page.waitForTimeout({arg});"]
+    if form == "wait-any":
+        locs = f"Elements.{_j(arg[0])}(page)" + "".join(
+            f".or(Elements.{_j(n)}(page))" for n in arg[1:])
+        return [f"{pad}assertThat({locs}).isVisible();"]
+    if form == "maybe":
+        # An ifPresent step: try it, never fail.
+        inner = _emit_step(arg, endpoints, pad + "    ")
+        return [f"{pad}try {{"] + inner + [
+            f"{pad}}} catch (Exception ignored) {{ /* maybe: not applicable */ }}"]
     if form == "expect":
         if isinstance(arg, dict) and "element" in arg:
             el = f"Elements.{_j(arg['element'])}(page)"
+            if arg.get("soft"):
+                # A soft expect: warn and continue — it never fails the step.
+                inner = _emit_step({"expect": {k: v for k, v in arg.items()
+                                               if k != "soft"}},
+                                   endpoints, pad + "    ")
+                return [f"{pad}try {{"] + inner + [
+                    f'{pad}}} catch (AssertionError e) {{ System.out.println("soft expect failed: " + e.getMessage()); }}']
             if arg.get("hidden"):
                 return [f"{pad}assertThat({el}).isHidden();"]
             if "text" in arg:
@@ -249,8 +265,11 @@ def _actions_class(m):
         decl = "        var saved = new java.util.HashMap<String, Object>();\n" if _saves(steps) else ""
         body = "\n".join(l for step in steps
                          for l in _emit_step(step, m.get("endpoints") or {}, "        "))
+        # Every action narrates itself — the label; the run reads as a story.
+        title = act.get("title", name)
+        narrate = f'        System.out.println("→ {title}");\n'
         lines.append(f"    public static void {_j(name)}(Page page, String baseUrl) {{\n"
-                     f"{decl}{body or '        // no steps'}\n    }}\n")
+                     f"{narrate}{decl}{body or '        // no steps'}\n    }}\n")
     lines.append("}\n")
     return "".join(lines)
 

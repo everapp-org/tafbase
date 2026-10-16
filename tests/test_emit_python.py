@@ -116,6 +116,32 @@ def test_dwell_emits_a_real_pause(tmp_path):
     assert "page.wait_for_timeout(800)" in acts
 
 
+def test_actions_narrate_their_title(tmp_path):
+    acts = read(emit(tmp_path), "actions.py")
+    assert 'print("→ open the TOT island")' in acts
+
+
+def test_watch_forms_emit(tmp_path):
+    doc = {
+        "sut": {"name": "x", "base-url": "http://x"},
+        "states": {"a": {"route": "/a", "marker": {"css": ".a"}},
+                   "b": {"route": "/b", "marker": {"css": ".b"}}},
+        "elements": {"x1": {"css": ".x1"}, "x2": {"css": ".x2"},
+                     "maybe-x": {"css": ".maybe"}},
+        "endpoints": {},
+        "actions": {"go-b": {"from": "a", "to": "b", "title": "go to b",
+                             "do": [{"wait-any": ["x1", "x2"]},
+                                    {"maybe": {"click": "maybe-x"}},
+                                    {"expect": {"element": "x1", "soft": True}}]}},
+        "journeys": {"j": {"start": "a", "steps": ["go-b"],
+                           "expect-final": {"state": "b"}}},
+    }
+    acts = read(emit(tmp_path, doc), "actions.py")
+    assert "elements.x1(page).or_(elements.x2(page))" in acts
+    assert "except Exception:" in acts and "maybe:" in acts
+    assert 'print("soft expect failed:"' in acts
+
+
 def test_generated_code_is_python(tmp_path):
     import py_compile
     out = emit(tmp_path)
