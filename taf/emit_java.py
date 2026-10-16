@@ -306,11 +306,29 @@ def _journeys_class(m):
     return "".join(lines)
 
 
+_CUSTOM_README = """# custom/ — hand-authored tests live here
+
+Everything in this suite EXCEPT this directory is generated: edit the
+model and regenerate, never the emitted files. Tests written by hand
+belong in this directory — the emitter never writes here.
+
+Hand-written tests inherit the suite: `BaseTest` fixtures, the page
+classes, `Elements`, `Actions`. What they do not inherit is the model's
+guarantees — they are not walked, not in the manifest, not covered by
+parity.
+
+This directory is also the DSL's incubator (the absorption loop,
+CONCEPT-dsl-v1-013-01): a pattern that recurs here is a clause the
+model should learn. It should trend toward empty.
+"""
+
+
 def emit(model, outdir):
     """Write the suite into `outdir`; returns the list of files written."""
     pkgdir = os.path.join(outdir, _PKG_DIR)
     os.makedirs(pkgdir, exist_ok=True)
     files = {os.path.join(outdir, "pom.xml"): _pom(model),
+             os.path.join(outdir, "custom", "README.md"): _CUSTOM_README,
              os.path.join(pkgdir, "BaseTest.java"): _basetest(model),
              os.path.join(pkgdir, "Elements.java"): _elements_class(model),
              os.path.join(pkgdir, "Actions.java"): _actions_class(model),
@@ -322,6 +340,7 @@ def emit(model, outdir):
     for path, content in files.items():
         if content is None:
             continue
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
         written.append(path)
