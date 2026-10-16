@@ -30,15 +30,16 @@ answers "where do I start?"
 3. Knowing where you are → the state marker (SPEC-taf-v1-001-04, `states`)
 4. The model → [[CONCEPT-dsl-v1-001-01-the-sut-model]]
 5. From model to suite → the emitter and the manifest (SPEC-taf-v1-001-04)
-6. pytest mechanics → [[CONCEPT-pytest-v1-001-01-the-pytest-fixture]]
-7. Playwright mechanics → [[CONCEPT-playwright-v1-002-01-the-browser-context]],
+6. Your own toolchain → [[CONCEPT-python-v1-002-01-the-virtual-environment]]
+7. pytest mechanics → [[CONCEPT-pytest-v1-001-01-the-pytest-fixture]]
+8. Playwright mechanics → [[CONCEPT-playwright-v1-002-01-the-browser-context]],
    [[CONCEPT-playwright-v1-003-01-auto-waiting]]
-8. Organizing a suite → [[CONCEPT-pom-v1-001-01-the-page-object]]
-9. Configuring a run → [[CONCEPT-python-v1-001-01-the-environment]]
-10. Closing the loop → [[CONCEPT-taf-v1-002-01-the-result-sink]]
-11. Java parity — what "equivalent suite" means →
+9. Organizing a suite → [[CONCEPT-pom-v1-001-01-the-page-object]]
+10. Configuring a run → [[CONCEPT-python-v1-001-01-the-environment]]
+11. Closing the loop → [[CONCEPT-taf-v1-002-01-the-result-sink]]
+12. Java parity — what "equivalent suite" means →
     [[CONCEPT-java-v1-001-01-the-junit-lifecycle]]
-12. The graph — walks, seeds, coverage →
+13. The graph — walks, seeds, coverage →
     [[CONCEPT-dsl-v1-002-01-the-seeded-walk]]
 
 Every entry is a checked citation — the corpus checker refuses a link to

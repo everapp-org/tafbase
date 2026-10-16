@@ -90,3 +90,22 @@ habits, not certified to it. In practice:
 
 The test, applied to a draft: read one paragraph aloud. If it sounds
 like a crossword clue, it is one.
+
+## Writing concepts — the depth bar
+
+A CONCEPT page teaches one thing to a reader who has never met it. The
+GAKS template demands two sections; this project demands five answers:
+
+- **What is it, mechanically?** The physical thing — a directory with a
+  stub interpreter and a `pyvenv.cfg`, not "an isolated Python".
+- **Why does it exist?** What breaks without it.
+- **Where does this project use it?** Checked links to real files.
+- **How do you touch it?** Commands the reader can run right now —
+  a page with nothing runnable is a lecture, not a concept.
+- **What does it connect to?** The neighbors the reader meets next.
+
+Concepts file under the domain they teach (`python`, `pytest`,
+`playwright`, `java`, `pom`, `testing`, `dsl`), not the project's — a
+learner navigates by what is taught, not by what we built. Two words
+with two meanings get two pages; a page that disambiguates instead of
+teaching fails this bar.

@@ -8,43 +8,63 @@ authors:
   - Devin
 ---
 
-# The environment
+# Environment variables
 
 ## Definition
 
-Two different things share this word, and the project uses both.
+Every process inherits a set of text key=value pairs from the program
+that started it — its **environment**. The shell exports them; the
+program reads them. In Python they live in `os.environ`, a dict-like
+mapping:
 
-**The virtual environment** — `.venv/`, an isolated copy of Python with
-its own installed packages. `pytest`, `playwright`, and
-`websocket-client` live there, so `python3 -m venv .venv` reproduces the
-toolchain on any machine without touching the system Python. Commands in
-this repo always name `.venv/bin/python` explicitly.
+```python
+os.environ.get("TAF_BASE_URL", "http://127.0.0.1:4856")  # value, or a default
+os.environ.get("TAF_IKC3_WS")                            # value, or None
+```
 
-**Environment variables** — `os.environ`, the per-process settings the
-operating system hands a program. Generated suites read `TAF_*` variables
-at runtime:
+Java reads the same table through `System.getenv()` — one mechanism,
+two spellings, which is why both generated suites retarget the same way.
+A variable set for one command applies to that run only:
 
-| variable        | read by                  | meaning                                    |
-|-----------------|--------------------------|--------------------------------------------|
-| `TAF_BASE_URL`  | `conftest.py` (both langs) | where the SUT lives — probe, staging, prod |
-| `TAF_IKC3_WS`   | `pytest_runtest_makereport` | when set, a red test files a fault report |
-| `TAF_HEADLESS`  | `conftest.py` / `BaseTest` | set `1` for CI; headed is the default so a learner watches the journey |
-| `TAF_SLOWMO`    | `conftest.py` / `BaseTest` | milliseconds between actions — watch it walk |
-| `TAF_LIVE`      | `tests/test_live.py`     | opt the live acceptance tests in           |
+```bash
+TAF_SLOWMO=800 .venv/bin/python -m pytest generated/python/ikc3-tracker -q
+```
+
+*(Not this word's other meaning: the **virtual environment** is a
+different thing — [[CONCEPT-python-v1-002-01-the-virtual-environment]].)*
 
 ## Why it exists
 
 Generated code is immutable — you edit the model and regenerate, never
 the output. But where the SUT runs *changes* run to run. The environment
-is the seam for run-to-run variation: the same committed suite tests a
-probe bus, a staging box, or production by setting a variable, not by
-editing code. Configuration outside the artifact is a classic test
-framework practice (the old Selenium demo externalized the same thing
-into a config file; environment variables are the twelve-factor form).
+is the seam where run-to-run variation belongs: the same committed suite
+tests a probe bus, a staging box, or production by setting a variable,
+not by editing code. The previous-generation framework externalized the
+same seam into `config.properties` files; environment variables are the
+twelve-factor form of the same idea.
 
-## In this repo
+## In this project
 
-`.venv/` is created in the README's "Hacking on it" section. `TAF_BASE_URL`
-appears in `taf/emit_python.py`, `taf/emit_java.py`, and every generated
-`conftest.py`/`BaseTest.java`. `TAF_IKC3_WS` drives
-[CONCEPT-taf-v1-002-01-the-result-sink](CONCEPT-taf-v1-002-01-the-result-sink.md).
+| variable       | read by                     | meaning                                     |
+|----------------|-----------------------------|---------------------------------------------|
+| `TAF_BASE_URL` | `conftest.py`, `BaseTest`   | where the SUT lives — probe, staging, prod  |
+| `TAF_IKC3_WS`  | `pytest_runtest_makereport` | when set, a red test files a fault report   |
+| `TAF_HEADLESS` | `conftest.py`, `BaseTest`   | `1` for CI; headed is the default           |
+| `TAF_SLOWMO`   | `conftest.py`, `BaseTest`   | ms between Playwright actions               |
+| `TAF_LIVE`     | `tests/test_live.py`        | opts the live acceptance tests in           |
+
+`TAF_BASE_URL` appears in `taf/emit_python.py`, `taf/emit_java.py`, and
+every emitted `conftest.py`/`BaseTest.java`. `TAF_IKC3_WS` drives
+[[CONCEPT-taf-v1-002-01-the-result-sink]].
+
+## Touch it
+
+```bash
+env | grep TAF                    # what is set right now — usually nothing
+TAF_BASE_URL=http://x .venv/bin/python -m taf check suts/ikc3-tracker.sut.model.json
+```
+
+## Neighbors
+
+The virtual environment (above); the result sink the `TAF_IKC3_WS`
+variable enables; [[CONCEPT-taf-v1-001-01-the-learning-path]].
