@@ -111,6 +111,11 @@ def test_inline_steps_in_a_journey(tmp_path):
     assert 'page.goto(base_url + ROUTES["b"])' in j
 
 
+def test_dwell_emits_a_real_pause(tmp_path):
+    acts = read(emit(tmp_path), "actions.py")
+    assert "page.wait_for_timeout(800)" in acts
+
+
 def test_generated_code_is_python(tmp_path):
     import py_compile
     out = emit(tmp_path)

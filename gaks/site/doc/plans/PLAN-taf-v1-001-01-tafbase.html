@@ -124,6 +124,64 @@ collision). Live-verified: a seed-7 walk on the tracker model emitted
 <code>test_walked</code> and ran green on the probe bus. Still open: white-box
 oracle from <code>workflow.edn</code>/<code>support.edn</code>, coverage-directed suite
 generation, journal replay.</p>
+<h3 id="lane-tafplan-taf-v1-001-01h-8--observation-dwell-waits-narration">▶ Lane TAF/PLAN-taf-v1-001-01/H-8 — observation: dwell, waits, narration<a class="anchor" href="#lane-tafplan-taf-v1-001-01h-8--observation-dwell-waits-narration" aria-label="Link to this section">#</a></h3>
+<p>From the qa-tafbase harvest (RESEARCH-taf-v1-002-01). <code>dwell</code> is a
+declared pacing property — a <code>{&quot;dwell&quot;: &lt;ms&gt;}</code> step emitted as a
+literal for a watching human; it is not synchronization (markers and
+auto-waiting own correctness). Steps may carry a human <code>label</code> the
+emitted code logs — every action self-narrates, and narrated timestamps
+make the run video captionable: a teardown writes a sidecar <code>.srt</code>
+beside the video (the old framework wired five teardowns for exactly
+this and never built the writer). Later: <code>wait</code>/<code>check</code> soft/hard
+forms and <code>wait any (X|Y)</code>.</p>
+<p><strong>Release note (draft)</strong></p>
+<ul>
+<li>New: a suite can be watched — declared dwell slows each step for a
+human eye, and generated logs narrate each action.
+Accepted by: T-taf-008</li>
+</ul>
+<h3 id="lane-tafplan-taf-v1-001-01i-9--versioned-locators">▶ Lane TAF/PLAN-taf-v1-001-01/I-9 — versioned locators<a class="anchor" href="#lane-tafplan-taf-v1-001-01i-9--versioned-locators" aria-label="Link to this section">#</a></h3>
+<p>From the harvest: elements resolve against (app-version × language) —
+<code>addLocator(515, SPANISH, xpath, …)</code> with nearest-lower-version and
+English fallback. In tafbase: an element declares per-version variants;
+the emitter writes the lookup as data, resolved at emit time.</p>
+<p><strong>Release note (draft)</strong></p>
+<ul>
+<li>New: one element survives an app&#39;s versions and languages —
+<code>v515+/es:</code> variants resolve to the nearest known declaration.
+Accepted by: T-taf-009</li>
+</ul>
+<h3 id="lane-tafplan-taf-v1-001-01j-10--visual-regression">▶ Lane TAF/PLAN-taf-v1-001-01/J-10 — visual regression<a class="anchor" href="#lane-tafplan-taf-v1-001-01j-10--visual-regression" aria-label="Link to this section">#</a></h3>
+<p>Screenshot grammar <code>TCID_run_res_step_{Expected,Actual,Diff}</code>, a
+<code>compare screen</code> step, excluded regions per device, tolerance levels,
+and <code>taf promote</code> applying a selection file — the approval loop, not
+auto-rebaselining.</p>
+<p><strong>Release note (draft)</strong></p>
+<ul>
+<li>New: visual regression — a <code>compare screen</code> step diffs against a
+baseline, and a person promotes Actual→Expected by file, not by flag.
+Accepted by: T-taf-010</li>
+</ul>
+<h3 id="lane-tafplan-taf-v1-001-01k-11--targets-devices-and-envs">▶ Lane TAF/PLAN-taf-v1-001-01/K-11 — targets: devices and envs<a class="anchor" href="#lane-tafplan-taf-v1-001-01k-11--targets-devices-and-envs" aria-label="Link to this section">#</a></h3>
+<p>A <code>device:</code>/<code>env:</code> header — <code>Pixel9ProXL_chrome</code>, <code>qa</code> — resolves at
+emit time into capabilities and base URL; compile-time-validated
+vocabulary replaces a 300-line runtime factory.</p>
+<p><strong>Release note (draft)</strong></p>
+<ul>
+<li>New: <code>device:</code> and <code>env:</code> in the model emit the exact capabilities
+block — no runtime dispatch.
+Accepted by: T-taf-011</li>
+</ul>
+<h3 id="lane-tafplan-taf-v1-001-01l-12--runs-replay-debug-preflight">▶ Lane TAF/PLAN-taf-v1-001-01/L-12 — runs: replay, debug, preflight<a class="anchor" href="#lane-tafplan-taf-v1-001-01l-12--runs-replay-debug-preflight" aria-label="Link to this section">#</a></h3>
+<p><code>taf run --last-failed</code> replays a rerun manifest; <code>--debug</code> keeps the
+browser and breaks on failure; <code>requires:</code> declares suite preflight
+(mail server, service up) that fails fast.</p>
+<p><strong>Release note (draft)</strong></p>
+<ul>
+<li>New: a failed run replays only its failures; a debug run pauses at the
+broken step with the browser open.
+Accepted by: T-taf-012</li>
+</ul>
 <h3 id="lane-tafplan-taf-v1-001-01g-7--the-corpus-teaches">▶ Lane TAF/PLAN-taf-v1-001-01/G-7 — the corpus teaches<a class="anchor" href="#lane-tafplan-taf-v1-001-01g-7--the-corpus-teaches" aria-label="Link to this section">#</a></h3>
 <p>tafbase is a learning surface (ADR-taf-v1-002-01): every concept the
 generated code embodies is a CONCEPT document — Python and pytest,
@@ -142,8 +200,8 @@ Accepted by: T-taf-007 (code-link-unresolved refuses a dead citation)</li>
 </ul>
 </article><section class="backlinks"><h2>Mentioned in <span class="count">4</span></h2><ul><li><a href="../specs/SPEC-taf-v1-001-01-the-sut-model.html">SPEC-taf-v1-001-01 — the SUT model</a> <span class="muted">SPEC-taf-v1-001-01-the-sut-model</span></li><li><a href="../specs/SPEC-taf-v1-001-02-the-sut-model.html">SPEC-taf-v1-001-02 — the SUT model</a> <span class="muted">SPEC-taf-v1-001-02-the-sut-model</span></li><li><a href="../specs/SPEC-taf-v1-001-03-the-sut-language.html">SPEC-taf-v1-001-03 — the SUT language</a> <span class="muted">SPEC-taf-v1-001-03-the-sut-language</span></li><li><a href="../specs/SPEC-taf-v1-001-04-tafbase.html">SPEC-taf-v1-001-04 — tafbase</a> <span class="muted">SPEC-taf-v1-001-04-tafbase</span></li></ul></section>
 </main>
-<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">12</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">12</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">2</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-15 19:12 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-16 03:03 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

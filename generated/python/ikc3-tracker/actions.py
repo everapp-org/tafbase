@@ -9,4 +9,5 @@ def open_board(page, base_url):
 
 def open_tot(page, base_url):
     page.goto(base_url + ROUTES["tot"])
+    page.wait_for_timeout(800)
 

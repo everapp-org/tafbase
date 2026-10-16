@@ -13,5 +13,6 @@ public class Actions {
     }
     public static void openTot(Page page, String baseUrl) {
         page.navigate(baseUrl + TotPage.ROUTE);
+        page.waitForTimeout(800);
     }
 }

@@ -22,7 +22,7 @@
     "open-tot": {
       "from": "board",
       "to": "tot",
-      "do": [{"navigate": "tot"}]
+      "do": [{"navigate": "tot"}, {"dwell": 800}]
     }
   },
   "journeys": {

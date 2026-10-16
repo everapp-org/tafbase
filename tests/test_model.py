@@ -148,6 +148,20 @@ def test_duplicate_name():
 
 
 # T-model-013
+def test_dwell_is_pacing_not_sync():
+    doc = minimal()
+    doc["actions"]["go-b"]["do"] = [{"click": "go"}, {"dwell": 400}]
+    assert refusals_of(doc) == []
+
+
+def test_bad_dwell_refuses():
+    for bad in (-1, "400", None):
+        doc = minimal()
+        doc["actions"]["go-b"]["do"] = [{"dwell": bad}]
+        rs = refusals_of(doc)
+        assert any(r["reason"] == "bad-dwell" for r in rs), (bad, rs)
+
+
 def test_mixed_steps():
     doc = minimal()
     doc["journeys"]["go"]["steps"] = ["go-b", {"navigate": "a"}]

@@ -81,7 +81,8 @@ edge of the SUT's graph — which is also what `taf walk` traverses, so a
 model serves journeys, walks, and coverage without being written twice.
 An action's `do` list composes steps: act (`click`, `fill`, `check`,
 `select`), move (`navigate`), observe (`wait-for`, `expect`), call the
-API (`api`, `save`).
+API (`api`, `save`), pace (`dwell` — a pause for a watching human,
+never a synchronization device; markers and `wait-for` own that).
 
 ## TAF-4 · Journeys are paths
 
@@ -123,7 +124,8 @@ A model is one JSON document, `*.sut.model.json` by convention:
   takes `{element, value}`; `navigate` and `wait-for` take a state or
   element name; `api` takes an endpoint name plus optional `args`;
   `save` takes `{name: "$.json.path"}`; `expect` takes `{element,
-  assertion}` or `{saved, assertion}`.
+  assertion}` or `{saved, assertion}`; `dwell` takes milliseconds, a
+  number ≥ 0.
 - A journey's `steps` is either all action names or all inline step
   objects — the two forms do not mix.
 

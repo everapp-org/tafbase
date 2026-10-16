@@ -133,7 +133,8 @@ edge of the SUT&#39;s graph — which is also what <code>taf walk</code> travers
 model serves journeys, walks, and coverage without being written twice.
 An action&#39;s <code>do</code> list composes steps: act (<code>click</code>, <code>fill</code>, <code>check</code>,
 <code>select</code>), move (<code>navigate</code>), observe (<code>wait-for</code>, <code>expect</code>), call the
-API (<code>api</code>, <code>save</code>).</p>
+API (<code>api</code>, <code>save</code>), pace (<code>dwell</code> — a pause for a watching human,
+never a synchronization device; markers and <code>wait-for</code> own that).</p>
 <h2 id="taf-4--journeys-are-paths">TAF-4 · Journeys are paths<a class="anchor" href="#taf-4--journeys-are-paths" aria-label="Link to this section">#</a></h2>
 <p>A journey is a path through the SUT: a <code>start</code> state, then named actions
 that chain — each action&#39;s <code>to</code> is the next action&#39;s <code>from</code> — or inline
@@ -166,7 +167,8 @@ verify the API. <code>{name}</code> markers in a path bind from the step&#39;s <
 <li>Step forms: <code>click</code>/<code>check</code>/<code>select</code> take an element name; <code>fill</code>
 takes <code>{element, value}</code>; <code>navigate</code> and <code>wait-for</code> take a state or
 element name; <code>api</code> takes an endpoint name plus optional <code>args</code>;
-<code>save</code> takes <code>{name: &quot;$.json.path&quot;}</code>; <code>expect</code> takes <code>{element, assertion}</code> or <code>{saved, assertion}</code>.</li>
+<code>save</code> takes <code>{name: &quot;$.json.path&quot;}</code>; <code>expect</code> takes <code>{element, assertion}</code> or <code>{saved, assertion}</code>; <code>dwell</code> takes milliseconds, a
+number ≥ 0.</li>
 <li>A journey&#39;s <code>steps</code> is either all action names or all inline step
 objects — the two forms do not mix.</li>
 </ul>
@@ -286,8 +288,8 @@ walk-generation strategies beyond the seeded walk — each is a declared
 lane in <a class="wikilink" href="../plans/PLAN-taf-v1-001-01-tafbase.html" title="PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework">PLAN-taf-v1-001-01-tafbase</a>, none is guessed here.</p>
 </article><section class="backlinks"><h2>Mentioned in <span class="count">2</span></h2><ul><li><a href="../plans/PLAN-taf-v1-001-01-tafbase.html">PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework</a> <span class="muted">PLAN-taf-v1-001-01-tafbase</span></li><li><a href="SPEC-taf-v1-001-03-the-sut-language.html">SPEC-taf-v1-001-03 — the SUT language</a> <span class="muted">SPEC-taf-v1-001-03-the-sut-language</span></li></ul></section>
 </main>
-<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">12</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">1</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">12</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">2</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-15 19:12 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-16 03:03 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

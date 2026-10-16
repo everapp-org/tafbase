@@ -143,6 +143,69 @@ oracle from `workflow.edn`/`support.edn`, coverage-directed suite
 generation, journal replay.
 
 
+### ▶ Lane TAF/PLAN-taf-v1-001-01/H-8 — observation: dwell, waits, narration
+
+From the qa-tafbase harvest (RESEARCH-taf-v1-002-01). `dwell` is a
+declared pacing property — a `{"dwell": <ms>}` step emitted as a
+literal for a watching human; it is not synchronization (markers and
+auto-waiting own correctness). Steps may carry a human `label` the
+emitted code logs — every action self-narrates, and narrated timestamps
+make the run video captionable: a teardown writes a sidecar `.srt`
+beside the video (the old framework wired five teardowns for exactly
+this and never built the writer). Later: `wait`/`check` soft/hard
+forms and `wait any (X|Y)`.
+
+**Release note (draft)**
+- New: a suite can be watched — declared dwell slows each step for a
+  human eye, and generated logs narrate each action.
+  Accepted by: T-taf-008
+
+### ▶ Lane TAF/PLAN-taf-v1-001-01/I-9 — versioned locators
+
+From the harvest: elements resolve against (app-version × language) —
+`addLocator(515, SPANISH, xpath, …)` with nearest-lower-version and
+English fallback. In tafbase: an element declares per-version variants;
+the emitter writes the lookup as data, resolved at emit time.
+
+**Release note (draft)**
+- New: one element survives an app's versions and languages —
+  `v515+/es:` variants resolve to the nearest known declaration.
+  Accepted by: T-taf-009
+
+### ▶ Lane TAF/PLAN-taf-v1-001-01/J-10 — visual regression
+
+Screenshot grammar `TCID_run_res_step_{Expected,Actual,Diff}`, a
+`compare screen` step, excluded regions per device, tolerance levels,
+and `taf promote` applying a selection file — the approval loop, not
+auto-rebaselining.
+
+**Release note (draft)**
+- New: visual regression — a `compare screen` step diffs against a
+  baseline, and a person promotes Actual→Expected by file, not by flag.
+  Accepted by: T-taf-010
+
+### ▶ Lane TAF/PLAN-taf-v1-001-01/K-11 — targets: devices and envs
+
+A `device:`/`env:` header — `Pixel9ProXL_chrome`, `qa` — resolves at
+emit time into capabilities and base URL; compile-time-validated
+vocabulary replaces a 300-line runtime factory.
+
+**Release note (draft)**
+- New: `device:` and `env:` in the model emit the exact capabilities
+  block — no runtime dispatch.
+  Accepted by: T-taf-011
+
+### ▶ Lane TAF/PLAN-taf-v1-001-01/L-12 — runs: replay, debug, preflight
+
+`taf run --last-failed` replays a rerun manifest; `--debug` keeps the
+browser and breaks on failure; `requires:` declares suite preflight
+(mail server, service up) that fails fast.
+
+**Release note (draft)**
+- New: a failed run replays only its failures; a debug run pauses at the
+  broken step with the browser open.
+  Accepted by: T-taf-012
+
 ### ▶ Lane TAF/PLAN-taf-v1-001-01/G-7 — the corpus teaches
 
 tafbase is a learning surface (ADR-taf-v1-002-01): every concept the

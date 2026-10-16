@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The harvest from qa-tafbase · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / research</div><h1 class="page-title" id="the-harvest-from-qa-tafbase">The harvest from qa-tafbase <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>RESEARCH-taf-v1-002-01-the-harvest-from-qa-tafbase</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-15</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/RESEARCH.html">Research</a></td></tr><tr><th>source</th><td><code>research/RESEARCH-taf-v1-002-01-the-harvest-from-qa-tafbase.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-15</td></tr></table></details><article class="doc"><h2 id="what-this-is">What this is<a class="anchor" href="#what-this-is" aria-label="Link to this section">#</a></h2>
+<p>A previous-generation framework — a Java/Selenium/Cucumber suite
+(<code>tests_base</code> engine + per-product modules, JUnit4, Appium) — was mapped
+end-to-end for reusable design. This document keeps the result and the
+decisions it produced. The raw harvest: 26 ideas with evidence paths.</p>
+<h2 id="the-rules-the-harvest-confirmed">The rules the harvest confirmed<a class="anchor" href="#the-rules-the-harvest-confirmed" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><strong>Declared beats interpreted.</strong> What the old runtime computed — device
+capability strings, tag→env mapping, layered properties — tafbase
+emits at codegen. The generator absorbs what a factory once computed.</li>
+<li><strong>Dwell is for observation, not synchronization.</strong> <code>visibilitySleep</code>
+(a global + per-call-site <code>Thread.sleep</code> around every action) answered
+two needs at once: letting JS settle <em>and</em> letting a human watch.
+Auto-waiting markers own the first; a declared <code>dwell</code> owns the
+second. They must not fuse — sleeps-for-correctness is the disease
+this framework is built to avoid.</li>
+</ul>
+<h2 id="adopted-lanes-in-plan-taf-v1-001-01">Adopted (lanes in PLAN-taf-v1-001-01)<a class="anchor" href="#adopted-lanes-in-plan-taf-v1-001-01" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>idea</th>
+<th>becomes</th>
+<th>lane</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>visibilitySleep</code> pacing</td>
+<td><code>dwell</code> — per-step/ms or a suite profile, emitted as a literal</td>
+<td>H-8</td>
+</tr>
+<tr>
+<td>named wait vocabulary + soft/hard</td>
+<td><code>wait</code>/<code>check</code> step forms, <code>wait any (X|Y)</code></td>
+<td>H-8</td>
+</tr>
+<tr>
+<td>version × language locator matrix</td>
+<td>versioned elements, generated lookup tables</td>
+<td>I-9</td>
+</tr>
+<tr>
+<td>screenshot grammar + approval loop</td>
+<td><code>compare screen</code> step, <code>TCID_run_res_step_{E,A,D}</code>, <code>taf promote</code></td>
+<td>J-10</td>
+</tr>
+<tr>
+<td>capability token (<code>Pixel9ProXL_chrome</code>)</td>
+<td><code>device:</code>/<code>env:</code> model header emitting the driver block</td>
+<td>K-11</td>
+</tr>
+<tr>
+<td>column-model schema (its TSV interpreter)</td>
+<td>stays as proof the grammar works — the tafbase DSL is its compile-time heir</td>
+<td>(settled)</td>
+</tr>
+<tr>
+<td><code>rerun.txt</code> failed-only replay</td>
+<td><code>taf run --last-failed</code> manifest</td>
+<td>L-12</td>
+</tr>
+<tr>
+<td>debug affordances</td>
+<td><code>--debug</code>: keep browser open, break on failure</td>
+<td>L-12</td>
+</tr>
+<tr>
+<td>circuit breaker / preflight</td>
+<td><code>requires:</code> model clause → emitted preflight</td>
+<td>L-12</td>
+</tr>
+<tr>
+<td>self-narrating actions</td>
+<td>required human <code>label</code> on elements/steps → emitted logs</td>
+<td>H-8</td>
+</tr>
+<tr>
+<td>the never-built <code>.srt</code> subtitles</td>
+<td>narrated steps + timestamps → sidecar <code>.srt</code> beside run video</td>
+<td>H-8 (with J-10 artifacts)</td>
+</tr>
+</tbody></table>
+<p>The <code>.srt</code> item deserves a note: all five teardown paths of the old
+framework captured a video-stop timestamp and called a
+<code>createSubTitlesFile</code> that was only ever committed commented out — the
+intent was a subtitle track mapping each narrated action line
+(<code>Clicking &#39;X&#39; on &#39;Y&#39;</code>) onto video timecodes. The hard half —
+timestamped narration — already existed. In generated code both halves
+are cheap: emitted steps know their text and their clock, so a teardown
+writer emits <code>results/&lt;runId&gt;/&lt;test&gt;.srt</code> beside the video. A run
+becomes replayable <em>and</em> readable.</p>
+<h2 id="deliberately-left-behind">Deliberately left behind<a class="anchor" href="#deliberately-left-behind" aria-label="Link to this section">#</a></h2>
+<p>PPTX reports, Robot/AWT screen capture, hotkey-driven video, Swing
+overlay strips, VM-awake mouse jiggles, X:-drive archiving, hardcoded
+notification tokens. Playwright viewport capture + HTML reports +
+committed artifacts replace the whole cluster.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">12</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">2</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-16 03:03 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

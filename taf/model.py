@@ -16,7 +16,8 @@ import json
 # are the last-resort rung and flag the element `fragile` in the manifest.
 LOCATOR_RUNGS = ("role", "label", "text", "placeholder", "testid", "css", "xpath")
 
-STEP_FORMS = ("click", "fill", "check", "select", "navigate", "wait-for", "api", "expect")
+STEP_FORMS = ("click", "fill", "check", "select", "navigate", "wait-for",
+              "api", "expect", "dwell")
 
 REQUIRED_TOP = ("sut", "states", "journeys")
 
@@ -98,6 +99,10 @@ def _check_step(step, elements, states, endpoints, clause, refusals):
         if name not in endpoints:
             refusals.append(_refusal(clause, "unknown-endpoint",
                                      "api names no endpoint: %r" % (name,)))
+    elif form == "dwell":
+        if not isinstance(arg, (int, float)) or isinstance(arg, bool) or arg < 0:
+            refusals.append(_refusal(clause, "bad-dwell",
+                                     "dwell takes milliseconds, a number >= 0: %r" % (arg,)))
     elif form == "expect":
         el = arg.get("element") if isinstance(arg, dict) else None
         if el is not None and el not in elements:

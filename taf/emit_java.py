@@ -80,6 +80,9 @@ def _emit_step(step, endpoints, pad):
             for k, jpath in arg["save"].items():
                 lines.append(f'{pad}saved.put("{k}", resp.json(){_jsonpath(jpath)});')
         return lines
+    if form == "dwell":
+        # A pause for a watching human — observation, not synchronization.
+        return [f"{pad}page.waitForTimeout({arg});"]
     if form == "expect":
         if isinstance(arg, dict) and "element" in arg:
             el = f"Elements.{_j(arg['element'])}(page)"
