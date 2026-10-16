@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Environment variables · tafbase</title>
+<title>The environment contract · tafbase</title>
 <link rel="stylesheet" href="../../assets/site.css">
 <script src="../../assets/site.js" defer></script>
 </head>
@@ -15,17 +15,19 @@
 </header>
 <div class="shell">
 <main class="main">
-<div class="crumbs"><a href="../../tree.html">Tree</a> / concepts</div><h1 class="page-title" id="environment-variables">Environment variables <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-python-v1-001-01-the-environment</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>python</td></tr><tr><th>date</th><td>2026-10-15</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>source</th><td><code>concepts/CONCEPT-python-v1-001-01-the-environment.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-15</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<div class="crumbs"><a href="../../tree.html">Tree</a> / concepts</div><h1 class="page-title" id="the-environment-contract">The environment contract <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-taf-v1-003-01-the-environment</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-15</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>source</th><td><code>concepts/CONCEPT-taf-v1-003-01-the-environment.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-15</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
 <p>Every process inherits a set of text key=value pairs from the program
 that started it — its <strong>environment</strong>. The shell exports them; the
-program reads them. In Python they live in <code>os.environ</code>, a dict-like
-mapping:</p>
+program reads them. This page is the framework&#39;s <em>contract</em> over that
+OS mechanism: the <code>TAF_*</code> variables every generated suite honors, in
+every language. Python reads them through <code>os.environ</code>:</p>
 <pre><code class="language-python">os.environ.get(&quot;TAF_BASE_URL&quot;, &quot;http://127.0.0.1:4856&quot;)  # value, or a default
 os.environ.get(&quot;TAF_IKC3_WS&quot;)                            # value, or None
 </code></pre>
-<p>Java reads the same table through <code>System.getenv()</code> — one mechanism,
-two spellings, which is why both generated suites retarget the same way.
-A variable set for one command applies to that run only:</p>
+<p>Java reads the same table through <code>System.getenv()</code>. One mechanism, two
+spellings — one contract, which is why a <code>java</code> page on environment
+variables does not exist: the variable means the same thing whoever
+reads it. A variable set for one command applies to that run only:</p>
 <pre><code class="language-bash">TAF_SLOWMO=800 .venv/bin/python -m pytest generated/python/ikc3-tracker -q
 </code></pre>
 <p><em>(Not this word&#39;s other meaning: the <strong>virtual environment</strong> is a
@@ -87,6 +89,6 @@ variable enables; <a class="wikilink" href="CONCEPT-taf-v1-001-01-the-learning-p
 </main>
 <nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">13</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">2</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-16 03:18 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-16 03:25 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

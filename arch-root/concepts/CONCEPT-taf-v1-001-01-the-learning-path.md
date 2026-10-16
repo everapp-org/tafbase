@@ -35,7 +35,7 @@ answers "where do I start?"
 8. Playwright mechanics → [[CONCEPT-playwright-v1-002-01-the-browser-context]],
    [[CONCEPT-playwright-v1-003-01-auto-waiting]]
 9. Organizing a suite → [[CONCEPT-pom-v1-001-01-the-page-object]]
-10. Configuring a run → [[CONCEPT-python-v1-001-01-the-environment]]
+10. Configuring a run → [[CONCEPT-taf-v1-003-01-the-environment]]
 11. Closing the loop → [[CONCEPT-taf-v1-002-01-the-result-sink]]
 12. Java parity — what "equivalent suite" means →
     [[CONCEPT-java-v1-001-01-the-junit-lifecycle]]

@@ -67,6 +67,6 @@ plus the README's install line rebuilds it.
 ## Neighbors
 
 Environment variables are a different thing sharing the word —
-[[CONCEPT-python-v1-001-01-the-environment]]. What the venv installs is
+[[CONCEPT-taf-v1-003-01-the-environment]]. What the venv installs is
 pytest and Playwright: [[CONCEPT-pytest-v1-001-01-the-pytest-fixture]],
 [[CONCEPT-playwright-v1-002-01-the-browser-context]].

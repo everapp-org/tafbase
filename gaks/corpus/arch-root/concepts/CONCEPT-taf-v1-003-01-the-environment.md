@@ -1,30 +1,32 @@
 ---
-id: CONCEPT-python-v1-001-01-the-environment
+id: CONCEPT-taf-v1-003-01-the-environment
 status: draft
-subproject: python
+subproject: taf
 authored: 2026-10-15
 authors:
   - George Petrov
   - Devin
 ---
 
-# Environment variables
+# The environment contract
 
 ## Definition
 
 Every process inherits a set of text key=value pairs from the program
 that started it — its **environment**. The shell exports them; the
-program reads them. In Python they live in `os.environ`, a dict-like
-mapping:
+program reads them. This page is the framework's *contract* over that
+OS mechanism: the `TAF_*` variables every generated suite honors, in
+every language. Python reads them through `os.environ`:
 
 ```python
 os.environ.get("TAF_BASE_URL", "http://127.0.0.1:4856")  # value, or a default
 os.environ.get("TAF_IKC3_WS")                            # value, or None
 ```
 
-Java reads the same table through `System.getenv()` — one mechanism,
-two spellings, which is why both generated suites retarget the same way.
-A variable set for one command applies to that run only:
+Java reads the same table through `System.getenv()`. One mechanism, two
+spellings — one contract, which is why a `java` page on environment
+variables does not exist: the variable means the same thing whoever
+reads it. A variable set for one command applies to that run only:
 
 ```bash
 TAF_SLOWMO=800 .venv/bin/python -m pytest generated/python/ikc3-tracker -q

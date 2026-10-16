@@ -106,6 +106,9 @@ GAKS template demands two sections; this project demands five answers:
 
 Concepts file under the domain they teach (`python`, `pytest`,
 `playwright`, `java`, `pom`, `testing`, `dsl`), not the project's — a
-learner navigates by what is taught, not by what we built. Two words
-with two meanings get two pages; a page that disambiguates instead of
-teaching fails this bar.
+learner navigates by what is taught, not by what we built. A concept
+whose mechanism is language-neutral files once — in `taf` when it is
+the framework's own contract — showing each language's spelling inside
+the one page, never duplicated per language. Two words with two
+meanings get two pages; a page that disambiguates instead of teaching
+fails this bar.
