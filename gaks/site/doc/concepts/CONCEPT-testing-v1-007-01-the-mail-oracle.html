@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The mail oracle · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / concepts</div><h1 class="page-title" id="the-mail-oracle">The mail oracle <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-testing-v1-007-01-the-mail-oracle</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>testing</td></tr><tr><th>date</th><td>2026-10-16</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>source</th><td><code>concepts/CONCEPT-testing-v1-007-01-the-mail-oracle.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-16</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Verifying email: snapshot the inbox <em>before</em> the action, then poll
+only messages that arrived after a marked timestamp, comparing the body
+against a template whose volatile fields are masked
+(<code>X_PLACEHOLDER_X</code>, regex-masked <code>Date:</code>/<code>Deposit ID:</code>).</p>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Mail is the canonical asynchronous oracle — you can&#39;t wait for it, you
+can only look for what wasn&#39;t there before and verify it loosely
+enough that volatile fields don&#39;t flake it. The old framework&#39;s tricks
+were the reusable pearls: the <em>baseline snapshot</em> (only new messages
+count), the <em>sparse poll schedule</em> ({2,15,25,43,...,179}s over a 182s
+budget — early checks are cheap, patience grows), and the <em>masked
+template</em> compare. It even scraped an MFA code back out of the mail
+HTML and typed it into the page — closing a full verify-by-mail loop.</p>
+<h2 id="in-this-project">In this project<a class="anchor" href="#in-this-project" aria-label="Link to this section">#</a></h2>
+<p>Deferred — needs a mail-capable SUT. The pattern generalizes: any
+async oracle (a webhook, a queued job) wants snapshot-then-poll-new.</p>
+<h2 id="touch-it">Touch it<a class="anchor" href="#touch-it" aria-label="Link to this section">#</a></h2>
+<p>Not implemented — RESEARCH-taf-v1-002-01, item 18.</p>
+<h2 id="neighbors">Neighbors<a class="anchor" href="#neighbors" aria-label="Link to this section">#</a></h2>
+<p><a class="wikilink" href="CONCEPT-dsl-v1-010-01-the-fixture.html" title="The fixture block">CONCEPT-dsl-v1-010-01-the-fixture</a> (arrange via API),
+<a class="wikilink" href="CONCEPT-testing-v1-002-01-the-failure-funnel.html" title="The failure funnel">CONCEPT-testing-v1-002-01-the-failure-funnel</a>.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">32</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">2</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-16 03:39 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

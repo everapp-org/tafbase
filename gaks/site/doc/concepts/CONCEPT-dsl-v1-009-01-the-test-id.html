@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The test id · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / concepts</div><h1 class="page-title" id="the-test-id">The test id <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-dsl-v1-009-01-the-test-id</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>dsl</td></tr><tr><th>date</th><td>2026-10-16</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>source</th><td><code>concepts/CONCEPT-dsl-v1-009-01-the-test-id.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-16</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>A short, stable identifier a test carries — the old framework&#39;s
+<code>ASM011</code>, extracted from the scenario name to drive golden filenames,
+result folders, and report groups.</p>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Names are prose; ids are handles. Every artifact a run leaves —
+<code>ASM011_run42_desktop_step3_Expected.PNG</code>, a rerun manifest entry, a
+fault report&#39;s subject — joins on the id. Parsing it out of a name was
+the workaround; declaring it (<code>test ASM011 &quot;...&quot;</code>) makes it a
+first-class token the model owns and the manifest exports.</p>
+<h2 id="in-this-project">In this project<a class="anchor" href="#in-this-project" aria-label="Link to this section">#</a></h2>
+<p>Planned — today the journey name is the de facto id
+(<code>taf.manifest.json</code> keys on it). Declared test ids arrive with the
+artifact grammar of lane J-10 and the rerun manifest of lane L-12.</p>
+<h2 id="touch-it">Touch it<a class="anchor" href="#touch-it" aria-label="Link to this section">#</a></h2>
+<p>Read <code>generated/python/ikc3-tracker/taf.manifest.json</code> — the <code>test</code>
+fields are the ids a declared token will replace.</p>
+<h2 id="neighbors">Neighbors<a class="anchor" href="#neighbors" aria-label="Link to this section">#</a></h2>
+<p><a class="wikilink" href="CONCEPT-testing-v1-003-01-the-golden-file.html" title="The golden file">CONCEPT-testing-v1-003-01-the-golden-file</a>,
+<a class="wikilink" href="CONCEPT-taf-v1-004-01-the-artifacts.html" title="The artifacts">CONCEPT-taf-v1-004-01-the-artifacts</a>,
+<a class="wikilink" href="CONCEPT-testing-v1-004-01-the-rerun.html" title="The rerun">CONCEPT-testing-v1-004-01-the-rerun</a>.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">2</span></h2><ul><li><a href="CONCEPT-testing-v1-003-01-the-golden-file.html">The golden file</a> <span class="muted">CONCEPT-testing-v1-003-01-the-golden-file</span></li><li><a href="CONCEPT-testing-v1-004-01-the-rerun.html">The rerun</a> <span class="muted">CONCEPT-testing-v1-004-01-the-rerun</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">32</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">2</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-16 03:39 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

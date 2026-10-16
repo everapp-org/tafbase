@@ -206,6 +206,37 @@ browser and breaks on failure; `requires:` declares suite preflight
   broken step with the browser open.
   Accepted by: T-taf-012
 
+## The harvest program — order and combination
+
+Lanes H-8..L-12 are the harvest (RESEARCH-taf-v1-002-01); this is the
+order, driven by what each unlocks and what a learner sees first.
+Milestones, not lanes, are the unit of delivery:
+
+**M1 · Watchable** (H-8). `dwell` ✅, then `label` narration, the wait
+vocabulary (`check` soft, `wait-any`), the `maybe` step. Nothing else
+depends on these; everything a demo or a learner touches benefits.
+Small clauses, immediate payoff — the suite becomes *seeable*.
+
+**M2 · Evidence** (J-10 head + L-12 head). Declared `test-id` → the
+`results/<runId>/<testId>/` artifact layout → golden files (the naming
+grammar needs both) → subtitle track (needs labels from M1 and the
+layout) → rerun manifest → `--debug` keeps the browser. Ordered by
+dependency: each artifact joins on the test id, the srt joins on the
+labels, all of it lands in the layout.
+
+**M3 · Reachable** (K-11 + `requires:` from L-12). `device:`/`env:`
+headers and suite preflight — what makes a suite portable and a run
+honest about prerequisites. Independent of M2; sized for when a second
+target (a staging env, a second device) actually appears.
+
+**M4 · Durable** (I-9). Versioned locators, then the locale dimension
+and API `fixture:` blocks. The biggest model-surface changes; justified
+by a real second version/language, not before.
+
+**M5 · Niche** (deferred). The mail oracle, the image step, the living
+spec — each waits for a SUT that demands it. The pages exist so the
+ideas aren't lost; the lanes wait until they're needed.
+
 ### ▶ Lane TAF/PLAN-taf-v1-001-01/G-7 — the corpus teaches
 
 tafbase is a learning surface (ADR-taf-v1-002-01): every concept the

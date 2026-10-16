@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The failure funnel · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / concepts</div><h1 class="page-title" id="the-failure-funnel">The failure funnel <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-testing-v1-002-01-the-failure-funnel</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>testing</td></tr><tr><th>date</th><td>2026-10-16</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>source</th><td><code>concepts/CONCEPT-testing-v1-002-01-the-failure-funnel.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-16</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>One place every failure passes through — capture what the screen was
+(DOM, screenshot, URL, which step), then fail. The old framework called
+it <code>teststepFail</code>: every step def, every wait, funneled into the same
+routine that grabbed the DOM, took the driver-appropriate screenshot,
+and failed once.</p>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Scattered failure handling loses evidence — each <code>try</code> invents its own
+half-broken capture. One funnel means one place to attach capture,
+reporting, and debugging; a red test leaves <em>evidence</em>, not just a
+stack. The companion idea — dead-session recovery — came from the same
+scar: a driver that died mid-wait was re-acquired rather than
+destroying the whole run.</p>
+<h2 id="in-this-project">In this project<a class="anchor" href="#in-this-project" aria-label="Link to this section">#</a></h2>
+<p><code>pytest_runtest_makereport</code> in the generated <code>conftest.py</code> is the
+funnel: a red call → URL + DOM captured (guarded against mid-navigation),
+→ <code>ikc3_sink.file_report</code> → a tracker fault report. The capture half
+(screenshot, console slice) is lane J-10/L-12; the recover half is
+deferred (short tests rarely need it).</p>
+<h2 id="touch-it">Touch it<a class="anchor" href="#touch-it" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-bash">TAF_IKC3_WS=ws://127.0.0.1:4856/bus-ws TAF_BASE_URL=http://127.0.0.1:9 \
+  .venv/bin/python -m pytest generated/python/ikc3-tracker -q
+# a red test files a report — printed as &#39;fault report filed: &lt;uuid&gt;&#39;
+</code></pre>
+<h2 id="neighbors">Neighbors<a class="anchor" href="#neighbors" aria-label="Link to this section">#</a></h2>
+<p><a class="wikilink" href="CONCEPT-taf-v1-002-01-the-result-sink.html" title="The result sink">CONCEPT-taf-v1-002-01-the-result-sink</a>,
+<a class="wikilink" href="CONCEPT-taf-v1-004-01-the-artifacts.html" title="The artifacts">CONCEPT-taf-v1-004-01-the-artifacts</a>,
+<a class="wikilink" href="CONCEPT-testing-v1-005-01-the-debug-run.html" title="The debug run">CONCEPT-testing-v1-005-01-the-debug-run</a>.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">4</span></h2><ul><li><a href="CONCEPT-testing-v1-005-01-the-debug-run.html">The debug run</a> <span class="muted">CONCEPT-testing-v1-005-01-the-debug-run</span></li><li><a href="CONCEPT-dsl-v1-006-01-the-label.html">The label</a> <span class="muted">CONCEPT-dsl-v1-006-01-the-label</span></li><li><a href="CONCEPT-testing-v1-007-01-the-mail-oracle.html">The mail oracle</a> <span class="muted">CONCEPT-testing-v1-007-01-the-mail-oracle</span></li><li><a href="CONCEPT-testing-v1-004-01-the-rerun.html">The rerun</a> <span class="muted">CONCEPT-testing-v1-004-01-the-rerun</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">32</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">2</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-16 03:39 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

@@ -182,6 +182,30 @@ browser and breaks on failure; <code>requires:</code> declares suite preflight
 broken step with the browser open.
 Accepted by: T-taf-012</li>
 </ul>
+<h2 id="the-harvest-program--order-and-combination">The harvest program — order and combination<a class="anchor" href="#the-harvest-program--order-and-combination" aria-label="Link to this section">#</a></h2>
+<p>Lanes H-8..L-12 are the harvest (RESEARCH-taf-v1-002-01); this is the
+order, driven by what each unlocks and what a learner sees first.
+Milestones, not lanes, are the unit of delivery:</p>
+<p><strong>M1 · Watchable</strong> (H-8). <code>dwell</code> ✅, then <code>label</code> narration, the wait
+vocabulary (<code>check</code> soft, <code>wait-any</code>), the <code>maybe</code> step. Nothing else
+depends on these; everything a demo or a learner touches benefits.
+Small clauses, immediate payoff — the suite becomes <em>seeable</em>.</p>
+<p><strong>M2 · Evidence</strong> (J-10 head + L-12 head). Declared <code>test-id</code> → the
+<code>results/&lt;runId&gt;/&lt;testId&gt;/</code> artifact layout → golden files (the naming
+grammar needs both) → subtitle track (needs labels from M1 and the
+layout) → rerun manifest → <code>--debug</code> keeps the browser. Ordered by
+dependency: each artifact joins on the test id, the srt joins on the
+labels, all of it lands in the layout.</p>
+<p><strong>M3 · Reachable</strong> (K-11 + <code>requires:</code> from L-12). <code>device:</code>/<code>env:</code>
+headers and suite preflight — what makes a suite portable and a run
+honest about prerequisites. Independent of M2; sized for when a second
+target (a staging env, a second device) actually appears.</p>
+<p><strong>M4 · Durable</strong> (I-9). Versioned locators, then the locale dimension
+and API <code>fixture:</code> blocks. The biggest model-surface changes; justified
+by a real second version/language, not before.</p>
+<p><strong>M5 · Niche</strong> (deferred). The mail oracle, the image step, the living
+spec — each waits for a SUT that demands it. The pages exist so the
+ideas aren&#39;t lost; the lanes wait until they&#39;re needed.</p>
 <h3 id="lane-tafplan-taf-v1-001-01g-7--the-corpus-teaches">▶ Lane TAF/PLAN-taf-v1-001-01/G-7 — the corpus teaches<a class="anchor" href="#lane-tafplan-taf-v1-001-01g-7--the-corpus-teaches" aria-label="Link to this section">#</a></h3>
 <p>tafbase is a learning surface (ADR-taf-v1-002-01): every concept the
 generated code embodies is a CONCEPT document — Python and pytest,
@@ -200,8 +224,8 @@ Accepted by: T-taf-007 (code-link-unresolved refuses a dead citation)</li>
 </ul>
 </article><section class="backlinks"><h2>Mentioned in <span class="count">4</span></h2><ul><li><a href="../specs/SPEC-taf-v1-001-01-the-sut-model.html">SPEC-taf-v1-001-01 — the SUT model</a> <span class="muted">SPEC-taf-v1-001-01-the-sut-model</span></li><li><a href="../specs/SPEC-taf-v1-001-02-the-sut-model.html">SPEC-taf-v1-001-02 — the SUT model</a> <span class="muted">SPEC-taf-v1-001-02-the-sut-model</span></li><li><a href="../specs/SPEC-taf-v1-001-03-the-sut-language.html">SPEC-taf-v1-001-03 — the SUT language</a> <span class="muted">SPEC-taf-v1-001-03-the-sut-language</span></li><li><a href="../specs/SPEC-taf-v1-001-04-tafbase.html">SPEC-taf-v1-001-04 — tafbase</a> <span class="muted">SPEC-taf-v1-001-04-tafbase</span></li></ul></section>
 </main>
-<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">13</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">2</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">32</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">2</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-16 03:25 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-16 03:39 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

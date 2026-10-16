@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The debug run · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / concepts</div><h1 class="page-title" id="the-debug-run">The debug run <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-testing-v1-005-01-the-debug-run</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>testing</td></tr><tr><th>date</th><td>2026-10-16</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>source</th><td><code>concepts/CONCEPT-testing-v1-005-01-the-debug-run.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-16</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>A mode where a failing test <em>stays</em>: <code>breakpoint()</code> / <code>PWDEBUG</code> lands
+at the failing step, the browser is not torn down, and the runner lets
+you poke the live page. The old framework had <code>breakPoint()</code> (an empty
+method to hang an IDE breakpoint on), <code>testIsUnderTest</code> and
+<code>keepBrowserOpen</code> — all the affordances for interrogating a failure
+instead of reading it.</p>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>A failure you can inspect beats a failure you read. Most flaky-bug
+hunting is not &quot;does it fail&quot; but &quot;what did it look like the moment it
+did&quot; — and that question is only answerable if the run doesn&#39;t close
+the window on the way out.</p>
+<h2 id="in-this-project">In this project<a class="anchor" href="#in-this-project" aria-label="Link to this section">#</a></h2>
+<p>Lane L-12 — <code>--debug</code> keeps the browser open and breaks on failure.
+Today: <code>PWDEBUG=1</code> opens Playwright&#39;s inspector, <code>TAF_HEADLESS</code> unset +
+<code>TAF_SLOWMO</code> makes the run watchable, and
+<a class="wikilink" href="CONCEPT-dsl-v1-003-01-the-dwell.html" title="The dwell">CONCEPT-dsl-v1-003-01-the-dwell</a> holds a step long enough to see.</p>
+<h2 id="touch-it">Touch it<a class="anchor" href="#touch-it" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-bash">PWDEBUG=1 .venv/bin/python -m pytest generated/python/ikc3-tracker -q
+</code></pre>
+<h2 id="neighbors">Neighbors<a class="anchor" href="#neighbors" aria-label="Link to this section">#</a></h2>
+<p><a class="wikilink" href="CONCEPT-testing-v1-002-01-the-failure-funnel.html" title="The failure funnel">CONCEPT-testing-v1-002-01-the-failure-funnel</a>,
+<a class="wikilink" href="CONCEPT-taf-v1-003-01-the-environment.html" title="The environment contract">CONCEPT-taf-v1-003-01-the-environment</a>.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="CONCEPT-testing-v1-002-01-the-failure-funnel.html">The failure funnel</a> <span class="muted">CONCEPT-testing-v1-002-01-the-failure-funnel</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">32</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">2</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-16 03:39 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

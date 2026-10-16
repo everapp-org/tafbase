@@ -44,3 +44,22 @@ answers "where do I start?"
 
 Every entry is a checked citation — the corpus checker refuses a link to
 a page that does not exist.
+
+## The domains
+
+The path is the on-ramp; the corpus is grouped by *what a page teaches*:
+
+| domain | teaches |
+|---|---|
+| `python` | the language surface — venv, env-adjacent mechanics |
+| `pytest` | the test runner — fixtures, hooks, scope |
+| `playwright` | the browser library — locators, contexts, waiting |
+| `java` | the second emitter's world — JUnit lifecycle, Maven |
+| `pom` | the page-object model — organizing a suite |
+| `testing` | the discipline — AAA, failure handling, goldens, flakes |
+| `dsl` | the model language — steps, locators, targets, walks |
+| `taf` | the framework itself — its contract, sinks, artifacts |
+
+A concept files under the domain it teaches; language-neutral ideas —
+the `TAF_*` contract, the run layout — live under `taf`, once, never
+duplicated per language.

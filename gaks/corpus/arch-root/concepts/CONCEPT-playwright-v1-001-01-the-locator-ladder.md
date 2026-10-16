@@ -32,3 +32,24 @@ the preference is enforced by the model, not by habit.
 
 SPEC-taf-v1-001-04, `elements` clause. The emitters translate each rung
 to the platform's locator API (`get_by_role` → `getByRole`).
+
+## The rung above the rungs — semantic locator kinds
+
+The old framework went one step further with kinds like
+`buttonTextLabel` and `inputTextLabel` ("input labeled 'Email'" — a
+label whose `for`/following-sibling finds the field). Juniors wrote
+locators without knowing XPath; the emitter compiled the kind into it.
+Planned for the ladder: named semantic kinds that emit their XPath —
+see RESEARCH-taf-v1-002-01, item 7.
+
+## Touch it
+
+```bash
+grep -A3 '"marker"' suts/ikc3-tracker.sut.model.json
+```
+
+## Neighbors
+
+[[CONCEPT-playwright-v1-003-01-auto-waiting]] (a locator that auto-waits
+is a locator that works), [[CONCEPT-dsl-v1-008-01-the-image-step]] (the
+rung past the last rung).
