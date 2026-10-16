@@ -90,10 +90,36 @@ a page that does not exist.</p>
 <p>A concept files under the domain it teaches; language-neutral ideas —
 the <code>TAF_*</code> contract, the run layout — live under <code>taf</code>, once, never
 duplicated per language.</p>
-</article><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="CONCEPT-taf-v1-003-01-the-environment.html">The environment contract</a> <span class="muted">CONCEPT-taf-v1-003-01-the-environment</span></li></ul></section>
+<h2 id="three-readers-three-entries">Three readers, three entries<a class="anchor" href="#three-readers-three-entries" aria-label="Link to this section">#</a></h2>
+<p>tafbase is three levels — build the framework, model a SUT, use the
+suite (<a class="wikilink" href="CONCEPT-taf-v1-007-01-the-three-levels.html" title="The three levels">CONCEPT-taf-v1-007-01-the-three-levels</a>). Each reads a
+different subset:</p>
+<table>
+<thead>
+<tr>
+<th>you are</th>
+<th>read first</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>a <strong>model author</strong></td>
+<td><code>dsl</code> — the model, the step language, waits, locators</td>
+</tr>
+<tr>
+<td>a <strong>test user</strong></td>
+<td><code>taf</code> + <code>testing</code> — the contract, the sink, failure handling</td>
+</tr>
+<tr>
+<td>a <strong>framework contributor</strong></td>
+<td><code>python</code> + <code>pytest</code> + <code>playwright</code> — the machinery</td>
+</tr>
+</tbody></table>
+<p>A reader never needs all domains — that separation is the DSL First
+promise itself.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">2</span></h2><ul><li><a href="CONCEPT-taf-v1-003-01-the-environment.html">The environment contract</a> <span class="muted">CONCEPT-taf-v1-003-01-the-environment</span></li><li><a href="CONCEPT-taf-v1-007-01-the-three-levels.html">The three levels</a> <span class="muted">CONCEPT-taf-v1-007-01-the-three-levels</span></li></ul></section>
 </main>
-<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">32</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">2</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">33</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">2</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-16 03:46 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-16 03:53 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

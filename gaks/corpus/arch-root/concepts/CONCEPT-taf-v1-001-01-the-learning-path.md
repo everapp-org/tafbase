@@ -63,3 +63,18 @@ The path is the on-ramp; the corpus is grouped by *what a page teaches*:
 A concept files under the domain it teaches; language-neutral ideas —
 the `TAF_*` contract, the run layout — live under `taf`, once, never
 duplicated per language.
+
+## Three readers, three entries
+
+tafbase is three levels — build the framework, model a SUT, use the
+suite ([[CONCEPT-taf-v1-007-01-the-three-levels]]). Each reads a
+different subset:
+
+| you are | read first |
+|---|---|
+| a **model author** | `dsl` — the model, the step language, waits, locators |
+| a **test user** | `taf` + `testing` — the contract, the sink, failure handling |
+| a **framework contributor** | `python` + `pytest` + `playwright` — the machinery |
+
+A reader never needs all domains — that separation is the DSL First
+promise itself.
