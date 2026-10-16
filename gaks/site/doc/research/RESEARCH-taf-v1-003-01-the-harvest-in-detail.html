@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The harvest in detail — evidence appendix · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / research</div><h1 class="page-title" id="the-harvest-in-detail--evidence-appendix">The harvest in detail — evidence appendix <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>RESEARCH-taf-v1-003-01-the-harvest-in-detail</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-16</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/RESEARCH.html">Research</a></td></tr><tr><th>source</th><td><code>research/RESEARCH-taf-v1-003-01-the-harvest-in-detail.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-16</td></tr></table></details><article class="doc"><p>The full evidence behind RESEARCH-taf-v1-002-01: every idea recovered
+from the previous-generation framework (a Maven multi-module
+Java/Selenium/Cucumber/Appium suite — <code>tests_base</code> engine plus
+per-product modules), with the file that proves it, the translation to
+generated code, and where it landed in this corpus.</p>
+<p>Architecture context: JUnit4 + Cucumber 7.13 + Selenium 4.35 + Appium.
+A prior generation exists underneath (Concordion + a TSV interpreter —
+item 14). <code>→</code> marks the tafbase landing: a CONCEPT page, a lane of
+<code>PLAN-taf-v1-001-01</code>, or done.</p>
+<h2 id="per-step-pacing--dwell">Per-step pacing / dwell<a class="anchor" href="#per-step-pacing--dwell" aria-label="Link to this section">#</a></h2>
+<h3 id="1-visibilitysleep--visisleep--the-global-dwell">1. <code>visibilitySleep</code> / <code>visiSleep</code> — the global dwell<a class="anchor" href="#1-visibilitysleep--visisleep--the-global-dwell" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>tests_base/.../utils/TimeUtils.java:478-498</code>; config
+<code>visibility.sleep.time=222</code> (<code>config.properties:32</code>); mutable static
+<code>Configuration.VISIBILITY_SLEEP</code> (<code>utils/Configuration.java:60,192</code>).
+Called before and after nearly every action
+(<code>com/fxcm/qa/TestBase.java:809-826</code>).</li>
+<li><strong>What it is:</strong> a <code>Thread.sleep</code> wrapper with two units and a
+zero-arg overload using the global. Two purposes: let JS/animations
+settle, and make live-watching pleasant (paired with the <code>Overlay</code>).
+Overridden per call-site (<code>visiSleep(345)</code> at <code>TestBase.java:1082</code>),
+per run (config), at runtime (non-final static; even inside JS —
+<code>setTimeout(()=&gt;arguments[0].click(), VISIBILITY_SLEEP)</code> at
+<code>TestBase.java:756,789</code>).</li>
+<li><strong>Translation:</strong> a DSL-level annotation, not a sleep — resolved at
+codegen into per-step literals.</li>
+<li><strong>Cost:</strong> small. <strong>→ done</strong> — <code>{&quot;dwell&quot;: &lt;ms&gt;}</code>;
+<a class="wikilink" href="../concepts/CONCEPT-dsl-v1-003-01-the-dwell.html" title="The dwell">CONCEPT-dsl-v1-003-01-the-dwell</a>.</li>
+</ul>
+<h2 id="browserdriver-factory">Browser/driver factory<a class="anchor" href="#browserdriver-factory" aria-label="Link to this section">#</a></h2>
+<h3 id="2-resolution--one-token-drives-local-emulation-and-browserstack">2. &quot;Resolution&quot; — one token drives local emulation AND BrowserStack<a class="anchor" href="#2-resolution--one-token-drives-local-emulation-and-browserstack" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>CucumberTestBase.initTest</code> dispatches on
+<code>&quot;desktop, mobile, tablet&quot;.contains(resolution)</code> (<code>:139-143</code>); local
+mobile/tablet via CDP <code>Emulation.setDeviceMetricsOverride</code>
+(<code>:550-572</code>); remote via token parsing — <code>w10_chrome</code>,
+<code>iPhone16Pro_safari</code>, <code>GalaxyS25Ultra_samsung</code> → os/osVersion/
+deviceName/browserName switch (<code>:319-430</code>). Env creds override
+<code>browserstack.yml</code> (<code>:289-290</code>); <code>buildIdentifier=TEST_RUN_ID</code>,
+<code>sessionName=testName_example</code> (<code>:306-307</code>).</li>
+<li><strong>Translation:</strong> already a mini-DSL — <code>device: Pixel9ProXL_chrome</code>
+emits the exact capabilities object; zero runtime parsing,
+compile-time vocabulary.</li>
+<li><strong>Cost:</strong> medium. <strong>→</strong> lane K-11;
+<a class="wikilink" href="../concepts/CONCEPT-dsl-v1-012-01-the-target.html" title="The target">CONCEPT-dsl-v1-012-01-the-target</a>.</li>
+</ul>
+<h3 id="3-tag--environment--url-and-locator-version-selection">3. Tag → environment → URL AND locator-version selection<a class="anchor" href="#3-tag--environment--url-and-locator-version-selection" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>isUatTest</code> maps <code>@qa_env</code>/<code>@uat_env</code>/<code>@browserstack_*</code>
+to suiteName + testUrl + <code>DEFAULT_VERSION</code>
+(<code>CucumberTestBase.java:128-134,218-239</code>;
+<code>DEFAULT_VERSION_QA/UAT</code> in <code>Configuration.java:28-29,139-148</code>).</li>
+<li><strong>Translation:</strong> <code>env:</code> bakes baseUrl + locator version into the
+emitted suite.</li>
+<li><strong>Cost:</strong> small. <strong>→</strong> lane K-11; same concept as item 2.</li>
+</ul>
+<h2 id="waits">Waits<a class="anchor" href="#waits" aria-label="Link to this section">#</a></h2>
+<h3 id="4-named-wait-vocabulary-soft-and-hard">4. Named wait vocabulary, soft and hard<a class="anchor" href="#4-named-wait-vocabulary-soft-and-hard" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>waitUntilVisibilityOfElement</code>,
+<code>waitLongVisibilityOfElement</code>, <code>waitInvisibilityOfElement</code>,
+<code>waitUntilClickable</code>, <code>waitUntilVisibilityOfEitherElements</code>,
+<code>waitUntilVisibilityOfText</code> (<code>TestBase.java:962-1146</code>). Soft variant
+logs + saves DOM + screenshot, continues
+(<code>waitUntilVisibilityOfElementParametrized</code>, <code>:985-1011</code>); hard
+variant fails through <code>teststepFail</code> (<code>...AndConfirm</code>, <code>:1013-1040</code>).
+Implicit wait fixed at 2 s (<code>:419</code>).</li>
+<li><strong>Translation:</strong> DSL verbs <code>wait</code>, <code>check</code> (soft), <code>wait any</code>.</li>
+<li><strong>Cost:</strong> small. <strong>→ done in part</strong> — <code>wait-any</code>, <code>soft: true</code>;
+<a class="wikilink" href="../concepts/CONCEPT-dsl-v1-004-01-the-wait.html" title="The wait">CONCEPT-dsl-v1-004-01-the-wait</a>.</li>
+</ul>
+<h2 id="page-objects--element-wrappers">Page objects / element wrappers<a class="anchor" href="#page-objects--element-wrappers" aria-label="Link to this section">#</a></h2>
+<h3 id="5-versionedlocator--the-version--language-matrix">5. <code>VersionedLocator</code> — the version × language matrix<a class="anchor" href="#5-versionedlocator--the-version--language-matrix" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>pom/VersionedLocator.java</code> (whole file);
+<code>ElementBase.locators</code> Guava <code>Table&lt;Integer,Language,VersionedLocator&gt;</code><ul>
+<li><code>addLocator</code> + <code>getBestGuessLocator</code> — largest version ≤ requested,
+English fallback (<code>pom/ElementBase.java:30,43-46,61-134</code>); usage
+<code>loginLink.addLocator(new VersionedLocator(515, Language.SPANISH, &quot;xpath&quot;, &quot;...&quot;))</code> (<code>pom/portal/LoginPom.java:195</code>). A
+<code>screenLocation</code> type carries pixel coords for Sikuli
+(<code>VersionedLocator.java:28-34</code>; <code>ApkPom.java:85-128</code>).</li>
+</ul>
+</li>
+<li><strong>Translation:</strong> <code>element loginLink: xpath(...) | v515+ es: xpath(...)</code> — generated lookup, or per-version generated suites.</li>
+<li><strong>Cost:</strong> medium/lane-sized. <strong>→</strong> lane I-9;
+<a class="wikilink" href="../concepts/CONCEPT-dsl-v1-005-01-the-versioned-locator.html" title="The versioned locator">CONCEPT-dsl-v1-005-01-the-versioned-locator</a>.</li>
+</ul>
+<h3 id="6-canonicalname--parentname--self-narrating-actions">6. <code>canonicalName</code> + <code>parentName</code> — self-narrating actions<a class="anchor" href="#6-canonicalname--parentname--self-narrating-actions" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>new ElementBase(&quot;Sign In button in the &#39;Login&#39;&quot;, stepName, ...)</code> (<code>LoginPom.java:110-114</code>); every helper logs
+<code>&quot;Clicking &quot; + canonicalName + &quot; on &quot; + parentName</code>
+(<code>TestBase.java:731-732</code>).</li>
+<li><strong>Translation:</strong> <code>title</code> on actions/elements → emitted narration.</li>
+<li><strong>Cost:</strong> small. <strong>→ done</strong> — <code>title</code> prints <code>→ open the TOT island</code>;
+<a class="wikilink" href="../concepts/CONCEPT-dsl-v1-006-01-the-label.html" title="The label">CONCEPT-dsl-v1-006-01-the-label</a>.</li>
+</ul>
+<h3 id="7-semantic-locator-kinds-beyond-by">7. Semantic locator kinds beyond <code>By</code><a class="anchor" href="#7-semantic-locator-kinds-beyond-by" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>buttonTextLabel</code>, <code>inputTextLabel</code> (label →
+following-sibling input), <code>selectTextLabel</code>, <code>nameAttr</code>, <code>contains</code>
+(<code>ElementBase.java:76-101</code>).</li>
+<li><strong>Translation:</strong> DSL kinds <code>button &quot;…&quot;</code>, <code>input labeled &quot;…&quot;</code> —
+generator emits the XPath.</li>
+<li><strong>Cost:</strong> small. <strong>→</strong> folded into
+<a class="wikilink" href="../concepts/CONCEPT-playwright-v1-001-01-the-locator-ladder.html" title="The locator ladder">CONCEPT-playwright-v1-001-01-the-locator-ladder</a> (&quot;the rung above
+the rungs&quot;).</li>
+</ul>
+<h2 id="reporting--debugging">Reporting &amp; debugging<a class="anchor" href="#reporting--debugging" aria-label="Link to this section">#</a></h2>
+<h3 id="8-teststepfail--the-single-funnel-for-failure">8. <code>teststepFail</code> — the single funnel for failure<a class="anchor" href="#8-teststepfail--the-single-funnel-for-failure" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>TestBase.java:1666-1691</code> — appends exception line
+number, shows message, calls <code>breakPoint()</code>, saves DOM, screenshots
+(Robot local / <code>TakesScreenshot</code> remote), then fails. Called by step
+defs (<code>PortalStepdefs.java:1398</code>).</li>
+<li><strong>Translation:</strong> generated failure hook — DOM + screenshot +
+structured record.</li>
+<li><strong>Cost:</strong> small. <strong>→ done in part</strong> — the pytest hook files DOM+URL;
+<a class="wikilink" href="../concepts/CONCEPT-testing-v1-002-01-the-failure-funnel.html" title="The failure funnel">CONCEPT-testing-v1-002-01-the-failure-funnel</a>.</li>
+</ul>
+<h3 id="9-screenshots-as-golden-standard--grammar--approval-loop">9. Screenshots as golden standard — grammar + approval loop<a class="anchor" href="#9-screenshots-as-golden-standard--grammar--approval-loop" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> grammar
+<code>TestCaseId_RunId_Resolution_StepId_{Expected,Actual,Diff}.PNG</code>
+(<code>utils/screenshots/domain/ScreenshotName.java:7-18</code>); capture +
+compare in <code>ActionsBase.compareImages</code> (<code>:1052-1163</code>) —
+<code>_Expected_ALT.PNG</code> alternates, <code>REPLACE_DELETED_SCREENSHOTS</code> reseeds,
+<code>IGNORE_MISSING_SCREENSHOTS</code> soft-skips; per-device excluded regions
+(notch, status bar) + <code>pixelToleranceLevel(0.4)</code> + <code>DYN</code>-in-name →
+looser <code>minimalRectangleSize=1300</code>
+(<code>screenshots/TestBaseScreenshots.java:316-357</code>); scan → group →
+Thymeleaf HTML (<code>infra/ResultsScanner.java</code>,
+<code>infra/ThymeleafReportRenderer.java</code>); promotion via selection file +
+auto-generated commit message
+(<code>app/ApplySelectionUseCase.java:36-76,140-162</code>); CLI
+<code>cli/ScreenshotToolMain.java</code>.</li>
+<li><strong>Translation:</strong> <code>compare screen</code> step + <code>taf promote</code>.</li>
+<li><strong>Cost:</strong> lane-sized. <strong>→</strong> lane J-10;
+<a class="wikilink" href="../concepts/CONCEPT-testing-v1-003-01-the-golden-file.html" title="The golden file">CONCEPT-testing-v1-003-01-the-golden-file</a>.</li>
+</ul>
+<h3 id="10-pptx-slide-per-step-report">10. PPTX slide-per-step report<a class="anchor" href="#10-pptx-slide-per-step-report" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>TestBaseScreenshots.takeScreenshotCurrent</code> builds
+<code>XMLSlideShow</code> slides: NOMATCH → diff+actual+expected, MATCH → actual
+(<code>:231-313,386+</code>).</li>
+<li><strong>Translation:</strong> obsolete as PPTX; the <em>one report card per visual
+step</em> idea is item 9&#39;s renderer.</li>
+<li><strong>Cost:</strong> n/a — subsumed. <strong>→</strong> left behind.</li>
+</ul>
+<h3 id="11-driver-aware-artifact-capture--dead-session-recovery">11. Driver-aware artifact capture + dead-session recovery<a class="anchor" href="#11-driver-aware-artifact-capture--dead-session-recovery" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>teststepFail</code> picks capture by driver class
+(<code>TestBase.java:1679-1684</code>); <code>isNullSessionId</code> +
+<code>testContext.getSavedDriver()</code> re-acquires a dead driver
+(<code>:990-993,1042-1047</code>; <code>ActionsBase.checkClassFieldsAreLoaded</code>
+<code>:107-119</code>); <code>saveDom</code> (<code>:850-874</code>); per-test log via Logback MDC sift
+<code>logreset&lt;N&gt;</code> (<code>LogbackUtils.java:19-30</code>, copied at teardown
+<code>CucumberTestBase.java:643</code>).</li>
+<li><strong>Translation:</strong> viewport capture + DOM + console slice + step index.</li>
+<li><strong>Cost:</strong> small. <strong>→</strong> folded into the failure funnel + artifacts.</li>
+</ul>
+<h3 id="12-breakpoint--testisundertest--keepbrowseropen">12. <code>breakPoint()</code> + <code>testIsUnderTest</code> + <code>keepBrowserOpen</code><a class="anchor" href="#12-breakpoint--testisundertest--keepbrowseropen" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> empty method to hang an IDE breakpoint on
+(<code>utils/Utils.java:30-32</code>); invoked in <code>@AfterStep</code> on failure
+(<code>CucumberHooks.java:370-378</code>); <code>keepBrowserOpen</code> skips teardown
+(<code>CucumberTestBase.java:106,600-613</code>).</li>
+<li><strong>Translation:</strong> <code>--debug</code> keeps the browser, breaks on failure.</li>
+<li><strong>Cost:</strong> small. <strong>→</strong> lane L-12;
+<a class="wikilink" href="../concepts/CONCEPT-testing-v1-005-01-the-debug-run.html" title="The debug run">CONCEPT-testing-v1-005-01-the-debug-run</a>.</li>
+</ul>
+<h2 id="configuration-architecture">Configuration architecture<a class="anchor" href="#configuration-architecture" aria-label="Link to this section">#</a></h2>
+<h3 id="13-layered-properties-every-resolved-value-logged">13. Layered properties, every resolved value logged<a class="anchor" href="#13-layered-properties-every-resolved-value-logged" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>Configuration.loadConfig</code> loads root
+<code>../config.properties</code> then overlays module <code>config.properties</code>
+(<code>utils/Configuration.java:248-272</code>); 3-layer resolution
+user &gt; config &gt; test (<code>AConfigFixerTests.java:138-209</code>); env var
+overrides (<code>TAFBASE_TARGET</code>, <code>RUN_TYPE</code>, BrowserStack creds);
+<code>-DconfigFile</code>; every resolved value logged at boot (<code>:99-232</code>).</li>
+<li><strong>Translation:</strong> config as codegen inputs; emit a <code>config.dump()</code>.</li>
+<li><strong>Cost:</strong> small. <strong>→</strong> folded into the target header (item 2/3) and
+<a class="wikilink" href="../concepts/CONCEPT-taf-v1-003-01-the-environment.html" title="The environment contract">CONCEPT-taf-v1-003-01-the-environment</a>.</li>
+</ul>
+<h2 id="the-prior-generation-dsl--tafbases-ancestor">The prior-generation DSL — tafbase&#39;s ancestor<a class="anchor" href="#the-prior-generation-dsl--tafbases-ancestor" aria-label="Link to this section">#</a></h2>
+<h3 id="14-happypathbase--the-tsv-interpreter">14. <code>HappyPathBase</code> — the TSV interpreter<a class="anchor" href="#14-happypathbase--the-tsv-interpreter" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>screenshots/HappyPathBase.java:104-349</code> (the whole
+<code>interpret()</code> commented out). Columns (<code>:58-67</code>): <code>scrId | step | action | fieldCanonicalName | label | value | scrControl | transLabel | transValue | jiraTicket</code>. Actions: <code>Action</code>,
+<code>WaitHeader</code>, <code>WaitH1</code>, <code>WaitH2</code>, <code>CheckFlavicon</code>, <code>CheckLink</code>,
+<code>HandleLocale</code>, <code>SetParameter</code>, <code>SetParamLabel</code>, <code>DoStep</code>.
+<code>scrControl</code> toggled screenshot per line; <code>transLabel</code>/<code>transValue</code>
+ran one row against localized UIs; <code>jiraTicket</code> linked the step.
+Per-test <code>test.properties</code> under <code>src/test/resources/screenshots/</code>.</li>
+<li><strong>Translation:</strong> read as a requirements doc — the column model is a
+field-proven DSL grammar; codegen is its compile-time heir.</li>
+<li><strong>Cost:</strong> n/a — it is our spec&#39;s ancestor. <strong>→</strong>
+<a class="wikilink" href="../concepts/CONCEPT-dsl-v1-007-01-the-step-language.html" title="The step language">CONCEPT-dsl-v1-007-01-the-step-language</a>.</li>
+</ul>
+<h3 id="15-concordion-fixtures--spec-methods-return-display-strings">15. Concordion fixtures — spec methods return display strings<a class="anchor" href="#15-concordion-fixtures--spec-methods-return-display-strings" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>testcases/BaseFixture.java</code> (ConcordionRunner +
+ScreenshotExtension + RunTotals);
+<code>TestcasesBaseFixture.java:72-76</code> (StoryboardExtension = per-step
+screenshot storyboard in the HTML spec); action methods return
+<code>String</code> so specs embed results (<code>TestBase.java:1335-1361</code> —
+<code>moveSliderByLabel</code> returns the label).</li>
+<li><strong>Translation:</strong> steps return the observed value; the report shows
+expected-vs-actual inline.</li>
+<li><strong>Cost:</strong> medium. <strong>→</strong> deferred;
+<a class="wikilink" href="../concepts/CONCEPT-testing-v1-006-01-the-living-spec.html" title="The living spec">CONCEPT-testing-v1-006-01-the-living-spec</a>.</li>
+</ul>
+<h2 id="clever-extras">Clever extras<a class="anchor" href="#clever-extras" aria-label="Link to this section">#</a></h2>
+<h3 id="16-failed-only-rerun">16. Failed-only rerun<a class="anchor" href="#16-failed-only-rerun" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>RunnerFailedCucumberApkBrowserStackQaTests.java:16</code> —
+<code>features = {&quot;@target/rerun.txt&quot;}</code>; Cucumber <code>rerun</code> plugin writes
+failed coords, a dedicated runner replays them.</li>
+<li><strong>Translation:</strong> <code>taf run --last-failed</code> over a rerun manifest.</li>
+<li><strong>Cost:</strong> small. <strong>→</strong> lane L-12;
+<a class="wikilink" href="../concepts/CONCEPT-testing-v1-004-01-the-rerun.html" title="The rerun">CONCEPT-testing-v1-004-01-the-rerun</a>.</li>
+</ul>
+<h3 id="17-suite-circuit-breaker--suitestopreason">17. Suite circuit breaker — <code>suiteStopReason</code><a class="anchor" href="#17-suite-circuit-breaker--suitestopreason" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> static flag; <code>checkForStop()</code> fails fast every
+subsequent test and notifies (<code>TestBase.java:1647-1661</code>); set when
+e.g. the mail server dies (<code>MailUtils.java:70-71</code>).</li>
+<li><strong>Translation:</strong> <code>requires:</code> preflight + runtime breaker.</li>
+<li><strong>Cost:</strong> small. <strong>→</strong> lane L-12;
+<a class="wikilink" href="../concepts/CONCEPT-taf-v1-005-01-the-preflight.html" title="The preflight">CONCEPT-taf-v1-005-01-the-preflight</a>.</li>
+</ul>
+<h3 id="18-mail-testing--baseline--poll-new--masked-compare">18. Mail testing — baseline + poll-new + masked compare<a class="anchor" href="#18-mail-testing--baseline--poll-new--masked-compare" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>MailUtils.initMailProperties</code> snapshots POP3 inboxes,
+stamps <code>setStartWaitMail</code> (<code>MailUtils.java:47-93</code>); polling scans
+only indices ≥ old count and requires <code>sentDate &gt; startWait</code>
+(<code>:262-292</code>) on a sparse schedule {2,15,25,43,…,179}s over 182 s
+(<code>:260-261</code>); expected body = file with <code>X_PLACEHOLDER_X</code> wildcards +
+regex-masked <code>Date:</code>/<code>Deposit ID:</code> (<code>EmailActions.java:145-212</code>); MFA
+code scraped from mail HTML and typed into the page (<code>:297-326</code>);
+progress written to <code>document.title</code> — visible in BrowserStack
+session videos (<code>MailUtils.java:306-310</code>).</li>
+<li><strong>Translation:</strong> <code>expect mail to X subject ~&quot;...&quot; within 180s</code>.</li>
+<li><strong>Cost:</strong> medium. <strong>→</strong> deferred;
+<a class="wikilink" href="../concepts/CONCEPT-testing-v1-007-01-the-mail-oracle.html" title="The mail oracle">CONCEPT-testing-v1-007-01-the-mail-oracle</a>.</li>
+</ul>
+<h3 id="19-cloudflare-human-check-bypass--image-match--robot-click">19. CloudFlare human-check bypass — image match + Robot click<a class="anchor" href="#19-cloudflare-human-check-bypass--image-match--robot-click" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>CucumberTestBase.securitySiteHandler</code>
+(<code>:802-860</code>): screenshot → OpenCV <code>matchTemplate</code> → human-ish mouse
+move → click checkbox coords (<code>opencv/ImageChecker.java:24-50</code>).
+Companion: <code>sikuli/SikuliActions.java</code> (wait/highlight/click by
+image, offset clicks, <code>getTextAtRightToLabel</code> OCR). Also
+<code>headerParams: {&quot;tradu-test&quot;:&quot; automation&quot;}</code> to get whitelisted
+(<code>CucumberTestBase.java:311</code>).</li>
+<li><strong>Translation:</strong> <code>click image &quot;verify.png&quot;</code> as a <code>fragile</code> escape;
+backend cooperation header preferred.</li>
+<li><strong>Cost:</strong> medium. <strong>→</strong> deferred;
+<a class="wikilink" href="../concepts/CONCEPT-dsl-v1-008-01-the-image-step.html" title="The image step">CONCEPT-dsl-v1-008-01-the-image-step</a>.</li>
+</ul>
+<h3 id="20-video-via-external-recorder--hotkeys">20. Video via external recorder + hotkeys<a class="anchor" href="#20-video-via-external-recorder--hotkeys" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>VideoUtils</code> drives a desktop recorder with Robot
+Ctrl+Alt+6/7, moves the mp4 into the per-test results folder
+(<code>utils/VideoUtils.java:86-135</code>); <code>video.recording.enabled</code>.</li>
+<li><strong>Translation:</strong> built-in browser video; keep the artifact lifecycle.</li>
+<li><strong>Cost:</strong> small. <strong>→</strong> lane J-10/L-12;
+<a class="wikilink" href="../concepts/CONCEPT-taf-v1-004-01-the-artifacts.html" title="The artifacts">CONCEPT-taf-v1-004-01-the-artifacts</a>.</li>
+</ul>
+<h3 id="21-live-watch-trio--overlay-window-minimizing-keepvmawakethread">21. Live-watch trio — <code>Overlay</code>, window-minimizing, <code>KeepVmAwakeThread</code><a class="anchor" href="#21-live-watch-trio--overlay-window-minimizing-keepvmawakethread" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> always-on-top Swing strip showing test name/step
+(<code>utils/Overlay.java:30-64</code>, fed by <code>showTopMess</code>/<code>showLowMess</code>);
+Win+M brings AUT frontmost (<code>Utils.java:50-67</code>); ±1 px mouse jiggle
+keeps the CI VM unlocked (<code>com/fxcm/qa/KeepVmAwakeThread.java:42-66</code>;
+<code>CiTestsRunner.java:84</code>).</li>
+<li><strong>Translation:</strong> mostly obsolete for generated suites; keep
+<code>document.title</code> progress (free, shows in remote videos).</li>
+<li><strong>Cost:</strong> small for the title trick. <strong>→</strong> folded into
+<a class="wikilink" href="../concepts/CONCEPT-dsl-v1-006-01-the-label.html" title="The label">CONCEPT-dsl-v1-006-01-the-label</a>.</li>
+</ul>
+<h3 id="22-citestsrunner--the-meta-runner">22. <code>CiTestsRunner</code> — the meta-runner<a class="anchor" href="#22-citestsrunner--the-meta-runner" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>com/fxcm/qa/CiTestsRunner.java</code> — arg → <code>TAF_RUN</code>
+switch picks Maven profile/project/story list (<code>:175-269</code>), invokes
+Maven in-process per story, archives into dated folders
+<code>TEST_REGRESSION_LOCATION/yyMMdd/HHmm/</code>, copies to share, announces
+start/results on Slack+Mattermost, <code>System.exit(0)</code> around a Jenkins
+exit-code bug (<code>:154-158</code>). Machine whitelist
+<code>test.copytox.list</code> + <code>isCopyToX</code> (<code>Utils.java:83-96</code>;
+<code>FileUtils.java:429-456</code>); <code>suiteName.txt</code>/<code>publicURL.txt</code> sidecars
+for the HTML matrix (<code>CucumberHooks.java:303-354</code>;
+<code>utils/jenkins/v2/JenkinsReportManager.java:133-139</code>).</li>
+<li><strong>Translation:</strong> <code>tafbase run</code> emits
+<code>results/&lt;date&gt;/&lt;runId&gt;/{suiteName.txt, report.html, artifacts/}</code>.</li>
+<li><strong>Cost:</strong> medium. <strong>→</strong> lane L-12;
+<a class="wikilink" href="../concepts/CONCEPT-taf-v1-004-01-the-artifacts.html" title="The artifacts">CONCEPT-taf-v1-004-01-the-artifacts</a>.</li>
+</ul>
+<h3 id="23-test-id-convention-inside-scenario-names">23. Test-ID convention inside scenario names<a class="anchor" href="#23-test-id-convention-inside-scenario-names" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>getCompactTestName</code> extracts the first 6-char token
+(<code>ASM011</code>) as canonical ID (<code>CucumberHooks.java:267-289</code>); IDs drive
+golden filenames and result folders; feature folders map to report
+groups (<code>getTestFolder</code>, <code>:237-248</code>); <code>exampleCounter</code> disambiguates
+outline rows (<code>:206-217</code>).</li>
+<li><strong>Translation:</strong> <code>test ASM011 &quot;...&quot;</code> — a first-class DSL token.</li>
+<li><strong>Cost:</strong> small. <strong>→</strong> lane J-10/L-12;
+<a class="wikilink" href="../concepts/CONCEPT-dsl-v1-009-01-the-test-id.html" title="The test id">CONCEPT-dsl-v1-009-01-the-test-id</a>.</li>
+</ul>
+<h3 id="24-backend-fixtures--fxo-soapxml-command-templates">24. Backend fixtures — FXO SOAP/XML command templates<a class="anchor" href="#24-backend-fixtures--fxo-soapxml-command-templates" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>utils/FxoCommands.java</code> (XML templates → <code>.bat</code> →
+<code>ResultLogin</code>/<code>TraderAccountProperties</code>); per-env property files
+<code>fxo_cmd/fxoffice_*.properties</code>; used for test-data lookup in steps
+(<code>CucumberTestBase.java:763-797</code>). easytest-core jar vendored in
+<code>lib/</code>; <code>src/test/resources/recentFailures.tsv</code>.</li>
+<li><strong>Translation:</strong> <code>fixture:</code> blocks — arrange via API, act via UI.</li>
+<li><strong>Cost:</strong> medium. <strong>→</strong> deferred;
+<a class="wikilink" href="../concepts/CONCEPT-dsl-v1-010-01-the-fixture.html" title="The fixture block">CONCEPT-dsl-v1-010-01-the-fixture</a>.</li>
+</ul>
+<h3 id="25-multilingual-data-assets">25. Multilingual data assets<a class="anchor" href="#25-multilingual-data-assets" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>Quiz.java:51-80</code> — one xlsx column per language,
+<code>currentLanguage</code> picks it; <code>Language</code> enum, 18 languages;
+<code>sliderMoves</code>/<code>sliderArabicMoves</code> localize ordinal positions
+(commented, <code>TestBase.java:241-329</code>); Arabic flips slider direction
+(<code>:1347-1351</code>).</li>
+<li><strong>Translation:</strong> data tables with a <code>lang</code> dimension.</li>
+<li><strong>Cost:</strong> medium. <strong>→</strong> deferred;
+<a class="wikilink" href="../concepts/CONCEPT-dsl-v1-011-01-the-locale.html" title="The locale">CONCEPT-dsl-v1-011-01-the-locale</a>.</li>
+</ul>
+<h3 id="26-mobile-requirements-preamble--the-ifpresent-idiom">26. Mobile &quot;requirements&quot; preamble + the <code>ifPresent</code> idiom<a class="anchor" href="#26-mobile-requirements-preamble--the-ifpresent-idiom" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>AppStepDefsBase.initTest</code> (<code>:101-131</code>): checks Appium
+→ local vs BrowserStack by tag → app reset via
+<code>terminateApp/removeApp/pm clear/installApp/activateApp</code> (<code>:230-270</code>)
+→ dismiss known system dialogs (<code>ifPresentUseChromeWithoutAnAccount</code>
+<code>:134-164</code>, license/cookies unless test is MEUL <code>:130</code>) →
+<code>applicationNotLoaded()</code> sanity + fail fast (<code>:315-323,432-449</code>).
+The <code>ifPresent*</code> idiom — click only if present, never fail —
+<code>TestBase.java:566-636</code>.</li>
+<li><strong>Translation:</strong> <code>requires:</code>/<code>setup:</code> preamble + <code>maybe</code> step.</li>
+<li><strong>Cost:</strong> medium/small. <strong>→ done in part</strong> — <code>maybe</code>;
+preamble is <a class="wikilink" href="../concepts/CONCEPT-taf-v1-005-01-the-preflight.html" title="The preflight">CONCEPT-taf-v1-005-01-the-preflight</a> (lane L-12).</li>
+</ul>
+<h3 id="27-the-never-built-srt-subtitles">27. The never-built <code>.srt</code> subtitles<a class="anchor" href="#27-the-never-built-srt-subtitles" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> all five teardown paths capture <code>Date endVideo</code>, derive
+the <code>.srt</code> filename beside the moved <code>.mp4</code>, and call
+<code>createSubTitlesFile(subTitlesFilename, endVideo)</code> — commented out:
+<code>TestBase.java:501,541-542</code>, <code>CucumberTestBase.java:629,672-673</code>,
+<code>:150,193-194</code> (portal_apk), <code>:149,192-193</code> (portal_ios),
+<code>:306,349-350</code> (dealer_tools). <code>git log -S createSubTitlesFile</code>:
+only ever committed commented out. <code>setStartVideo()</code>
+(<code>utils/ScenarioContext.java:160-166</code>) already captured timestamps.</li>
+<li><strong>Translation:</strong> emitted steps know text + clock → a teardown writes
+<code>results/&lt;runId&gt;/&lt;test&gt;.srt</code> beside the video.</li>
+<li><strong>Cost:</strong> small once labels + video exist. <strong>→</strong> lane H-8/J-10;
+<a class="wikilink" href="../concepts/CONCEPT-taf-v1-006-01-the-subtitle-track.html" title="The subtitle track">CONCEPT-taf-v1-006-01-the-subtitle-track</a>.</li>
+</ul>
+<h2 id="flagged-as-questionable--obsolete">Flagged as questionable / obsolete<a class="anchor" href="#flagged-as-questionable--obsolete" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><code>com.fxcm.ws.*</code>, <code>esq.data.*</code>, duplicated <code>FXOConnector</code>, Axis stubs —
+legacy backend layer; the knowledge lives in item 24.</li>
+<li><code>utils/jenkins/</code> v1 vs <code>v2/</code> — two parallel report generators; v2 is
+the live one.</li>
+<li><code>GenerateBoth</code>/<code>GenerateBothOld</code>/<code>GenerateScr</code>/<code>GenerateDB</code> —
+overlapping test × run matrix generators.</li>
+<li><code>pom/bb/*</code> — commented-out onboarding POM set; documents an old
+onboarding flow.</li>
+<li><code>ChatMessage</code> — Slack/Mattermost via shelled Python with hardcoded
+tokens (<code>ChatMessage.java:36,52</code>). Port the notification idea, never
+the implementation — credentials in a repo are a security bug.</li>
+<li><code>TitanxMode</code> stub (<code>TestBase.java:199-201</code>), <code>driversMap</code> (unused
+multi-driver ambition), <code>SubmissionsMode</code>, <code>getJbehaveReport</code>
+(reads a JBehave report — archaeology).</li>
+<li>Robot/AWT dependence (<code>takeFullHdScreenshot</code> crops a hardcoded
+1920×1080 rect, <code>TestBase.java:1188-1196</code>) — ties correctness to
+physical display state; viewport/CDP capture replaces it.</li>
+</ul>
+<h2 id="landing-map">Landing map<a class="anchor" href="#landing-map" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>landed</th>
+<th>lanes</th>
+<th>deferred</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1 dwell · 4 soft/wait-any · 6 title · 8 funnel (half) · 26 maybe</td>
+<td>2,3,5,7,9,12,13,16,17,20,22,23,27 → H-8..L-12</td>
+<td>10,14 ancestor · 15 living-spec · 18 mail · 19 image · 24 fixtures · 25 locale</td>
+</tr>
+</tbody></table>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="RESEARCH-taf-v1-002-01-the-harvest-from-qa-tafbase.html">The harvest from qa-tafbase</a> <span class="muted">RESEARCH-taf-v1-002-01-the-harvest-from-qa-tafbase</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">34</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-16 04:42 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>
