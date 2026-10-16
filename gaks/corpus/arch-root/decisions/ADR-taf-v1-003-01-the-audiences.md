@@ -38,6 +38,14 @@ Three audiences, and a decision belongs to whoever's surface it changes:
   video + `.srt`, fault reports. A decision reaches this audience when it
   changes what a run leaves behind.
 
+**Capability vs selection.** The artifact surface is two-layered:
+the framework creator makes an artifact *possible* (the diff engine,
+the recorder, the `.srt` writer — ADR territory), and the framework
+user *selects and configures* it — what is collected, where it lands,
+which sink reports go to. Mechanism vs policy: capability is built once
+and recorded in an ADR; selection is declared, per run via the `TAF_*`
+environment or per suite via the model — whichever owns the variation.
+
 **The rule:** put no internal fork to a creator or consumer. Put no
 vocabulary or visibility question to a creator without naming the surface
 it changes. An ADR is the record of a creator decision; a spec clause is

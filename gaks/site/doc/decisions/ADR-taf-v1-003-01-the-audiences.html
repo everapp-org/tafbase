@@ -39,6 +39,13 @@ artifacts, the narration. Surface: <code>generated/</code> output, manifests,
 video + <code>.srt</code>, fault reports. A decision reaches this audience when it
 changes what a run leaves behind.</li>
 </ul>
+<p><strong>Capability vs selection.</strong> The artifact surface is two-layered:
+the framework creator makes an artifact <em>possible</em> (the diff engine,
+the recorder, the <code>.srt</code> writer — ADR territory), and the framework
+user <em>selects and configures</em> it — what is collected, where it lands,
+which sink reports go to. Mechanism vs policy: capability is built once
+and recorded in an ADR; selection is declared, per run via the <code>TAF_*</code>
+environment or per suite via the model — whichever owns the variation.</p>
 <p><strong>The rule:</strong> put no internal fork to a creator or consumer. Put no
 vocabulary or visibility question to a creator without naming the surface
 it changes. An ADR is the record of a creator decision; a spec clause is
@@ -61,6 +68,6 @@ it is a spec clause, not an emitter detail.</li>
 </main>
 <nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">34</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-16 16:21 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-16 16:24 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>
