@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADR-taf-v1-003-01 — three audiences, and who decides what · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / decisions</div><h1 class="page-title" id="adr-taf-v1-003-01--three-audiences-and-who-decides-what">ADR-taf-v1-003-01 — three audiences, and who decides what <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>ADR-taf-v1-003-01-the-audiences</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-16</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/ADR.html">Decision record</a></td></tr><tr><th>source</th><td><code>decisions/ADR-taf-v1-003-01-the-audiences.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-16</td></tr></table></details><article class="doc"><p>Decided: 2026-10-16 · George Petrov + Devin</p>
+<h2 id="context">Context<a class="anchor" href="#context" aria-label="Link to this section">#</a></h2>
+<p>The harvest debate surfaced a recurring confusion: a fork between
+Playwright&#39;s native screenshot compare and a hand-rolled filename grammar
+was put to a stakeholder whose interest is <em>what a run produces</em>, not
+<em>how the diff engine works</em>. Asking it conflated roles — the same mixing
+CONCEPT-taf-v1-007-01 names for artifacts must hold for <em>decisions</em> too.</p>
+<h2 id="decisions">Decisions<a class="anchor" href="#decisions" aria-label="Link to this section">#</a></h2>
+<p>Three audiences, and a decision belongs to whoever&#39;s surface it changes:</p>
+<ul>
+<li><strong>Framework creator</strong> — owns internals: how the generator works, which
+library diffs pixels, the journal&#39;s format, schema mechanics.
+Surface: <code>taf/</code>, <code>tests/</code>, this ADR log, CONTRIBUTING.md. Rulings are
+made here, by whoever writes the code, and recorded as ADRs — reviewable
+after the fact, not adjudicated before it.</li>
+<li><strong>Test creator (model author)</strong> — owns the vocabulary: which clauses a
+model may declare. Surface: <code>suts/</code>, SPEC-taf-v1-001-04 Parts 1–2, the
+<code>dsl</code> concepts. A decision only reaches this audience when it adds,
+removes, or renames something the model can <em>say</em>.</li>
+<li><strong>Results consumer</strong> — owns what a run shows: the report, the
+artifacts, the narration. Surface: <code>generated/</code> output, manifests,
+video + <code>.srt</code>, fault reports. A decision reaches this audience when it
+changes what a run leaves behind.</li>
+</ul>
+<p><strong>The rule:</strong> put no internal fork to a creator or consumer. Put no
+vocabulary or visibility question to a creator without naming the surface
+it changes. An ADR is the record of a creator decision; a spec clause is
+the record of a vocabulary one; a release note is the record of a visible
+one.</p>
+<h2 id="consequences">Consequences<a class="anchor" href="#consequences" aria-label="Link to this section">#</a></h2>
+<ul>
+<li>The evidence-stack fork is settled by its owner, not escalated:
+Playwright&#39;s native compare (<code>to_have_screenshot</code>/<code>hasScreenshot</code>) under
+tafbase&#39;s own artifact layout — we do not rebuild a diff engine to keep
+a filename.</li>
+<li>A per-test <code>taf.journal.jsonl</code> is the shared timestamped substrate —
+<code>.srt</code>, rerun manifests, and fault reports read it; it is designed once.</li>
+<li>The journey name <em>is</em> the test id; <code>test-id</code> is a naming rule, not a
+new field.</li>
+<li><code>targets:</code> becomes a declared model section — a vocabulary change, so
+it is a spec clause, not an emitter detail.</li>
+</ul>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">34</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-16 16:21 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>
