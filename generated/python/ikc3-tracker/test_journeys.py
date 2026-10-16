@@ -2,7 +2,7 @@
 # edit the model and regenerate.
 """One test per declared journey — arrange, act, assert.
 
-@concept CONCEPT-taf-v1-004-01-arrange-act-assert
+@concept CONCEPT-testing-v1-001-01-arrange-act-assert
 """
 
 import actions

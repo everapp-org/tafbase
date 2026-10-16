@@ -1,8 +1,8 @@
 """Emit a Playwright-Java + JUnit 5 suite from a valid SUT model — lane
 TAF/PLAN-taf-v1-001-01/D-4.
 
-@concept CONCEPT-taf-v1-002-01-the-sut-model
-@concept CONCEPT-taf-v1-003-01-the-locator-ladder
+@concept CONCEPT-dsl-v1-001-01-the-sut-model
+@concept CONCEPT-playwright-v1-001-01-the-locator-ladder
 
 Same model, same ops (taf/ops.py), Java syntax: a pom.xml, a BaseTest
 with the JUnit lifecycle (the fixture's Java face), one public class per
@@ -144,8 +144,8 @@ def _pom(m):
 def _basetest(m):
     return _HEADER + '''package %s;
 
-// @concept CONCEPT-taf-v1-009-01-the-junit-lifecycle
-// @concept CONCEPT-taf-v1-006-01-the-browser-context
+// @concept CONCEPT-java-v1-001-01-the-junit-lifecycle
+// @concept CONCEPT-playwright-v1-002-01-the-browser-context
 
 import com.microsoft.playwright.*;
 import org.junit.jupiter.api.*;
@@ -153,7 +153,7 @@ import org.junit.jupiter.api.*;
 /** The fixture's Java face: one browser for the run, one fresh context
     per test — isolation by construction. */
 public abstract class BaseTest {
-    // @concept CONCEPT-taf-v1-012-01-the-environment
+    // @concept CONCEPT-python-v1-001-01-the-environment
     protected static String baseUrl =
         System.getenv().getOrDefault("TAF_BASE_URL", "%s");
     private static Playwright playwright;
@@ -193,8 +193,8 @@ public abstract class BaseTest {
 def _page_class(name, st):
     return (_HEADER +
             f'package {_PKG};\n\n'
-            "// @concept CONCEPT-taf-v1-008-01-the-page-object\n"
-            "// @concept CONCEPT-taf-v1-007-01-auto-waiting\n\n"
+            "// @concept CONCEPT-pom-v1-001-01-the-page-object\n"
+            "// @concept CONCEPT-playwright-v1-003-01-auto-waiting\n\n"
             "import com.microsoft.playwright.Locator;\n"
             "import com.microsoft.playwright.Page;\n"
             "import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;\n\n"
@@ -216,7 +216,7 @@ def _elements_class(m):
     if not m.get("elements"):
         return None
     lines = [_HEADER, f"package {_PKG};\n\n",
-             "// @concept CONCEPT-taf-v1-003-01-the-locator-ladder\n\n",
+             "// @concept CONCEPT-playwright-v1-001-01-the-locator-ladder\n\n",
              "import com.microsoft.playwright.Locator;\n",
              "import com.microsoft.playwright.Page;\n\n",
              "/** Named locators, one method each — the locator ladder. */\n",
@@ -257,7 +257,7 @@ def _actions_class(m):
 
 def _journeys_class(m):
     lines = [_HEADER, f"package {_PKG};\n\n",
-             "// @concept CONCEPT-taf-v1-004-01-arrange-act-assert\n\n",
+             "// @concept CONCEPT-testing-v1-001-01-arrange-act-assert\n\n",
              "import org.junit.jupiter.api.Test;\n", _EXTRA_IMPORTS,
              "/** One @Test per declared journey — arrange, act, assert. */\n",
              "public class JourneysTest extends BaseTest {\n\n"]

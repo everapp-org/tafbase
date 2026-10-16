@@ -51,7 +51,7 @@ def test_journey_test_is_aaa(tmp_path):
     # the to-marker of the action and the expect-final state are asserted
     assert j.count("TotPage(page).expect_arrived()") == 2
     # every generated file teaches: concept citations travel with the code
-    assert "@concept CONCEPT-taf-v1-004-01-arrange-act-assert" in j
+    assert "@concept CONCEPT-testing-v1-001-01-arrange-act-assert" in j
 
 
 def test_the_manifest_traces_tests_to_model(tmp_path):

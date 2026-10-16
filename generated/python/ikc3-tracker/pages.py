@@ -2,8 +2,8 @@
 # edit the model and regenerate.
 """One page object per declared state.
 
-@concept CONCEPT-taf-v1-008-01-the-page-object
-@concept CONCEPT-taf-v1-007-01-auto-waiting
+@concept CONCEPT-pom-v1-001-01-the-page-object
+@concept CONCEPT-playwright-v1-003-01-auto-waiting
 """
 
 from playwright.sync_api import expect

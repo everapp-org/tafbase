@@ -1,6 +1,6 @@
 """The SUT graph — lane TAF/PLAN-taf-v1-001-01/F-6.
 
-@concept CONCEPT-taf-v1-011-01-the-seeded-walk
+@concept CONCEPT-dsl-v1-002-01-the-seeded-walk
 
 Actions already declare `from`/`to`, so the model IS a graph; nothing new
 to declare. `walk` derives a journey by seeded traversal — deterministic,

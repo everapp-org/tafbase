@@ -1,7 +1,7 @@
 """The SUT model loader — lane TAF/PLAN-taf-v1-001-01/A-1.
 
-@concept CONCEPT-taf-v1-002-01-the-sut-model
-@concept CONCEPT-taf-v1-003-01-the-locator-ladder
+@concept CONCEPT-dsl-v1-001-01-the-sut-model
+@concept CONCEPT-playwright-v1-001-01-the-locator-ladder
 
 Implements SPEC-taf-v1-001-04: loads a sut.model.json document, validates
 every clause, and reports every refusal as {"clause", "reason", "message"}.
@@ -11,7 +11,7 @@ emitters never see it. One form only — nothing is guessed.
 
 import json
 
-# THE LOCATOR LADDER (CONCEPT-taf-v1-003-01): a locator dict is valid when it
+# THE LOCATOR LADDER (CONCEPT-playwright-v1-001-01): a locator dict is valid when it
 # carries at least one of these keys. Order is the preference; `css`/`xpath`
 # are the last-resort rung and flag the element `fragile` in the manifest.
 LOCATOR_RUNGS = ("role", "label", "text", "placeholder", "testid", "css", "xpath")

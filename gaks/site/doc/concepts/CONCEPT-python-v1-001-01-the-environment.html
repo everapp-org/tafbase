@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The environment · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / concepts</div><h1 class="page-title" id="the-environment">The environment <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-python-v1-001-01-the-environment</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>python</td></tr><tr><th>date</th><td>2026-10-15</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>source</th><td><code>concepts/CONCEPT-python-v1-001-01-the-environment.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-15</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Two different things share this word, and the project uses both.</p>
+<p><strong>The virtual environment</strong> — <code>.venv/</code>, an isolated copy of Python with
+its own installed packages. <code>pytest</code>, <code>playwright</code>, and
+<code>websocket-client</code> live there, so <code>python3 -m venv .venv</code> reproduces the
+toolchain on any machine without touching the system Python. Commands in
+this repo always name <code>.venv/bin/python</code> explicitly.</p>
+<p><strong>Environment variables</strong> — <code>os.environ</code>, the per-process settings the
+operating system hands a program. Generated suites read <code>TAF_*</code> variables
+at runtime:</p>
+<table>
+<thead>
+<tr>
+<th>variable</th>
+<th>read by</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>TAF_BASE_URL</code></td>
+<td><code>conftest.py</code> (both langs)</td>
+<td>where the SUT lives — probe, staging, prod</td>
+</tr>
+<tr>
+<td><code>TAF_IKC3_WS</code></td>
+<td><code>pytest_runtest_makereport</code></td>
+<td>when set, a red test files a fault report</td>
+</tr>
+<tr>
+<td><code>TAF_HEADLESS</code></td>
+<td><code>conftest.py</code> / <code>BaseTest</code></td>
+<td>set <code>1</code> for CI; headed is the default so a learner watches the journey</td>
+</tr>
+<tr>
+<td><code>TAF_SLOWMO</code></td>
+<td><code>conftest.py</code> / <code>BaseTest</code></td>
+<td>milliseconds between actions — watch it walk</td>
+</tr>
+<tr>
+<td><code>TAF_LIVE</code></td>
+<td><code>tests/test_live.py</code></td>
+<td>opt the live acceptance tests in</td>
+</tr>
+</tbody></table>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Generated code is immutable — you edit the model and regenerate, never
+the output. But where the SUT runs <em>changes</em> run to run. The environment
+is the seam for run-to-run variation: the same committed suite tests a
+probe bus, a staging box, or production by setting a variable, not by
+editing code. Configuration outside the artifact is a classic test
+framework practice (the old Selenium demo externalized the same thing
+into a config file; environment variables are the twelve-factor form).</p>
+<h2 id="in-this-repo">In this repo<a class="anchor" href="#in-this-repo" aria-label="Link to this section">#</a></h2>
+<p><code>.venv/</code> is created in the README&#39;s &quot;Hacking on it&quot; section. <code>TAF_BASE_URL</code>
+appears in <code>taf/emit_python.py</code>, <code>taf/emit_java.py</code>, and every generated
+<code>conftest.py</code>/<code>BaseTest.java</code>. <code>TAF_IKC3_WS</code> drives
+<a href="CONCEPT-taf-v1-002-01-the-result-sink.html">CONCEPT-taf-v1-002-01-the-result-sink</a>.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="CONCEPT-taf-v1-001-01-the-learning-path.html">The learning path</a> <span class="muted">CONCEPT-taf-v1-001-01-the-learning-path</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">2</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">12</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">2</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-10-16 03:11 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

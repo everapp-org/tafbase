@@ -25,22 +25,22 @@ the gaps as work.
 |---|---|---|---|
 | 1 | Playwright vs Selenium | — | gap |
 | 2 | Project setup (TypeScript assumed) | — | gap |
-| 3 | Browser / BrowserContext / Page | [[CONCEPT-taf-v1-006-01-the-browser-context]] | part |
-| 4 | Auto-waiting, actionability | [[CONCEPT-taf-v1-007-01-auto-waiting]] | covered |
-| 5 | locator() vs page.$() | [[CONCEPT-taf-v1-003-01-the-locator-ladder]] | part — locator-vs-$ deserves a line |
+| 3 | Browser / BrowserContext / Page | [[CONCEPT-playwright-v1-002-01-the-browser-context]] | part |
+| 4 | Auto-waiting, actionability | [[CONCEPT-playwright-v1-003-01-auto-waiting]] | covered |
+| 5 | locator() vs page.$() | [[CONCEPT-playwright-v1-001-01-the-locator-ladder]] | part — locator-vs-$ deserves a line |
 | 6 | Dynamic elements, flaky tests | — | gap |
-| 7 | getByRole vs getByText vs css/xpath | [[CONCEPT-taf-v1-003-01-the-locator-ladder]] | covered |
+| 7 | getByRole vs getByText vs css/xpath | [[CONCEPT-playwright-v1-001-01-the-locator-ladder]] | covered |
 | 8 | Dropdowns, checkboxes, alerts, iframes | — | gap |
 | 9 | File upload/download | — | gap |
-| 10 | Screenshots/videos on failure | [[CONCEPT-taf-v1-010-01-the-result-sink]] (our answer is richer: DOM + report) | part |
+| 10 | Screenshots/videos on failure | [[CONCEPT-taf-v1-002-01-the-result-sink]] (our answer is richer: DOM + report) | part |
 | 11 | API testing via request context | the model's `api`/`save`/`expect` steps | covered |
 | 12 | Authentication reuse | — | gap |
 | 13 | storageState | — | gap |
 | 14 | Parallel execution, workers | — | gap |
 | 15 | Sharding | — | gap |
 | 16 | Retries, flaky-test investigation | — | gap |
-| 17 | beforeEach/afterEach | [[CONCEPT-taf-v1-009-01-the-junit-lifecycle]], [[CONCEPT-taf-v1-005-01-the-pytest-fixture]] | covered (in two idioms) |
-| 18 | Framework architecture: POM + fixtures | [[CONCEPT-taf-v1-008-01-the-page-object]] + the whole generated layout | covered — our strongest answer |
+| 17 | beforeEach/afterEach | [[CONCEPT-java-v1-001-01-the-junit-lifecycle]], [[CONCEPT-pytest-v1-001-01-the-pytest-fixture]] | covered (in two idioms) |
+| 18 | Framework architecture: POM + fixtures | [[CONCEPT-pom-v1-001-01-the-page-object]] + the whole generated layout | covered — our strongest answer |
 | 19 | HTML reports | the manifest + sink | part — ours is better (traceable), say so |
 | 20 | CI/CD integration | — | gap |
 | 21 | Cross-browser (chromium/firefox/webkit) | — | gap — model has no browser clause yet |

@@ -2,8 +2,8 @@
 # edit the model and regenerate.
 """Fixtures for the generated suite.
 
-@concept CONCEPT-taf-v1-005-01-the-pytest-fixture
-@concept CONCEPT-taf-v1-006-01-the-browser-context
+@concept CONCEPT-pytest-v1-001-01-the-pytest-fixture
+@concept CONCEPT-playwright-v1-002-01-the-browser-context
 """
 
 import os
@@ -11,7 +11,7 @@ import pytest
 from playwright.sync_api import sync_playwright
 
 
-# @concept CONCEPT-taf-v1-012-01-the-environment
+# @concept CONCEPT-python-v1-001-01-the-environment
 @pytest.fixture(scope="session")
 def base_url():
     return os.environ.get("TAF_BASE_URL", "http://127.0.0.1:4856")
@@ -38,7 +38,7 @@ def page(browser):
     ctx.close()
 
 
-# @concept CONCEPT-taf-v1-010-01-the-result-sink
+# @concept CONCEPT-taf-v1-002-01-the-result-sink
 def pytest_runtest_makereport(item, call):
     """A red test files a fault report into the tracker — when a sink is
     configured (TAF_IKC3_WS=ws://host:port/bus-ws). A sink that cannot

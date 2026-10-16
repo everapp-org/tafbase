@@ -1,6 +1,6 @@
 """The IKC3 result sink — files a fault report into a running bus.
 
-@concept CONCEPT-taf-v1-010-01-the-result-sink
+@concept CONCEPT-taf-v1-002-01-the-result-sink
 
 Speaks the bus's own wire protocol: one EDN `{:t :dispatch …}` envelope
 over a WebSocket text frame on /bus-ws, reply `{:t :reply … :result

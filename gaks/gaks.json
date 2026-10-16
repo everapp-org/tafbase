@@ -39,7 +39,7 @@
     "folder" : "principles",
     "template" : [ "Statement", "Demands" ]
   } ],
-  "subprojects" : [ "taf" ],
+  "subprojects" : [ "dsl", "java", "playwright", "pom", "pytest", "python", "taf", "testing" ],
   "statuses" : {
     "editable" : [ "backlog", "brainstorm", "captured", "draft", "in-progress", "needs-triage", "not yet specified", "open", "planned", "pre-item", "proposed", "queued", "review", "running", "shaping", "spec-ready", "specified" ],
     "frozen" : [ "abandoned", "accepted", "accepted-with-known-limitation", "active", "approved", "archived", "awaiting-answers", "closed", "complete", "deprecated", "done", "dropped", "frozen", "graduated", "implemented", "informational", "investigated", "met", "parked", "superseded" ]

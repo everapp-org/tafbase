@@ -2,8 +2,8 @@
 // edit the model and regenerate.
 package taf.generated;
 
-// @concept CONCEPT-taf-v1-009-01-the-junit-lifecycle
-// @concept CONCEPT-taf-v1-006-01-the-browser-context
+// @concept CONCEPT-java-v1-001-01-the-junit-lifecycle
+// @concept CONCEPT-playwright-v1-002-01-the-browser-context
 
 import com.microsoft.playwright.*;
 import org.junit.jupiter.api.*;
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.*;
 /** The fixture's Java face: one browser for the run, one fresh context
     per test — isolation by construction. */
 public abstract class BaseTest {
-    // @concept CONCEPT-taf-v1-012-01-the-environment
+    // @concept CONCEPT-python-v1-001-01-the-environment
     protected static String baseUrl =
         System.getenv().getOrDefault("TAF_BASE_URL", "http://127.0.0.1:4856");
     private static Playwright playwright;

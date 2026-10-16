@@ -2,7 +2,7 @@
 // edit the model and regenerate.
 package taf.generated;
 
-// @concept CONCEPT-taf-v1-004-01-arrange-act-assert
+// @concept CONCEPT-testing-v1-001-01-arrange-act-assert
 
 import org.junit.jupiter.api.Test;
 import com.microsoft.playwright.*;

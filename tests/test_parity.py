@@ -100,6 +100,6 @@ def test_java_suite_is_reviewable_java(tmp_path):
     _, jv = emit_both(tmp_path)
     t = read(jv, "src/test/java/taf/generated/JourneysTest.java")
     assert "@Test" in t and "extends BaseTest" in t
-    assert "// @concept CONCEPT-taf-v1-004-01-arrange-act-assert" in t
+    assert "// @concept CONCEPT-testing-v1-001-01-arrange-act-assert" in t
     bt = read(jv, "src/test/java/taf/generated/BaseTest.java")
     assert 'getOrDefault("TAF_BASE_URL", "http://127.0.0.1:4856")' in bt

@@ -2,8 +2,8 @@
 // edit the model and regenerate.
 package taf.generated;
 
-// @concept CONCEPT-taf-v1-008-01-the-page-object
-// @concept CONCEPT-taf-v1-007-01-auto-waiting
+// @concept CONCEPT-pom-v1-001-01-the-page-object
+// @concept CONCEPT-playwright-v1-003-01-auto-waiting
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;

@@ -1,6 +1,6 @@
 """The canonical emission plan — lane TAF/PLAN-taf-v1-001-01/D-4.
 
-@concept CONCEPT-taf-v1-002-01-the-sut-model
+@concept CONCEPT-dsl-v1-001-01-the-sut-model
 
 The parity contract of SPEC-taf-v1-001-04 says two emitters produce the
 same suite modulo language idioms. "Same" is made concrete here: every
