@@ -237,6 +237,29 @@ by a real second version/language, not before.
 spec — each waits for a SUT that demands it. The pages exist so the
 ideas aren't lost; the lanes wait until they're needed.
 
+### ▶ Lane TAF/PLAN-taf-v1-001-01/N-13 — derive the model (white-box)
+
+`taf derive` computes a draft model from SUT artifacts and writes it
+through the same loader — the author refines, never starts from a blank
+page. First source: IKC3's declarations (workflow/support EDN → states,
+endpoints). Later: OpenAPI → endpoints; a crawl → states and edges.
+Coverage follows: `taf walk` gains systematic traversal — a journey per
+FSM edge is the test set.
+
+**Release note (draft)**
+- New: `taf derive` writes a draft model from the SUT's own
+  declarations — the author refines instead of transcribing.
+  Accepted by: T-taf-013
+
+## The inputs — declared and derived
+
+The model has two authors (CONCEPT-dsl-v1-014-01): black-box (a person
+declares) and white-box (`taf derive` computes the draft from SUT
+artifacts — IKC3's EDN surfaces first, OpenAPI and crawl later).
+Derivation writes a model through the same loader, not a second
+pipeline; and a derived graph feeds coverage — a journey per FSM edge.
+Lane N-13 owns `derive`; edge-coverage traversal grows `taf walk`.
+
 ### ▶ Lane TAF/PLAN-taf-v1-001-01/G-7 — the corpus teaches
 
 tafbase is a learning surface (ADR-taf-v1-002-01): every concept the

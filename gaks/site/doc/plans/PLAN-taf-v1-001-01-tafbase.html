@@ -206,6 +206,26 @@ by a real second version/language, not before.</p>
 <p><strong>M5 · Niche</strong> (deferred). The mail oracle, the image step, the living
 spec — each waits for a SUT that demands it. The pages exist so the
 ideas aren&#39;t lost; the lanes wait until they&#39;re needed.</p>
+<h3 id="lane-tafplan-taf-v1-001-01n-13--derive-the-model-white-box">▶ Lane TAF/PLAN-taf-v1-001-01/N-13 — derive the model (white-box)<a class="anchor" href="#lane-tafplan-taf-v1-001-01n-13--derive-the-model-white-box" aria-label="Link to this section">#</a></h3>
+<p><code>taf derive</code> computes a draft model from SUT artifacts and writes it
+through the same loader — the author refines, never starts from a blank
+page. First source: IKC3&#39;s declarations (workflow/support EDN → states,
+endpoints). Later: OpenAPI → endpoints; a crawl → states and edges.
+Coverage follows: <code>taf walk</code> gains systematic traversal — a journey per
+FSM edge is the test set.</p>
+<p><strong>Release note (draft)</strong></p>
+<ul>
+<li>New: <code>taf derive</code> writes a draft model from the SUT&#39;s own
+declarations — the author refines instead of transcribing.
+Accepted by: T-taf-013</li>
+</ul>
+<h2 id="the-inputs--declared-and-derived">The inputs — declared and derived<a class="anchor" href="#the-inputs--declared-and-derived" aria-label="Link to this section">#</a></h2>
+<p>The model has two authors (CONCEPT-dsl-v1-014-01): black-box (a person
+declares) and white-box (<code>taf derive</code> computes the draft from SUT
+artifacts — IKC3&#39;s EDN surfaces first, OpenAPI and crawl later).
+Derivation writes a model through the same loader, not a second
+pipeline; and a derived graph feeds coverage — a journey per FSM edge.
+Lane N-13 owns <code>derive</code>; edge-coverage traversal grows <code>taf walk</code>.</p>
 <h3 id="lane-tafplan-taf-v1-001-01g-7--the-corpus-teaches">▶ Lane TAF/PLAN-taf-v1-001-01/G-7 — the corpus teaches<a class="anchor" href="#lane-tafplan-taf-v1-001-01g-7--the-corpus-teaches" aria-label="Link to this section">#</a></h3>
 <p>tafbase is a learning surface (ADR-taf-v1-002-01): every concept the
 generated code embodies is a CONCEPT document — Python and pytest,
@@ -224,8 +244,8 @@ Accepted by: T-taf-007 (code-link-unresolved refuses a dead citation)</li>
 </ul>
 </article><section class="backlinks"><h2>Mentioned in <span class="count">4</span></h2><ul><li><a href="../specs/SPEC-taf-v1-001-01-the-sut-model.html">SPEC-taf-v1-001-01 — the SUT model</a> <span class="muted">SPEC-taf-v1-001-01-the-sut-model</span></li><li><a href="../specs/SPEC-taf-v1-001-02-the-sut-model.html">SPEC-taf-v1-001-02 — the SUT model</a> <span class="muted">SPEC-taf-v1-001-02-the-sut-model</span></li><li><a href="../specs/SPEC-taf-v1-001-03-the-sut-language.html">SPEC-taf-v1-001-03 — the SUT language</a> <span class="muted">SPEC-taf-v1-001-03-the-sut-language</span></li><li><a href="../specs/SPEC-taf-v1-001-04-tafbase.html">SPEC-taf-v1-001-04 — tafbase</a> <span class="muted">SPEC-taf-v1-001-04-tafbase</span></li></ul></section>
 </main>
-<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">34</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">35</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-16 16:24 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-16 16:44 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>
