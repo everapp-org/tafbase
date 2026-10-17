@@ -133,7 +133,7 @@ edge of the SUT&#39;s graph — which is also what <code>taf walk</code> travers
 model serves journeys, walks, and coverage without being written twice.
 An action&#39;s <code>do</code> list composes steps: act (<code>click</code>, <code>fill</code>, <code>check</code>,
 <code>select</code>), move (<code>navigate</code>), observe (<code>wait-for</code>, <code>wait-any</code>,
-<code>expect</code> — <code>soft: true</code> warns and continues), call the API (<code>api</code>,
+<code>expect</code> — <code>soft: true</code> collects, flushed once at test end), call the API (<code>api</code>,
 <code>save</code>), pace (<code>dwell</code> — a pause for a watching human, never a
 synchronization device), guard (<code>maybe</code> wraps a step that tries and
 never fails). An action may carry a <code>title</code> — a human name the emitted
@@ -170,8 +170,9 @@ verify the API. <code>{name}</code> markers in a path bind from the step&#39;s <
 <li>Step forms: <code>click</code>/<code>check</code>/<code>select</code> take an element name; <code>fill</code>
 takes <code>{element, value}</code>; <code>navigate</code> and <code>wait-for</code> take a state or
 element name; <code>api</code> takes an endpoint name plus optional <code>args</code>;
-<code>save</code> takes <code>{name: &quot;$.json.path&quot;}</code>; <code>expect</code> takes <code>{element, assertion}</code> or <code>{saved, assertion}</code>, plus <code>soft: true</code> to warn and
-continue; <code>dwell</code> takes milliseconds, a number ≥ 0; <code>wait-any</code> takes
+<code>save</code> takes <code>{name: &quot;$.json.path&quot;}</code>; <code>expect</code> takes <code>{element, assertion}</code> or <code>{saved, assertion}</code>, plus <code>soft: true</code> to collect
+into the soft stack — flushed once at test end; <code>dwell</code> takes
+milliseconds, a number ≥ 0; <code>wait-any</code> takes
 a list of 2+ element names; <code>maybe</code> wraps one step object.</li>
 <li>A journey&#39;s <code>steps</code> is either all action names or all inline step
 objects — the two forms do not mix.</li>
@@ -294,6 +295,6 @@ lane in <a class="wikilink" href="../plans/PLAN-taf-v1-001-01-tafbase.html" titl
 </main>
 <nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">35</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-16 16:47 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-17 04:19 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

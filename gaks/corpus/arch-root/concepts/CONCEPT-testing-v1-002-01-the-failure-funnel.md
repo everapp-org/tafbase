@@ -35,6 +35,13 @@ funnel: a red call → URL + DOM captured (guarded against mid-navigation),
 (screenshot, console slice) is lane J-10/L-12; the recover half is
 deferred (short tests rarely need it).
 
+The **collect-and-flush stack** (harvest item 28) also lives here: a
+`SoftChecks` collector per test — `soft` expects append
+`{label, error}` instead of failing on the spot — and the fixture (or
+Java `@AfterEach`) flushes once at test end, failing with *all* of
+them. The old framework's `verificationErrors` + final `fail()` is the
+ancestor; the `[M x / N y]` tally survives as the flush's count.
+
 ## Touch it
 
 ```bash

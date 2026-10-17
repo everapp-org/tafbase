@@ -31,8 +31,11 @@ records it. A suite needs both — &quot;the SUT must be here&quot; and &quot;th
 might offer this&quot;.</p>
 <h2 id="in-this-project">In this project<a class="anchor" href="#in-this-project" aria-label="Link to this section">#</a></h2>
 <p><code>wait-for</code> is a step form in <code>taf/model.py</code> and both emitters (state →
-<code>expect_arrived</code>, element → <code>to_be_visible</code>). <code>check</code> and <code>wait-any</code>
-are lane H-8, drafted in <code>PLAN-taf-v1-001-01</code>.</p>
+<code>expect_arrived</code>, element → <code>to_be_visible</code>). <code>wait-any</code> is
+implemented. <code>expect … &quot;soft&quot;: true</code> collects into the <code>SoftChecks</code>
+stack flushed once at test end
+(<a class="wikilink" href="CONCEPT-testing-v1-002-01-the-failure-funnel.html" title="The failure funnel">CONCEPT-testing-v1-002-01-the-failure-funnel</a>); a free-standing
+<code>check</code> form is still planned (lane H-8).</p>
 <h2 id="touch-it">Touch it<a class="anchor" href="#touch-it" aria-label="Link to this section">#</a></h2>
 <p>Add <code>{&quot;wait-for&quot;: {&quot;state&quot;: &quot;tot&quot;}}</code> to a <code>do</code> list and run
 <code>python -m taf check</code> — the loader validates it like any step.</p>
@@ -43,6 +46,6 @@ are lane H-8, drafted in <code>PLAN-taf-v1-001-01</code>.</p>
 </main>
 <nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">35</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-16 16:47 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-17 04:19 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

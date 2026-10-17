@@ -382,6 +382,34 @@ item 14). `→` marks the tafbase landing: a CONCEPT page, a lane of
 - **Cost:** small once labels + video exist. **→** lane H-8/J-10;
   [[CONCEPT-taf-v1-006-01-the-subtitle-track]].
 
+### 28. Accumulate failures, flush once — the soft-assert stack
+
+- **Evidence:** `addFailureReason` appends to `verificationErrors` and
+  sets `isTestFail` *without throwing* (`TestBase.java:1093-1100`).
+  Callers that continue after a defect: element lookup (`:836`),
+  screenshot NOMATCH — collects *and* still emits the PPTX slides
+  (`TestBaseScreenshots.java:286-303`), `handleSubmissionException`
+  (`:1230-1242`), slider misses (`:1291-1333`). The flush: one
+  `fail("FAIL: " + finalMess)` at test end (`HappyPathBase.java:1270`,
+  commented — the contract). The tally `matchNum`/`noMatchNum` logs
+  `[M x / N y]` per compare (`TestBaseScreenshots.java:306-311`), so the
+  report says *how many* checks failed. One level up: static
+  `List<String> testResults` per test, flushed to Slack/Mattermost and
+  `screenshotsResults.txt` by `TafSrcListener.testRunFinished`
+  (`TafSrcListener.java:49-58`). Dormant sibling: `Checkpoints.mark(id)`
+  (`utils/results/Checkpoints.java:23-40`) is serialized to XML by every
+  teardown (`TestBase.java:517-533`) — **zero callers**; half-wired like
+  the `.srt` writer.
+- **Translation:** `check` collects, `expect` fails fast (item 4); the
+  emitted teardown writes a *failure list* — each failed check with
+  step id and artifact link — so one run shows the full damage.
+  `Checkpoints` argues for an emitted `milestone <id>` marker: the last
+  milestone reached is what triage wants, and its zero callers teach that
+  opt-in features die — emit milestones implicitly per step.
+- **Cost:** small. **→ done** — `SoftChecks` collects, the
+  fixture/`@AfterEach` flushes once with the whole list;
+  [[CONCEPT-testing-v1-002-01-the-failure-funnel]].
+
 ## Flagged as questionable / obsolete
 
 - `com.fxcm.ws.*`, `esq.data.*`, duplicated `FXOConnector`, Axis stubs —
@@ -406,4 +434,4 @@ item 14). `→` marks the tafbase landing: a CONCEPT page, a lane of
 
 | landed | lanes | deferred |
 |---|---|---|
-| 1 dwell · 4 soft/wait-any · 6 title · 8 funnel (half) · 26 maybe | 2,3,5,7,9,12,13,16,17,20,22,23,27 → H-8..L-12 | 10,14 ancestor · 15 living-spec · 18 mail · 19 image · 24 fixtures · 25 locale |
+| 1 dwell · 4 soft/wait-any · 6 title · 8 funnel (half) · 26 maybe · 28 check-collect | 2,3,5,7,9,12,13,16,17,20,22,23,27,28 → H-8..L-12 | 10,14 ancestor · 15 living-spec · 18 mail · 19 image · 24 fixtures · 25 locale |

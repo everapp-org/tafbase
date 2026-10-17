@@ -32,8 +32,11 @@ might offer this".
 ## In this project
 
 `wait-for` is a step form in `taf/model.py` and both emitters (state →
-`expect_arrived`, element → `to_be_visible`). `check` and `wait-any`
-are lane H-8, drafted in `PLAN-taf-v1-001-01`.
+`expect_arrived`, element → `to_be_visible`). `wait-any` is
+implemented. `expect … "soft": true` collects into the `SoftChecks`
+stack flushed once at test end
+([[CONCEPT-testing-v1-002-01-the-failure-funnel]]); a free-standing
+`check` form is still planned (lane H-8).
 
 ## Touch it
 

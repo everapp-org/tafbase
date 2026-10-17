@@ -374,6 +374,34 @@ only ever committed commented out. <code>setStartVideo()</code>
 <li><strong>Cost:</strong> small once labels + video exist. <strong>→</strong> lane H-8/J-10;
 <a class="wikilink" href="../concepts/CONCEPT-taf-v1-006-01-the-subtitle-track.html" title="The subtitle track">CONCEPT-taf-v1-006-01-the-subtitle-track</a>.</li>
 </ul>
+<h3 id="28-accumulate-failures-flush-once--the-soft-assert-stack">28. Accumulate failures, flush once — the soft-assert stack<a class="anchor" href="#28-accumulate-failures-flush-once--the-soft-assert-stack" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Evidence:</strong> <code>addFailureReason</code> appends to <code>verificationErrors</code> and
+sets <code>isTestFail</code> <em>without throwing</em> (<code>TestBase.java:1093-1100</code>).
+Callers that continue after a defect: element lookup (<code>:836</code>),
+screenshot NOMATCH — collects <em>and</em> still emits the PPTX slides
+(<code>TestBaseScreenshots.java:286-303</code>), <code>handleSubmissionException</code>
+(<code>:1230-1242</code>), slider misses (<code>:1291-1333</code>). The flush: one
+<code>fail(&quot;FAIL: &quot; + finalMess)</code> at test end (<code>HappyPathBase.java:1270</code>,
+commented — the contract). The tally <code>matchNum</code>/<code>noMatchNum</code> logs
+<code>[M x / N y]</code> per compare (<code>TestBaseScreenshots.java:306-311</code>), so the
+report says <em>how many</em> checks failed. One level up: static
+<code>List&lt;String&gt; testResults</code> per test, flushed to Slack/Mattermost and
+<code>screenshotsResults.txt</code> by <code>TafSrcListener.testRunFinished</code>
+(<code>TafSrcListener.java:49-58</code>). Dormant sibling: <code>Checkpoints.mark(id)</code>
+(<code>utils/results/Checkpoints.java:23-40</code>) is serialized to XML by every
+teardown (<code>TestBase.java:517-533</code>) — <strong>zero callers</strong>; half-wired like
+the <code>.srt</code> writer.</li>
+<li><strong>Translation:</strong> <code>check</code> collects, <code>expect</code> fails fast (item 4); the
+emitted teardown writes a <em>failure list</em> — each failed check with
+step id and artifact link — so one run shows the full damage.
+<code>Checkpoints</code> argues for an emitted <code>milestone &lt;id&gt;</code> marker: the last
+milestone reached is what triage wants, and its zero callers teach that
+opt-in features die — emit milestones implicitly per step.</li>
+<li><strong>Cost:</strong> small. <strong>→ done</strong> — <code>SoftChecks</code> collects, the
+fixture/<code>@AfterEach</code> flushes once with the whole list;
+<a class="wikilink" href="../concepts/CONCEPT-testing-v1-002-01-the-failure-funnel.html" title="The failure funnel">CONCEPT-testing-v1-002-01-the-failure-funnel</a>.</li>
+</ul>
 <h2 id="flagged-as-questionable--obsolete">Flagged as questionable / obsolete<a class="anchor" href="#flagged-as-questionable--obsolete" aria-label="Link to this section">#</a></h2>
 <ul>
 <li><code>com.fxcm.ws.*</code>, <code>esq.data.*</code>, duplicated <code>FXOConnector</code>, Axis stubs —
@@ -404,8 +432,8 @@ physical display state; viewport/CDP capture replaces it.</li>
 </tr>
 </thead>
 <tbody><tr>
-<td>1 dwell · 4 soft/wait-any · 6 title · 8 funnel (half) · 26 maybe</td>
-<td>2,3,5,7,9,12,13,16,17,20,22,23,27 → H-8..L-12</td>
+<td>1 dwell · 4 soft/wait-any · 6 title · 8 funnel (half) · 26 maybe · 28 check-collect</td>
+<td>2,3,5,7,9,12,13,16,17,20,22,23,27,28 → H-8..L-12</td>
 <td>10,14 ancestor · 15 living-spec · 18 mail · 19 image · 24 fixtures · 25 locale</td>
 </tr>
 </tbody></table>
@@ -413,6 +441,6 @@ physical display state; viewport/CDP capture replaces it.</li>
 </main>
 <nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">35</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-16 16:47 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-17 04:19 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

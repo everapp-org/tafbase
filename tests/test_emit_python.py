@@ -46,8 +46,8 @@ def test_pages_prove_arrival(tmp_path):
 
 def test_journey_test_is_aaa(tmp_path):
     j = read(emit(tmp_path), "test_journeys.py")
-    assert "def test_board_to_tot(page, base_url):" in j
-    assert "actions.open_tot(page, base_url)" in j
+    assert "def test_board_to_tot(page, base_url, soft):" in j
+    assert "actions.open_tot(page, base_url, soft)" in j
     # the to-marker of the action and the expect-final state are asserted
     assert j.count("TotPage(page).expect_arrived()") == 2
     # every generated file teaches: concept citations travel with the code

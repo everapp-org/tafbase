@@ -34,6 +34,12 @@ funnel: a red call → URL + DOM captured (guarded against mid-navigation),
 → <code>ikc3_sink.file_report</code> → a tracker fault report. The capture half
 (screenshot, console slice) is lane J-10/L-12; the recover half is
 deferred (short tests rarely need it).</p>
+<p>The <strong>collect-and-flush stack</strong> (harvest item 28) also lives here: a
+<code>SoftChecks</code> collector per test — <code>soft</code> expects append
+<code>{label, error}</code> instead of failing on the spot — and the fixture (or
+Java <code>@AfterEach</code>) flushes once at test end, failing with <em>all</em> of
+them. The old framework&#39;s <code>verificationErrors</code> + final <code>fail()</code> is the
+ancestor; the <code>[M x / N y]</code> tally survives as the flush&#39;s count.</p>
 <h2 id="touch-it">Touch it<a class="anchor" href="#touch-it" aria-label="Link to this section">#</a></h2>
 <pre><code class="language-bash">TAF_IKC3_WS=ws://127.0.0.1:4856/bus-ws TAF_BASE_URL=http://127.0.0.1:9 \
   .venv/bin/python -m pytest generated/python/ikc3-tracker -q
@@ -43,10 +49,10 @@ deferred (short tests rarely need it).</p>
 <p><a class="wikilink" href="CONCEPT-taf-v1-002-01-the-result-sink.html" title="The result sink">CONCEPT-taf-v1-002-01-the-result-sink</a>,
 <a class="wikilink" href="CONCEPT-taf-v1-004-01-the-artifacts.html" title="The artifacts">CONCEPT-taf-v1-004-01-the-artifacts</a>,
 <a class="wikilink" href="CONCEPT-testing-v1-005-01-the-debug-run.html" title="The debug run">CONCEPT-testing-v1-005-01-the-debug-run</a>.</p>
-</article><section class="backlinks"><h2>Mentioned in <span class="count">5</span></h2><ul><li><a href="CONCEPT-testing-v1-005-01-the-debug-run.html">The debug run</a> <span class="muted">CONCEPT-testing-v1-005-01-the-debug-run</span></li><li><a href="../research/RESEARCH-taf-v1-003-01-the-harvest-in-detail.html">The harvest in detail — evidence appendix</a> <span class="muted">RESEARCH-taf-v1-003-01-the-harvest-in-detail</span></li><li><a href="CONCEPT-dsl-v1-006-01-the-label.html">The label</a> <span class="muted">CONCEPT-dsl-v1-006-01-the-label</span></li><li><a href="CONCEPT-testing-v1-007-01-the-mail-oracle.html">The mail oracle</a> <span class="muted">CONCEPT-testing-v1-007-01-the-mail-oracle</span></li><li><a href="CONCEPT-testing-v1-004-01-the-rerun.html">The rerun</a> <span class="muted">CONCEPT-testing-v1-004-01-the-rerun</span></li></ul></section>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">6</span></h2><ul><li><a href="CONCEPT-testing-v1-005-01-the-debug-run.html">The debug run</a> <span class="muted">CONCEPT-testing-v1-005-01-the-debug-run</span></li><li><a href="../research/RESEARCH-taf-v1-003-01-the-harvest-in-detail.html">The harvest in detail — evidence appendix</a> <span class="muted">RESEARCH-taf-v1-003-01-the-harvest-in-detail</span></li><li><a href="CONCEPT-dsl-v1-006-01-the-label.html">The label</a> <span class="muted">CONCEPT-dsl-v1-006-01-the-label</span></li><li><a href="CONCEPT-testing-v1-007-01-the-mail-oracle.html">The mail oracle</a> <span class="muted">CONCEPT-testing-v1-007-01-the-mail-oracle</span></li><li><a href="CONCEPT-testing-v1-004-01-the-rerun.html">The rerun</a> <span class="muted">CONCEPT-testing-v1-004-01-the-rerun</span></li><li><a href="CONCEPT-dsl-v1-004-01-the-wait.html">The wait</a> <span class="muted">CONCEPT-dsl-v1-004-01-the-wait</span></li></ul></section>
 </main>
 <nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">35</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-16 16:47 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-17 04:19 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

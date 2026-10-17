@@ -68,8 +68,8 @@ def test_same_actions_same_steps(tmp_path):
     py, jv = emit_both(tmp_path)
     py_a = read(py, "actions.py")
     jv_a = read(jv, "src/test/java/taf/generated/Actions.java")
-    assert "def open_tot(page, base_url):" in py_a
-    assert "static void openTot(Page page, String baseUrl)" in jv_a
+    assert "def open_tot(page, base_url, soft=None):" in py_a
+    assert "static void openTot(Page page, String baseUrl, SoftChecks soft)" in jv_a
     assert 'page.goto(base_url + ROUTES["tot"])' in py_a
     assert 'page.navigate(baseUrl + TotPage.ROUTE);' in jv_a
 

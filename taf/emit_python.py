@@ -85,13 +85,20 @@ def _emit_step(step, states, endpoints, pad):
         if isinstance(arg, dict) and "element" in arg:
             el = f"elements.{_py(arg['element'])}(page)"
             if arg.get("soft"):
-                # A soft expect: warn and continue — it never fails the step.
+                # Collect into the SoftChecks stack; the fixture flushes
+                # once at test end — the run shows every failed check.
                 inner = _emit_step({"expect": {k: v for k, v in arg.items()
                                                if k != "soft"}},
-                                   states, endpoints, pad + "    ")
-                return [f"{pad}try:"] + inner + [
-                    f"{pad}except AssertionError as _e:",
-                    f'{pad}    print("soft expect failed:", _e)']
+                                   states, endpoints, pad + "        ")
+                stmt = inner[0].strip()
+                return [
+                    f"{pad}if soft is not None:",
+                    f'{pad}    soft.check("{arg["element"]}", lambda: {stmt})',
+                    f"{pad}else:",
+                    f"{pad}    try:",
+                    f"{pad}        {stmt}",
+                    f"{pad}    except AssertionError as _e:",
+                    f'{pad}        print("soft expect failed:", _e)']
             if arg.get("hidden"):
                 return [f"{pad}expect({el}).to_be_hidden()"]
             if "text" in arg:
@@ -154,6 +161,29 @@ def page(browser):
     pg = ctx.new_page()
     yield pg
     ctx.close()
+
+
+# @concept CONCEPT-testing-v1-002-01-the-failure-funnel
+class SoftChecks:
+    """`soft` expects collect here instead of failing on the spot; the
+    fixture flushes once at test end — the test still fails, but a run
+    shows the whole damage, not the first hit only."""
+    def __init__(self):
+        self.failures = []
+
+    def check(self, label, fn):
+        try:
+            fn()
+        except AssertionError as e:
+            self.failures.append("%%s — %%s" %% (label, e))
+
+
+@pytest.fixture
+def soft():
+    s = SoftChecks()
+    yield s
+    assert not s.failures, "%%d soft check(s) failed: %%s" %% (
+        len(s.failures), "; ".join(f.splitlines()[0] for f in s.failures))
 
 
 # @concept CONCEPT-taf-v1-002-01-the-result-sink
@@ -235,7 +265,7 @@ def _actions(m):
         # Every action narrates itself — the label; the run reads as a story.
         title = act.get("title", name)
         narrate = f'    print("→ {title}")\n'
-        lines.append(f"def {_py(name)}(page, base_url):\n"
+        lines.append(f"def {_py(name)}(page, base_url, soft=None):\n"
                      f"{narrate}{body or '    pass'}\n\n")
     return "".join(lines)
 
@@ -268,7 +298,7 @@ def _journeys(m):
         for op, arg in ops.journey_ops(m, name)[1:]:
             if op == "run":
                 act = m["actions"][arg]
-                body.append(f"    actions.{_py(arg)}(page, base_url)\n")
+                body.append(f"    actions.{_py(arg)}(page, base_url, soft)\n")
             elif op == "step":
                 body.append("\n".join(_emit_step(arg, m["states"], m.get("endpoints") or {}, "    ")) + "\n")
             elif op == "assert-marker":
@@ -278,7 +308,7 @@ def _journeys(m):
                 body.append(f"    {_state_class(arg)}(page).expect_arrived()\n")
         if not any(op == "assert-final" for op, _ in ops.journey_ops(m, name)):
             body.append("    # assert\n")
-        lines.append(f"def {ops.test_name_snake(name)}(page, base_url):\n{''.join(body)}\n")
+        lines.append(f"def {ops.test_name_snake(name)}(page, base_url, soft):\n{''.join(body)}\n")
     return "".join(lines)
 
 

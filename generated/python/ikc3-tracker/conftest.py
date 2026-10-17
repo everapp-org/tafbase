@@ -38,6 +38,29 @@ def page(browser):
     ctx.close()
 
 
+# @concept CONCEPT-testing-v1-002-01-the-failure-funnel
+class SoftChecks:
+    """`soft` expects collect here instead of failing on the spot; the
+    fixture flushes once at test end — the test still fails, but a run
+    shows the whole damage, not the first hit only."""
+    def __init__(self):
+        self.failures = []
+
+    def check(self, label, fn):
+        try:
+            fn()
+        except AssertionError as e:
+            self.failures.append("%s — %s" % (label, e))
+
+
+@pytest.fixture
+def soft():
+    s = SoftChecks()
+    yield s
+    assert not s.failures, "%d soft check(s) failed: %s" % (
+        len(s.failures), "; ".join(f.splitlines()[0] for f in s.failures))
+
+
 # @concept CONCEPT-taf-v1-002-01-the-result-sink
 def pytest_runtest_makereport(item, call):
     """A red test files a fault report into the tracker — when a sink is

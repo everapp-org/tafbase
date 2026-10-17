@@ -8,7 +8,7 @@
 import actions
 from pages import BoardPage, TotPage
 
-def test_the_board_is_up(page, base_url):
+def test_the_board_is_up(page, base_url, soft):
     # arrange
     sut = BoardPage(page)
     sut.goto(base_url)
@@ -17,13 +17,13 @@ def test_the_board_is_up(page, base_url):
     # assert
     BoardPage(page).expect_arrived()
 
-def test_board_to_tot(page, base_url):
+def test_board_to_tot(page, base_url, soft):
     # arrange
     sut = BoardPage(page)
     sut.goto(base_url)
     sut.expect_arrived()
     # act
-    actions.open_tot(page, base_url)
+    actions.open_tot(page, base_url, soft)
     TotPage(page).expect_arrived()
     # assert
     TotPage(page).expect_arrived()

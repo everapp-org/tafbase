@@ -8,11 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /** One method per declared action — the edges of the graph. */
 public class Actions {
-    public static void openBoard(Page page, String baseUrl) {
+    public static void openBoard(Page page, String baseUrl, SoftChecks soft) {
         System.out.println("→ open the ticket board");
         page.navigate(baseUrl + BoardPage.ROUTE);
     }
-    public static void openTot(Page page, String baseUrl) {
+    public static void openTot(Page page, String baseUrl, SoftChecks soft) {
         System.out.println("→ open the TOT island");
         page.navigate(baseUrl + TotPage.ROUTE);
         page.waitForTimeout(800);

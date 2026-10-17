@@ -18,6 +18,7 @@ public abstract class BaseTest {
     private static Browser browser;
     protected BrowserContext context;
     protected Page page;
+    protected SoftChecks soft;
 
     @BeforeAll
     static void launch() {
@@ -34,10 +35,15 @@ public abstract class BaseTest {
     void fresh() {
         context = browser.newContext();
         page = context.newPage();
+        soft = new SoftChecks();
     }
 
     @AfterEach
-    void closeContext() { context.close(); }
+    void closeContext() {
+        context.close();
+        // @concept CONCEPT-testing-v1-002-01-the-failure-funnel
+        soft.flush();  // collect-and-flush: one fail shows every failed check
+    }
 
     @AfterAll
     static void shutdown() {

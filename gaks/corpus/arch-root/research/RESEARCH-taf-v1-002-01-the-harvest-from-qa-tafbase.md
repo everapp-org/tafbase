@@ -15,7 +15,7 @@ authors:
 A previous-generation framework — a Java/Selenium/Cucumber suite
 (`tests_base` engine + per-product modules, JUnit4, Appium) — was mapped
 end-to-end for reusable design. This document keeps the result and the
-decisions it produced. The raw harvest — 27 ideas with evidence paths,
+decisions it produced. The raw harvest — 28 ideas with evidence paths,
 translations and costs — is
 [[RESEARCH-taf-v1-003-01-the-harvest-in-detail]].
 

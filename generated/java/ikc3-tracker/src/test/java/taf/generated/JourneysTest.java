@@ -30,7 +30,7 @@ public class JourneysTest extends BaseTest {
         sut.gotoRoute(baseUrl);
         sut.expectArrived();
         // act
-        Actions.openTot(page, baseUrl);
+        Actions.openTot(page, baseUrl, soft);
         new TotPage(page).expectArrived();
         // assert
         new TotPage(page).expectArrived();

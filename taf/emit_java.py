@@ -96,12 +96,19 @@ def _emit_step(step, endpoints, pad):
         if isinstance(arg, dict) and "element" in arg:
             el = f"Elements.{_j(arg['element'])}(page)"
             if arg.get("soft"):
-                # A soft expect: warn and continue — it never fails the step.
+                # Collect into the SoftChecks stack; @AfterEach flushes
+                # once — the run shows every failed check.
                 inner = _emit_step({"expect": {k: v for k, v in arg.items()
                                                if k != "soft"}},
-                                   endpoints, pad + "    ")
-                return [f"{pad}try {{"] + inner + [
-                    f'{pad}}} catch (AssertionError e) {{ System.out.println("soft expect failed: " + e.getMessage()); }}']
+                                   endpoints, pad + "        ")
+                stmt = inner[0].strip()
+                return [
+                    f"{pad}if (soft != null) {{",
+                    f'{pad}    soft.check("{arg["element"]}", () -> {stmt[:-1]});',
+                    f"{pad}}} else {{",
+                    f"{pad}    try {{ {stmt}",
+                    f'{pad}    }} catch (AssertionError e) {{ System.out.println("soft expect failed: " + e.getMessage()); }}',
+                    f"{pad}}}"]
             if arg.get("hidden"):
                 return [f"{pad}assertThat({el}).isHidden();"]
             if "text" in arg:
@@ -176,6 +183,7 @@ public abstract class BaseTest {
     private static Browser browser;
     protected BrowserContext context;
     protected Page page;
+    protected SoftChecks soft;
 
     @BeforeAll
     static void launch() {
@@ -192,10 +200,15 @@ public abstract class BaseTest {
     void fresh() {
         context = browser.newContext();
         page = context.newPage();
+        soft = new SoftChecks();
     }
 
     @AfterEach
-    void closeContext() { context.close(); }
+    void closeContext() {
+        context.close();
+        // @concept CONCEPT-testing-v1-002-01-the-failure-funnel
+        soft.flush();  // collect-and-flush: one fail shows every failed check
+    }
 
     @AfterAll
     static void shutdown() {
@@ -268,7 +281,7 @@ def _actions_class(m):
         # Every action narrates itself — the label; the run reads as a story.
         title = act.get("title", name)
         narrate = f'        System.out.println("→ {title}");\n'
-        lines.append(f"    public static void {_j(name)}(Page page, String baseUrl) {{\n"
+        lines.append(f"    public static void {_j(name)}(Page page, String baseUrl, SoftChecks soft) {{\n"
                      f"{narrate}{decl}{body or '        // no steps'}\n    }}\n")
     lines.append("}\n")
     return "".join(lines)
@@ -291,7 +304,7 @@ def _journeys_class(m):
             body.append("        var saved = new java.util.HashMap<String, Object>();\n")
         for op, arg in ops.journey_ops(m, name)[1:]:
             if op == "run":
-                body.append(f"        Actions.{_j(arg)}(page, baseUrl);\n")
+                body.append(f"        Actions.{_j(arg)}(page, baseUrl, soft);\n")
             elif op == "step":
                 body.append("\n".join(_emit_step(arg, m.get("endpoints") or {}, "        ")) + "\n")
             elif op == "assert-marker":
@@ -323,12 +336,34 @@ model should learn. It should trend toward empty.
 """
 
 
+def _softchecks_class():
+    return (_HEADER + f"package {_PKG};\n\n"
+            "// @concept CONCEPT-testing-v1-002-01-the-failure-funnel\n\n"
+            "import java.util.ArrayList;\n"
+            "import java.util.List;\n\n"
+            "/** `soft` expects collect here instead of failing on the spot;\n"
+            "    the fixture flushes once at test end — the test still fails,\n"
+            "    but a run shows the whole damage, not the first hit only. */\n"
+            "public class SoftChecks {\n"
+            "    public final List<String> failures = new ArrayList<>();\n\n"
+            "    public void check(String label, Runnable assertion) {\n"
+            "        try { assertion.run(); }\n"
+            "        catch (AssertionError e) { failures.add(label + \" — \" + e.getMessage()); }\n"
+            "    }\n\n"
+            "    public void flush() {\n"
+            "        org.junit.jupiter.api.Assertions.assertTrue(failures.isEmpty(),\n"
+            "            failures.size() + \" soft check(s) failed: \" + String.join(\"; \", failures));\n"
+            "    }\n"
+            "}\n")
+
+
 def emit(model, outdir):
     """Write the suite into `outdir`; returns the list of files written."""
     pkgdir = os.path.join(outdir, _PKG_DIR)
     os.makedirs(pkgdir, exist_ok=True)
     files = {os.path.join(outdir, "pom.xml"): _pom(model),
              os.path.join(outdir, "custom", "README.md"): _CUSTOM_README,
+             os.path.join(pkgdir, "SoftChecks.java"): _softchecks_class(),
              os.path.join(pkgdir, "BaseTest.java"): _basetest(model),
              os.path.join(pkgdir, "Elements.java"): _elements_class(model),
              os.path.join(pkgdir, "Actions.java"): _actions_class(model),
