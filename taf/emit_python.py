@@ -176,9 +176,13 @@ def browser():
 
 
 @pytest.fixture
-def page(browser):
-    """A fresh context per test: full isolation, no shared state."""
-    ctx = browser.new_context()
+def page(browser, journal):
+    """A fresh context per test: full isolation, no shared state.
+    TAF_VIDEO=<dir-name> records the run into the test's results dir."""
+    opts = {}
+    if os.environ.get("TAF_VIDEO"):
+        opts["record_video_dir"] = taf_journal.test_dir()
+    ctx = browser.new_context(**opts)
     pg = ctx.new_page()
     yield pg
     ctx.close()
@@ -226,6 +230,15 @@ def pytest_runtest_makereport(item, call):
         if page:
             try:  # a mid-navigation page has no readable content
                 url, dom = page.url, page.content()[:50000]
+            except Exception:
+                pass
+        d = taf_journal.test_dir()
+        if d and page:
+            try:  # evidence for a human: the screen, the DOM
+                page.screenshot(path=os.path.join(d, "screenshot.png"))
+                with open(os.path.join(d, "dom.html"), "w",
+                          encoding="utf-8") as f:
+                    f.write(dom)
             except Exception:
                 pass
         rid = ikc3_sink.file_report(

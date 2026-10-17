@@ -65,7 +65,7 @@ def test_the_manifest_traces_tests_to_model(tmp_path):
 
 def test_conftest_is_real_playwright(tmp_path):
     c = read(emit(tmp_path), "conftest.py")
-    assert "sync_playwright" in c and "browser.new_context()" in c
+    assert "sync_playwright" in c and "browser.new_context" in c
     assert '"http://127.0.0.1:4856"' in c
 
 

@@ -13,16 +13,24 @@ import java.nio.file.*;
 public class TafJournal {
     private static java.io.BufferedWriter current;
     private static long start;
+    private static Path dir;
+    private static final java.util.List<long[]> noteT = new java.util.ArrayList<>();
+    private static final java.util.List<String> noteL = new java.util.ArrayList<>();
 
     public static void begin(String runDir, String testId) throws IOException {
-        Path d = Paths.get(runDir, testId);
-        Files.createDirectories(d);
+        dir = Paths.get(runDir, testId);
+        Files.createDirectories(dir);
         start = System.nanoTime();
-        current = Files.newBufferedWriter(d.resolve("journal.jsonl"));
+        noteT.clear(); noteL.clear();
+        current = Files.newBufferedWriter(dir.resolve("journal.jsonl"));
     }
+
+    public static Path testDir() { return dir; }
 
     public static void note(String label) throws IOException {
         event("note", "\"label\": \"" + label.replace("\"", "'") + "\"");
+        noteT.add(new long[]{(System.nanoTime() - start) / 1_000_000L});
+        noteL.add(label);
         System.out.println(label);
     }
 
@@ -33,10 +41,25 @@ public class TafJournal {
         current.flush();
     }
 
+    private static String srtTs(long ms) {
+        return String.format("%02d:%02d:%02d,%03d", ms/3600000, ms%3600000/60000, ms%60000/1000, ms%1000);
+    }
+
     public static void end(String outcome) throws IOException {
-        if (current == null) return;
-        event("end", "\"outcome\": \"" + outcome + "\"");
-        current.close();
-        current = null;
+        if (current != null) {
+            event("end", "\"outcome\": \"" + outcome + "\"");
+            current.close();
+            current = null;
+        }
+        if (dir != null && !noteL.isEmpty()) {
+            StringBuilder s = new StringBuilder();
+            for (int i = 0; i < noteL.size(); i++) {
+                long e = i + 1 < noteL.size() ? noteT.get(i + 1)[0] : noteT.get(i)[0] + 2000;
+                s.append(i + 1).append('\n')
+                 .append(srtTs(noteT.get(i)[0])).append(" --> ").append(srtTs(e))
+                 .append('\n').append(noteL.get(i)).append("\n\n");
+            }
+            Files.writeString(dir.resolve("journal.srt"), s.toString());
+        }
     }
 }

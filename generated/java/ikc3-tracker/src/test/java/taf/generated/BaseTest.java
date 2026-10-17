@@ -38,18 +38,33 @@ public abstract class BaseTest {
 
     @BeforeEach
     void fresh(org.junit.jupiter.api.TestInfo info) throws java.io.IOException {
-        context = browser.newContext();
-        page = context.newPage();
         soft = new SoftChecks();
         TafJournal.begin(runDir, info.getDisplayName());
+        var opts = new Browser.NewContextOptions();
+        if (System.getenv("TAF_VIDEO") != null)
+            opts.setRecordVideoDir(TafJournal.testDir());
+        context = browser.newContext(opts);
+        page = context.newPage();
     }
 
     @AfterEach
-    void closeContext() throws java.io.IOException {
+    void closeContext(org.junit.jupiter.api.extension.ExtensionContext ctx)
+            throws java.io.IOException {
+        boolean failed = ctx.getExecutionException().isPresent();
+        if (failed) {
+            try {  // evidence for a human: the screen, the DOM
+                page.screenshot(new Page.ScreenshotOptions()
+                    .setPath(TafJournal.testDir().resolve("screenshot.png")));
+                java.nio.file.Files.writeString(
+                    TafJournal.testDir().resolve("dom.html"), page.content());
+            } catch (Exception ignored) { }
+            TafJournal.event("fail", "\"test\": \""
+                + ctx.getDisplayName().replace("\"", "'") + "\"");
+        }
         context.close();
         // @concept CONCEPT-testing-v1-002-01-the-failure-funnel
         soft.flush();  // collect-and-flush: one fail shows every failed check
-        TafJournal.end("passed");
+        TafJournal.end(failed ? "failed" : "passed");
     }
 
     @AfterAll

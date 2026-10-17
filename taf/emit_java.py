@@ -203,18 +203,33 @@ public abstract class BaseTest {
 
     @BeforeEach
     void fresh(org.junit.jupiter.api.TestInfo info) throws java.io.IOException {
-        context = browser.newContext();
-        page = context.newPage();
         soft = new SoftChecks();
         TafJournal.begin(runDir, info.getDisplayName());
+        var opts = new Browser.NewContextOptions();
+        if (System.getenv("TAF_VIDEO") != null)
+            opts.setRecordVideoDir(TafJournal.testDir());
+        context = browser.newContext(opts);
+        page = context.newPage();
     }
 
     @AfterEach
-    void closeContext() throws java.io.IOException {
+    void closeContext(org.junit.jupiter.api.extension.ExtensionContext ctx)
+            throws java.io.IOException {
+        boolean failed = ctx.getExecutionException().isPresent();
+        if (failed) {
+            try {  // evidence for a human: the screen, the DOM
+                page.screenshot(new Page.ScreenshotOptions()
+                    .setPath(TafJournal.testDir().resolve("screenshot.png")));
+                java.nio.file.Files.writeString(
+                    TafJournal.testDir().resolve("dom.html"), page.content());
+            } catch (Exception ignored) { }
+            TafJournal.event("fail", "\\\"test\\\": \\\""
+                + ctx.getDisplayName().replace("\\\"", "'") + "\\\"");
+        }
         context.close();
         // @concept CONCEPT-testing-v1-002-01-the-failure-funnel
         soft.flush();  // collect-and-flush: one fail shows every failed check
-        TafJournal.end("passed");
+        TafJournal.end(failed ? "failed" : "passed");
     }
 
     @AfterAll
@@ -354,15 +369,22 @@ def _journal_class():
             "    rerun manifest and fault reports read it downstream. */\n"
             "public class TafJournal {\n"
             "    private static java.io.BufferedWriter current;\n"
-            "    private static long start;\n\n"
+            "    private static long start;\n"
+            "    private static Path dir;\n"
+            "    private static final java.util.List<long[]> noteT = new java.util.ArrayList<>();\n"
+            "    private static final java.util.List<String> noteL = new java.util.ArrayList<>();\n\n"
             "    public static void begin(String runDir, String testId) throws IOException {\n"
-            "        Path d = Paths.get(runDir, testId);\n"
-            "        Files.createDirectories(d);\n"
+            "        dir = Paths.get(runDir, testId);\n"
+            "        Files.createDirectories(dir);\n"
             "        start = System.nanoTime();\n"
-            "        current = Files.newBufferedWriter(d.resolve(\"journal.jsonl\"));\n"
+            "        noteT.clear(); noteL.clear();\n"
+            "        current = Files.newBufferedWriter(dir.resolve(\"journal.jsonl\"));\n"
             "    }\n\n"
+            "    public static Path testDir() { return dir; }\n\n"
             "    public static void note(String label) throws IOException {\n"
             "        event(\"note\", \"\\\"label\\\": \\\"\" + label.replace(\"\\\"\", \"'\") + \"\\\"\");\n"
+            "        noteT.add(new long[]{(System.nanoTime() - start) / 1_000_000L});\n"
+            "        noteL.add(label);\n"
             "        System.out.println(label);\n"
             "    }\n\n"
             "    public static void event(String kind, String fieldsJson) throws IOException {\n"
@@ -371,11 +393,25 @@ def _journal_class():
             "        current.write(\"{\\\"t\\\": \" + t + \", \\\"event\\\": \\\"\" + kind + \"\\\", \" + fieldsJson + \"}\\n\");\n"
             "        current.flush();\n"
             "    }\n\n"
+            "    private static String srtTs(long ms) {\n"
+            "        return String.format(\"%02d:%02d:%02d,%03d\", ms/3600000, ms%3600000/60000, ms%60000/1000, ms%1000);\n"
+            "    }\n\n"
             "    public static void end(String outcome) throws IOException {\n"
-            "        if (current == null) return;\n"
-            "        event(\"end\", \"\\\"outcome\\\": \\\"\" + outcome + \"\\\"\");\n"
-            "        current.close();\n"
-            "        current = null;\n"
+            "        if (current != null) {\n"
+            "            event(\"end\", \"\\\"outcome\\\": \\\"\" + outcome + \"\\\"\");\n"
+            "            current.close();\n"
+            "            current = null;\n"
+            "        }\n"
+            "        if (dir != null && !noteL.isEmpty()) {\n"
+            "            StringBuilder s = new StringBuilder();\n"
+            "            for (int i = 0; i < noteL.size(); i++) {\n"
+            "                long e = i + 1 < noteL.size() ? noteT.get(i + 1)[0] : noteT.get(i)[0] + 2000;\n"
+            "                s.append(i + 1).append('\\n')\n"
+            "                 .append(srtTs(noteT.get(i)[0])).append(\" --> \").append(srtTs(e))\n"
+            "                 .append('\\n').append(noteL.get(i)).append(\"\\n\\n\");\n"
+            "            }\n"
+            "            Files.writeString(dir.resolve(\"journal.srt\"), s.toString());\n"
+            "        }\n"
             "    }\n"
             "}\n")
 
