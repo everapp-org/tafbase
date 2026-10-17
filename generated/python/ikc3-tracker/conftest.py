@@ -21,6 +21,7 @@ def run_dir():
     d = os.path.join(os.environ.get("TAF_RESULTS", "results"),
                      datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
     os.makedirs(d, exist_ok=True)
+    taf_journal.RUN_DIR = d
     return d
 
 
@@ -60,6 +61,8 @@ def page(browser, journal):
     ctx = browser.new_context(**opts)
     pg = ctx.new_page()
     yield pg
+    if os.environ.get("TAF_DEBUG") and taf_journal.failed():
+        pg.pause()  # TAF_DEBUG: stop at the failure, browser stays open
     ctx.close()
 
 
@@ -125,3 +128,39 @@ def pytest_runtest_makereport(item, call):
         taf_journal.event("fail", test=item.name, error=err)
     except Exception as e:  # noqa: BLE001 — the sink is a side channel
         print("ikc3 sink could not file the report:", e)
+
+
+# @concept CONCEPT-testing-v1-004-01-the-rerun
+def pytest_sessionfinish(session, exitstatus):
+    """Write failed.txt into the run dir — the rerun manifest."""
+    import glob
+    run = taf_journal.RUN_DIR
+    if not run:
+        return
+    names = [os.path.basename(os.path.dirname(jf))
+             for jf in glob.glob(os.path.join(run, "*", "journal.jsonl"))
+             if '"outcome": "failed"' in open(jf, encoding="utf-8").read()]
+    with open(os.path.join(run, "failed.txt"), "w",
+              encoding="utf-8") as f:
+        f.write("\n".join(sorted(names)))
+
+
+def _last_failed_file():
+    import glob
+    files = glob.glob(os.path.join(
+        os.environ.get("TAF_RESULTS", "results"), "*", "failed.txt"))
+    return max(files) if files else None
+
+
+def pytest_collection_modifyitems(items, config):
+    """TAF_RERUN=1 replays only the tests in the last failed.txt."""
+    if not os.environ.get("TAF_RERUN"):
+        return
+    f = _last_failed_file()
+    if not f:
+        return
+    with open(f, encoding="utf-8") as fh:
+        keep = set(fh.read().split())
+    config.hook.pytest_deselected(
+        items=[i for i in items if i.name not in keep])
+    items[:] = [i for i in items if i.name in keep]

@@ -60,6 +60,11 @@ def mark(outcome):
     _outcome = outcome
 
 
+def failed():
+    """True when the run's verdict has been marked failed."""
+    return _outcome == "failed"
+
+
 def _srt_ts(ms):
     return "%02d:%02d:%02d,%03d" % (ms // 3600000, ms % 3600000 // 60000,
                                   ms % 60000 // 1000, ms % 1000)
@@ -88,3 +93,4 @@ def end(outcome=None):
 
 _current = None
 _outcome = "passed"
+RUN_DIR = None  # results/<runId> of the session — set by the run_dir fixture

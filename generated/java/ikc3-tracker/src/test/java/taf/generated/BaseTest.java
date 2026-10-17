@@ -19,6 +19,9 @@ public abstract class BaseTest {
     protected BrowserContext context;
     protected Page page;
     protected SoftChecks soft;
+    // @concept CONCEPT-testing-v1-004-01-the-rerun
+    private static final java.util.List<String> FAILED =
+        new java.util.ArrayList<>();
 
     @BeforeAll
     static void launch() {
@@ -52,6 +55,7 @@ public abstract class BaseTest {
             throws java.io.IOException {
         boolean failed = ctx.getExecutionException().isPresent();
         if (failed) {
+            FAILED.add(ctx.getDisplayName());
             try {  // evidence for a human: the screen, the DOM
                 page.screenshot(new Page.ScreenshotOptions()
                     .setPath(TafJournal.testDir().resolve("screenshot.png")));
@@ -60,6 +64,8 @@ public abstract class BaseTest {
             } catch (Exception ignored) { }
             TafJournal.event("fail", "\"test\": \""
                 + ctx.getDisplayName().replace("\"", "'") + "\"");
+            if (System.getenv("TAF_DEBUG") != null)
+                page.pause();  // TAF_DEBUG: stop at the failure, browser stays open
         }
         context.close();
         // @concept CONCEPT-testing-v1-002-01-the-failure-funnel
@@ -68,8 +74,12 @@ public abstract class BaseTest {
     }
 
     @AfterAll
-    static void shutdown() {
+    static void shutdown() throws java.io.IOException {
         browser.close();
         playwright.close();
+        java.nio.file.Files.createDirectories(java.nio.file.Paths.get(runDir));
+        java.nio.file.Files.writeString(
+            java.nio.file.Paths.get(runDir, "failed.txt"),
+            String.join("\n", FAILED));  // the rerun manifest
     }
 }
