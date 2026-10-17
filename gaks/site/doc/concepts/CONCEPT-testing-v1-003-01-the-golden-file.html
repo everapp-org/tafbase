@@ -31,13 +31,17 @@ gem: goldens go stale because the SUT legitimately changed — a person
 must bless the new truth, or the suite silently re-baselines its own
 drift.</p>
 <h2 id="in-this-project">In this project<a class="anchor" href="#in-this-project" aria-label="Link to this section">#</a></h2>
-<p>Planned — lane J-10. The
-<a class="wikilink" href="CONCEPT-dsl-v1-009-01-the-test-id.html" title="The test id">CONCEPT-dsl-v1-009-01-the-test-id</a> and
-<a class="wikilink" href="CONCEPT-taf-v1-004-01-the-artifacts.html" title="The artifacts">CONCEPT-taf-v1-004-01-the-artifacts</a> layout land first, because the
-filename grammar needs both.</p>
+<p>The <code>{&quot;compare-screen&quot;: &quot;&lt;name&gt;&quot;}</code> step emits Playwright&#39;s native
+golden compare — <code>expect(page).to_have_screenshot</code> /
+<code>assertThat(page).hasScreenshot()</code> — decided in ADR-taf-v1-003-01
+(use the library&#39;s diff engine, keep our artifact layout). Promote
+with <code>pytest --update-snapshots</code> (Python) /
+<code>mvn test -DupdateSnapshots</code> (Java) — the approval loop&#39;s first form;
+the selection-file promote of the old grammar is the richer later
+shape.</p>
 <h2 id="touch-it">Touch it<a class="anchor" href="#touch-it" aria-label="Link to this section">#</a></h2>
-<p>Not yet — the nearest live analogue is the marker assertion in every
-state (<code>expect_arrived</code>).</p>
+<pre><code class="language-bash">.venv/bin/python -m pytest generated/python/ikc3-tracker --update-snapshots
+</code></pre>
 <h2 id="neighbors">Neighbors<a class="anchor" href="#neighbors" aria-label="Link to this section">#</a></h2>
 <p><a class="wikilink" href="CONCEPT-dsl-v1-008-01-the-image-step.html" title="The image step">CONCEPT-dsl-v1-008-01-the-image-step</a>,
 <a class="wikilink" href="CONCEPT-taf-v1-006-01-the-subtitle-track.html" title="The subtitle track">CONCEPT-taf-v1-006-01-the-subtitle-track</a> (the step&#39;s caption is the
@@ -46,6 +50,6 @@ same step&#39;s name).</p>
 </main>
 <nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">35</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-17 05:07 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-17 05:09 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

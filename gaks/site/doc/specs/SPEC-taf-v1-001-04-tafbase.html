@@ -172,8 +172,9 @@ takes <code>{element, value}</code>; <code>navigate</code> and <code>wait-for</c
 element name; <code>api</code> takes an endpoint name plus optional <code>args</code>;
 <code>save</code> takes <code>{name: &quot;$.json.path&quot;}</code>; <code>expect</code> takes <code>{element, assertion}</code> or <code>{saved, assertion}</code>, plus <code>soft: true</code> to collect
 into the soft stack — flushed once at test end; <code>dwell</code> takes
-milliseconds, a number ≥ 0; <code>wait-any</code> takes
-a list of 2+ element names; <code>maybe</code> wraps one step object.</li>
+milliseconds, a number ≥ 0; <code>wait-any</code> takes a list of 2+ element
+names; <code>maybe</code> wraps one step object; <code>compare-screen</code> takes a
+snapshot name — a golden-file visual assertion.</li>
 <li>A journey&#39;s <code>steps</code> is either all action names or all inline step
 objects — the two forms do not mix.</li>
 </ul>
@@ -295,6 +296,6 @@ lane in <a class="wikilink" href="../plans/PLAN-taf-v1-001-01-tafbase.html" titl
 </main>
 <nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">35</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-17 05:07 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-17 05:09 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

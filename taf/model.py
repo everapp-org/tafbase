@@ -17,7 +17,8 @@ import json
 LOCATOR_RUNGS = ("role", "label", "text", "placeholder", "testid", "css", "xpath")
 
 STEP_FORMS = ("click", "fill", "check", "select", "navigate", "wait-for",
-              "api", "expect", "dwell", "wait-any", "maybe")
+              "api", "expect", "dwell", "wait-any", "maybe",
+              "compare-screen")
 
 REQUIRED_TOP = ("sut", "states", "journeys")
 
@@ -112,6 +113,10 @@ def _check_step(step, elements, states, endpoints, clause, refusals):
                 if name not in elements:
                     refusals.append(_refusal(clause, "unknown-element",
                                            "wait-any names no element: %r" % (name,)))
+    elif form == "compare-screen":
+        if not isinstance(arg, str) or not arg:
+            refusals.append(_refusal(clause, "bad-compare-screen",
+                                     "compare-screen takes a snapshot name: %r" % (arg,)))
     elif form == "maybe":
         if not isinstance(arg, dict):
             refusals.append(_refusal(clause, "bad-maybe",

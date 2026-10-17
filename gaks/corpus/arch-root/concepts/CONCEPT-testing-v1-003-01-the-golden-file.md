@@ -31,15 +31,20 @@ drift.
 
 ## In this project
 
-Planned — lane J-10. The
-[[CONCEPT-dsl-v1-009-01-the-test-id]] and
-[[CONCEPT-taf-v1-004-01-the-artifacts]] layout land first, because the
-filename grammar needs both.
+The `{"compare-screen": "<name>"}` step emits Playwright's native
+golden compare — `expect(page).to_have_screenshot` /
+`assertThat(page).hasScreenshot()` — decided in ADR-taf-v1-003-01
+(use the library's diff engine, keep our artifact layout). Promote
+with `pytest --update-snapshots` (Python) /
+`mvn test -DupdateSnapshots` (Java) — the approval loop's first form;
+the selection-file promote of the old grammar is the richer later
+shape.
 
 ## Touch it
 
-Not yet — the nearest live analogue is the marker assertion in every
-state (`expect_arrived`).
+```bash
+.venv/bin/python -m pytest generated/python/ikc3-tracker --update-snapshots
+```
 
 ## Neighbors
 

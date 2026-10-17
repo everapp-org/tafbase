@@ -75,6 +75,8 @@ def _emit_step(step, states, endpoints, pad):
         locs = f"elements.{_py(arg[0])}(page)" + "".join(
             f".or_(elements.{_py(n)}(page))" for n in arg[1:])
         return [f"{pad}expect({locs}).to_be_visible()"]
+    if form == "compare-screen":
+        return [f'{pad}expect(page).to_have_screenshot("{arg}.png")']
     if form == "maybe":
         # An ifPresent step: try it, never fail.
         inner = _emit_step(arg, states, endpoints, pad + "    ")

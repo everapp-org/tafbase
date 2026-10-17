@@ -129,8 +129,9 @@ A model is one JSON document, `*.sut.model.json` by convention:
   `save` takes `{name: "$.json.path"}`; `expect` takes `{element,
   assertion}` or `{saved, assertion}`, plus `soft: true` to collect
   into the soft stack — flushed once at test end; `dwell` takes
-  milliseconds, a number ≥ 0; `wait-any` takes
-  a list of 2+ element names; `maybe` wraps one step object.
+  milliseconds, a number ≥ 0; `wait-any` takes a list of 2+ element
+  names; `maybe` wraps one step object; `compare-screen` takes a
+  snapshot name — a golden-file visual assertion.
 - A journey's `steps` is either all action names or all inline step
   objects — the two forms do not mix.
 
