@@ -10,6 +10,27 @@ import os
 import pytest
 from playwright.sync_api import sync_playwright
 
+import taf_journal
+
+
+# @concept CONCEPT-taf-v1-004-01-the-artifacts
+@pytest.fixture(scope="session")
+def run_dir():
+    """results/<runId>/ — everything this run leaves, one folder."""
+    import datetime
+    d = os.path.join(os.environ.get("TAF_RESULTS", "results"),
+                     datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+    os.makedirs(d, exist_ok=True)
+    return d
+
+
+@pytest.fixture(autouse=True)
+def journal(run_dir, request):
+    """The per-test event stream — labels, checks, failures, timing."""
+    taf_journal.begin(run_dir, request.node.name)
+    yield
+    taf_journal.end()
+
 
 # @concept CONCEPT-taf-v1-003-01-the-environment
 @pytest.fixture(scope="session")
@@ -68,6 +89,7 @@ def pytest_runtest_makereport(item, call):
     file warns; it never fails the suite a second time."""
     if call.when != "call" or call.excinfo is None:
         return
+    taf_journal.mark("failed")
     ws_url = os.environ.get("TAF_IKC3_WS")
     if not ws_url:
         return
@@ -87,5 +109,6 @@ def pytest_runtest_makereport(item, call):
             url=url, dom=dom,
         )
         print("fault report filed:", rid)
+        taf_journal.event("fail", test=item.name, error=err)
     except Exception as e:  # noqa: BLE001 — the sink is a side channel
         print("ikc3 sink could not file the report:", e)

@@ -31,18 +31,25 @@ public abstract class BaseTest {
                 System.getenv().getOrDefault("TAF_SLOWMO", "0"))));
     }
 
+    // @concept CONCEPT-taf-v1-004-01-the-artifacts
+    protected static String runDir =
+        System.getenv().getOrDefault("TAF_RESULTS", "results")
+        + "/" + new java.text.SimpleDateFormat("yyyyMMdd-HHmmss").format(new java.util.Date());
+
     @BeforeEach
-    void fresh() {
+    void fresh(org.junit.jupiter.api.TestInfo info) throws java.io.IOException {
         context = browser.newContext();
         page = context.newPage();
         soft = new SoftChecks();
+        TafJournal.begin(runDir, info.getDisplayName());
     }
 
     @AfterEach
-    void closeContext() {
+    void closeContext() throws java.io.IOException {
         context.close();
         // @concept CONCEPT-testing-v1-002-01-the-failure-funnel
         soft.flush();  // collect-and-flush: one fail shows every failed check
+        TafJournal.end("passed");
     }
 
     @AfterAll

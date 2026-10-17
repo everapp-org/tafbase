@@ -3,13 +3,14 @@
 """One function per declared action — the edges of the graph."""
 
 from pages import ROUTES
+import taf_journal
 
 def open_board(page, base_url, soft=None):
-    print("→ open the ticket board")
+    taf_journal.note("→ open the ticket board")
     page.goto(base_url + ROUTES["board"])
 
 def open_tot(page, base_url, soft=None):
-    print("→ open the TOT island")
+    taf_journal.note("→ open the TOT island")
     page.goto(base_url + ROUTES["tot"])
     page.wait_for_timeout(800)
 

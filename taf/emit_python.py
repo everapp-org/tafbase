@@ -135,6 +135,27 @@ import os
 import pytest
 from playwright.sync_api import sync_playwright
 
+import taf_journal
+
+
+# @concept CONCEPT-taf-v1-004-01-the-artifacts
+@pytest.fixture(scope="session")
+def run_dir():
+    """results/<runId>/ — everything this run leaves, one folder."""
+    import datetime
+    d = os.path.join(os.environ.get("TAF_RESULTS", "results"),
+                     datetime.datetime.now().strftime("%%Y%%m%%d-%%H%%M%%S"))
+    os.makedirs(d, exist_ok=True)
+    return d
+
+
+@pytest.fixture(autouse=True)
+def journal(run_dir, request):
+    """The per-test event stream — labels, checks, failures, timing."""
+    taf_journal.begin(run_dir, request.node.name)
+    yield
+    taf_journal.end()
+
 
 # @concept CONCEPT-taf-v1-003-01-the-environment
 @pytest.fixture(scope="session")
@@ -193,6 +214,7 @@ def pytest_runtest_makereport(item, call):
     file warns; it never fails the suite a second time."""
     if call.when != "call" or call.excinfo is None:
         return
+    taf_journal.mark("failed")
     ws_url = os.environ.get("TAF_IKC3_WS")
     if not ws_url:
         return
@@ -212,6 +234,7 @@ def pytest_runtest_makereport(item, call):
             url=url, dom=dom,
         )
         print("fault report filed:", rid)
+        taf_journal.event("fail", test=item.name, error=err)
     except Exception as e:  # noqa: BLE001 — the sink is a side channel
         print("ikc3 sink could not file the report:", e)
 ''' % m["sut"]["base-url"]
@@ -257,14 +280,16 @@ def _actions(m):
     lines = [_HEADER,
              '"""One function per declared action — the edges of the graph."""\n\n',
              "from pages import ROUTES\n",
-             "import elements\n\n"] if m.get("elements") else [_HEADER,
+             "import elements\n",
+             "import taf_journal\n\n"] if m.get("elements") else [_HEADER,
              '"""One function per declared action — the edges of the graph."""\n\n',
-             "from pages import ROUTES\n\n"]
+             "from pages import ROUTES\n",
+             "import taf_journal\n\n"]
     for name, act in m["actions"].items():
         body = _emit_steps(act.get("do", []), m["states"], m.get("endpoints") or {}, "    ")
         # Every action narrates itself — the label; the run reads as a story.
         title = act.get("title", name)
-        narrate = f'    print("→ {title}")\n'
+        narrate = f'    taf_journal.note("→ {title}")\n'
         lines.append(f"def {_py(name)}(page, base_url, soft=None):\n"
                      f"{narrate}{body or '    pass'}\n\n")
     return "".join(lines)
@@ -324,6 +349,13 @@ def _sink_source():
         return f.read()
 
 
+def _journal_source():
+    """The emitted taf_journal.py is taf/journal_runtime.py verbatim."""
+    with open(os.path.join(os.path.dirname(__file__), "journal_runtime.py"),
+              encoding="utf-8") as f:
+        return f.read()
+
+
 _CUSTOM_README = """# custom/ — hand-authored tests live here
 
 Everything in this suite EXCEPT this directory is generated: edit the
@@ -346,6 +378,7 @@ def emit(model, outdir):
     os.makedirs(outdir, exist_ok=True)
     files = {"conftest.py": _conftest(model),
              "ikc3_sink.py": _sink_source(),
+             "taf_journal.py": _journal_source(),
              "pages.py": _pages(model),
              "actions.py": _actions(model),
              "elements.py": _elements(model),

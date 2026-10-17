@@ -118,7 +118,7 @@ def test_dwell_emits_a_real_pause(tmp_path):
 
 def test_actions_narrate_their_title(tmp_path):
     acts = read(emit(tmp_path), "actions.py")
-    assert 'print("→ open the TOT island")' in acts
+    assert 'taf_journal.note("→ open the TOT island")' in acts
 
 
 def test_watch_forms_emit(tmp_path):

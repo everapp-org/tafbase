@@ -196,18 +196,25 @@ public abstract class BaseTest {
                 System.getenv().getOrDefault("TAF_SLOWMO", "0"))));
     }
 
+    // @concept CONCEPT-taf-v1-004-01-the-artifacts
+    protected static String runDir =
+        System.getenv().getOrDefault("TAF_RESULTS", "results")
+        + "/" + new java.text.SimpleDateFormat("yyyyMMdd-HHmmss").format(new java.util.Date());
+
     @BeforeEach
-    void fresh() {
+    void fresh(org.junit.jupiter.api.TestInfo info) throws java.io.IOException {
         context = browser.newContext();
         page = context.newPage();
         soft = new SoftChecks();
+        TafJournal.begin(runDir, info.getDisplayName());
     }
 
     @AfterEach
-    void closeContext() {
+    void closeContext() throws java.io.IOException {
         context.close();
         // @concept CONCEPT-testing-v1-002-01-the-failure-funnel
         soft.flush();  // collect-and-flush: one fail shows every failed check
+        TafJournal.end("passed");
     }
 
     @AfterAll
@@ -280,7 +287,8 @@ def _actions_class(m):
                          for l in _emit_step(step, m.get("endpoints") or {}, "        "))
         # Every action narrates itself — the label; the run reads as a story.
         title = act.get("title", name)
-        narrate = f'        System.out.println("→ {title}");\n'
+        narrate = (f'        try {{ TafJournal.note("→ {title}"); }}\n'
+                   f'        catch (java.io.IOException e) {{ System.out.println("→ {title}"); }}\n')
         lines.append(f"    public static void {_j(name)}(Page page, String baseUrl, SoftChecks soft) {{\n"
                      f"{narrate}{decl}{body or '        // no steps'}\n    }}\n")
     lines.append("}\n")
@@ -336,6 +344,42 @@ model should learn. It should trend toward empty.
 """
 
 
+def _journal_class():
+    return (_HEADER + f"package {_PKG};\n\n"
+            "// @concept CONCEPT-taf-v1-004-01-the-artifacts\n\n"
+            "import java.io.IOException;\n"
+            "import java.nio.file.*;\n\n"
+            "/** The timestamped event stream, one per test —\n"
+            "    results/<runId>/<testId>/journal.jsonl. The .srt writer,\n"
+            "    rerun manifest and fault reports read it downstream. */\n"
+            "public class TafJournal {\n"
+            "    private static java.io.BufferedWriter current;\n"
+            "    private static long start;\n\n"
+            "    public static void begin(String runDir, String testId) throws IOException {\n"
+            "        Path d = Paths.get(runDir, testId);\n"
+            "        Files.createDirectories(d);\n"
+            "        start = System.nanoTime();\n"
+            "        current = Files.newBufferedWriter(d.resolve(\"journal.jsonl\"));\n"
+            "    }\n\n"
+            "    public static void note(String label) throws IOException {\n"
+            "        event(\"note\", \"\\\"label\\\": \\\"\" + label.replace(\"\\\"\", \"'\") + \"\\\"\");\n"
+            "        System.out.println(label);\n"
+            "    }\n\n"
+            "    public static void event(String kind, String fieldsJson) throws IOException {\n"
+            "        if (current == null) return;\n"
+            "        long t = (System.nanoTime() - start) / 1_000_000L;\n"
+            "        current.write(\"{\\\"t\\\": \" + t + \", \\\"event\\\": \\\"\" + kind + \"\\\", \" + fieldsJson + \"}\\n\");\n"
+            "        current.flush();\n"
+            "    }\n\n"
+            "    public static void end(String outcome) throws IOException {\n"
+            "        if (current == null) return;\n"
+            "        event(\"end\", \"\\\"outcome\\\": \\\"\" + outcome + \"\\\"\");\n"
+            "        current.close();\n"
+            "        current = null;\n"
+            "    }\n"
+            "}\n")
+
+
 def _softchecks_class():
     return (_HEADER + f"package {_PKG};\n\n"
             "// @concept CONCEPT-testing-v1-002-01-the-failure-funnel\n\n"
@@ -364,6 +408,7 @@ def emit(model, outdir):
     files = {os.path.join(outdir, "pom.xml"): _pom(model),
              os.path.join(outdir, "custom", "README.md"): _CUSTOM_README,
              os.path.join(pkgdir, "SoftChecks.java"): _softchecks_class(),
+             os.path.join(pkgdir, "TafJournal.java"): _journal_class(),
              os.path.join(pkgdir, "BaseTest.java"): _basetest(model),
              os.path.join(pkgdir, "Elements.java"): _elements_class(model),
              os.path.join(pkgdir, "Actions.java"): _actions_class(model),
