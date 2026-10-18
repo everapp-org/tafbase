@@ -54,6 +54,17 @@ the source couldn't classify, `openQuestions:` for what needs a human —
 never an empty field pretending confidence (the honesty schema from
 RESEARCH-taf-v1-003-01's qaiq findings).
 
+**Provenance and deviation.** The model is one; the sources are many —
+so each fact's origin lives in a sidecar (`*.sut.provenance.json`), not
+in the model itself: `{path: {source, confidence, last-seen}}`.
+Re-derivation then **reports deviation, never overwrites and never
+hides**: a deriver-owned fact that changed upstream updates the model
+with a `changed:` note; a human-authored fact that now disagrees with
+the source is *surfaced* (`deviates: human says X, source says Y`),
+not suppressed; a human fact absent from the source is `not-in-source`.
+The person reconciles; the framework only names what each side claims —
+the same honesty as the refusals, applied to drift.
+
 ## Touch it
 
 ```bash

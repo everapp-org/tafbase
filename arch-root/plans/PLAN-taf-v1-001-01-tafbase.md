@@ -251,6 +251,11 @@ FSM edge is the test set.
   declarations — the author refines instead of transcribing.
   Accepted by: T-taf-013
 
+Provenance: `*.sut.provenance.json` records each fact's source,
+confidence and last-seen. Re-derivation reports deviation —
+`changed:` / `deviates:` / `not-in-source:` — and never silently
+overrides a human fact.
+
 ## The inputs — declared and derived
 
 The model has two authors (CONCEPT-dsl-v1-014-01): black-box (a person

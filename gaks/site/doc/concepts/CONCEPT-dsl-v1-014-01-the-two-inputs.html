@@ -75,6 +75,16 @@ edge-coverage journey generation. Lane N-13.</p>
 the source couldn&#39;t classify, <code>openQuestions:</code> for what needs a human —
 never an empty field pretending confidence (the honesty schema from
 RESEARCH-taf-v1-003-01&#39;s qaiq findings).</p>
+<p><strong>Provenance and deviation.</strong> The model is one; the sources are many —
+so each fact&#39;s origin lives in a sidecar (<code>*.sut.provenance.json</code>), not
+in the model itself: <code>{path: {source, confidence, last-seen}}</code>.
+Re-derivation then <strong>reports deviation, never overwrites and never
+hides</strong>: a deriver-owned fact that changed upstream updates the model
+with a <code>changed:</code> note; a human-authored fact that now disagrees with
+the source is <em>surfaced</em> (<code>deviates: human says X, source says Y</code>),
+not suppressed; a human fact absent from the source is <code>not-in-source</code>.
+The person reconciles; the framework only names what each side claims —
+the same honesty as the refusals, applied to drift.</p>
 <h2 id="touch-it">Touch it<a class="anchor" href="#touch-it" aria-label="Link to this section">#</a></h2>
 <pre><code class="language-bash">.venv/bin/python -m taf walk suts/ikc3-tracker.sut.model.json --from board --seed 7 --steps 4
 </code></pre>
@@ -87,6 +97,6 @@ model absorbs the SUT&#39;s own declarations.</p>
 </main>
 <nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">35</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-17 05:09 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-10-18 05:04 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>
