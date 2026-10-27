@@ -81,14 +81,20 @@ def _to_step(ev, elements):
     return {"fill": {"element": name, "value": ev.get("value", "")}}
 
 
-def record(base, out, headless=False):
+def record(base, out, title="recorded", needs=(), env=None,
+           headless=False):
     """Drive the browser by hand; on exit write the drafted clauses.
 
     Returns the path written. Press Enter in the console to stop.
     """
     from playwright.sync_api import sync_playwright
+    env = os.environ if env is None else env
     events = []
-    print("taf record — %s" % base, flush=True)
+    print("taf record — %s as %s" % (title, base), flush=True)
+    for n in needs:
+        print("  env  %-18s %s" % (n, "set" if env.get(n)
+              else "unset — sign in by hand if the SUT asks"),
+              flush=True)
     print("drive the SUT; Enter here ends the recording", flush=True)
     with sync_playwright() as p:
         b = p.chromium.launch(headless=headless, slow_mo=50)
@@ -103,13 +109,14 @@ def record(base, out, headless=False):
         b.close()
     elements = {}
     steps = [_to_step(e, elements) for e in events]
-    draft = {"steps": steps,
+    draft = {"title": title, "steps": steps,
              "elements": {name: loc for name, loc in elements.values()}}
     with open(out, "w", encoding="utf-8") as f:
         json.dump(draft, f, indent=2)
         f.write("\n")
-    print("recorded %d step(s), %d element(s) → %s"
-          % (len(steps), len(elements), out), flush=True)
+    print("recorded %d step(s), %d element(s)" % (len(steps), len(elements)),
+          flush=True)
+    print("saved → %s" % os.path.abspath(out), flush=True)
     print("review and merge into the model — recording drafts, "
           "you declare", flush=True)
     return out

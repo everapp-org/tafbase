@@ -146,6 +146,8 @@ def main(argv=None):
                                      "model clauses to a file")
     rc.add_argument("model")
     rc.add_argument("--out", default="recorded.json")
+    rc.add_argument("--name", default="recorded",
+                    help="the draft's title — the journey name to merge as")
     rc.add_argument("--base-url", help="override the model's base-url")
 
     args = ap.parse_args(argv)
@@ -184,12 +186,9 @@ def main(argv=None):
         if args.cmd == "record":
             from taf import record as taf_record
             base = args.base_url or m["sut"]["base-url"]
-            needs = model.env_needs(m)
-            missing = [n for n in needs if not os.environ.get(n)]
-            for n in missing:
-                print("note: env:%s is unset — sign in by hand "
-                      "if the SUT asks" % n)
-            return 0 if taf_record.record(base, args.out) else 1
+            taf_record.record(base, args.out, title=args.name,
+                              needs=model.env_needs(m))
+            return 0
 
         if args.cmd == "run":
             profile = {k: getattr(args, k) for k in
