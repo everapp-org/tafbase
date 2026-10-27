@@ -32,3 +32,17 @@ def test_same_locator_reuses_the_element():
 def test_navigate_is_a_note_not_a_step():
     step = record._to_step({"type": "navigate", "url": "http://x/island=board"}, {})
     assert "note" in step
+
+
+# T-rec-005 — a fill on an env: element records the reference, not the
+# typed secret (the model's env: clauses teach the recorder)
+def test_env_fill_locators_redact_the_typed_value():
+    m = {"elements": {"code": {"css": "#code-in"}},
+         "actions": {"log-in": {"do": [
+             {"fill": {"element": "code", "value": "env-pool:TAF_SUT_CODES"}}]}}}
+    secrets = record._secret_locators(m)
+    elements = {}
+    step = record._to_step({"type": "fill", "loc": ["css", "#code-in"],
+                            "value": "ESCW-UYAV"}, elements, secrets)
+    assert step["fill"]["value"] == "env-pool:TAF_SUT_CODES"
+    assert "ESCW" not in repr(step)

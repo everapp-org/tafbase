@@ -56,6 +56,25 @@ setInterval(() => {
 """
 
 
+def _secret_locators(m):
+    """Locators whose model fills read env:/env-pool: — a recorded
+    value on one of these emits the env reference, never the secret
+    that was typed. Returns {locator-json: env-reference}."""
+    out = {}
+    els = m.get("elements") or {}
+    for act in (m.get("actions") or {}).values():
+        for s in (act.get("do") or []):
+            if not (isinstance(s, dict) and "fill" in s):
+                continue
+            f = s["fill"]
+            v = f.get("value", "")
+            el = els.get(f.get("element"))
+            if el and isinstance(v, str) and (
+                    v.startswith("env:") or v.startswith("env-pool:")):
+                out[json.dumps(el, sort_keys=True)] = v
+    return out
+
+
 def _slug(s):
     import re
     return re.sub(r"-+", "-",
@@ -63,7 +82,7 @@ def _slug(s):
                           for c in s.lower())).strip("-")[:40] or "el"
 
 
-def _to_step(ev, elements):
+def _to_step(ev, elements, secrets=None):
     """One recorded event → a model step, pooling elements by locator."""
     if ev["type"] == "navigate":
         return {"note": "goto " + ev["url"]}  # routes are the model's job
@@ -78,11 +97,13 @@ def _to_step(ev, elements):
     name = elements[key][0]
     if ev["type"] == "click":
         return {"click": name}
+    if secrets and key in secrets:
+        return {"fill": {"element": name, "value": secrets[key]}}
     return {"fill": {"element": name, "value": ev.get("value", "")}}
 
 
 def record(base, out, title="recorded", needs=(), env=None,
-           headless=False):
+           m=None, headless=False):
     """Drive the browser by hand; on exit write the drafted clauses.
 
     Returns the path written. Press Enter in the console to stop.
@@ -108,7 +129,11 @@ def record(base, out, title="recorded", needs=(), env=None,
             pass
         b.close()
     elements = {}
-    steps = [_to_step(e, elements) for e in events]
+    secrets = _secret_locators(m) if m else {}
+    steps = [_to_step(e, elements, secrets) for e in events]
+    secreted = sum(1 for s in steps
+                   if isinstance(s, dict) and "fill" in s
+                   and str(s["fill"].get("value", "")).startswith(("env:", "env-pool:")))
     draft = {"title": title, "steps": steps,
              "elements": {name: loc for name, loc in elements.values()}}
     with open(out, "w", encoding="utf-8") as f:
@@ -116,6 +141,9 @@ def record(base, out, title="recorded", needs=(), env=None,
         f.write("\n")
     print("recorded %d step(s), %d element(s)" % (len(steps), len(elements)),
           flush=True)
+    if secreted:
+        print("  %d fill(s) on env: elements — the reference is kept, "
+              "the typed secret is not" % secreted, flush=True)
     print("saved → %s" % os.path.abspath(out), flush=True)
     print("review and merge into the model — recording drafts, "
           "you declare", flush=True)
