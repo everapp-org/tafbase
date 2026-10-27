@@ -87,10 +87,10 @@ def test_env_fills_read_the_variable_in_both(tmp_path):
 
 def test_page_objects_carry_the_same_markers(tmp_path):
     py, jv = emit_both(tmp_path)
-    assert 'locator(".ikc-dock-theme")' in read(py, "pages.py")
+    assert 'locator("#top-bar")' in read(py, "pages.py")
     jdir = "src/test/java/taf/generated/"
-    assert 'page.locator(".ikc-dock-theme")' in read(jv, jdir + "BoardPage.java")
-    assert 'page.locator(".ikc-dock-theme")' in read(jv, jdir + "TotPage.java")
+    assert 'page.locator("#top-bar")' in read(jv, jdir + "BoardPage.java")
+    assert 'page.locator("#top-bar")' in read(jv, jdir + "TotPage.java")
 
 
 def test_both_refuse_identically(tmp_path):
