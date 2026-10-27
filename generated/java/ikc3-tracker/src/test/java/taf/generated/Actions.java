@@ -24,6 +24,9 @@ public class Actions {
         Elements.signInWithCode(page).click();
         page.navigate(baseUrl + BoardPage.ROUTE);
         new BoardPage(page).expectArrived();
+        try {
+            Elements.startNewInstead(page).click();
+        } catch (Exception ignored) { /* maybe: not applicable */ }
     }
     public static void openBoard(Page page, String baseUrl, SoftChecks soft) {
         try { TafJournal.note("→ open the ticket board"); }
@@ -35,5 +38,17 @@ public class Actions {
         catch (java.io.IOException e) { System.out.println("→ open the TOT island"); }
         page.navigate(baseUrl + TotPage.ROUTE);
         page.waitForTimeout(800);
+    }
+    public static void fileAFaultReport(Page page, String baseUrl, SoftChecks soft) {
+        try { TafJournal.note("→ file a fault report through the UI"); }
+        catch (java.io.IOException e) { System.out.println("→ file a fault report through the UI"); }
+        Elements.reportFault(page).click();
+        assertThat(Elements.reportText(page)).isVisible();
+        Elements.reportText(page).fill("taf: the suite exercising fault reporting — safe to delete");
+        Elements.reportDetails(page).fill("filed by a taf run of ikc3-tracker — the UI half of fail -> file");
+        Elements.reportChoiceTodo(page).click();
+        Elements.reportFile(page).click();
+        assertThat(Elements.reportClose(page)).isVisible();
+        Elements.reportClose(page).click();
     }
 }

@@ -40,7 +40,7 @@ def refusals_of(doc):
 def test_the_tracker_model_loads():
     m = model.load(TRACKER_MODEL)
     assert m["sut"]["name"] == "ikc3-tracker"
-    assert set(m["journeys"]) == {"the-board-is-up", "board-to-tot", "probe-the-report-button"}
+    assert set(m["journeys"]) == {"the-board-is-up", "board-to-tot", "files-a-fault-report"}
 
 
 def test_a_valid_model_refuses_nothing():

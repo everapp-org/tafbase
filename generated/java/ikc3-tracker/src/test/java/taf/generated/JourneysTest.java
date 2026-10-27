@@ -37,14 +37,14 @@ public class JourneysTest extends BaseTest {
     }
 
     @Test
-    void probeTheReportButton() {
+    void filesAFaultReport() {
         // arrange
         var sut = new BoardPage(page);
         sut.gotoRoute(baseUrl);
         sut.expectArrived();
         // act
-        Elements.reportFault(page).click();
-        assertThat(Elements.faultProbe(page)).isVisible();
+        Actions.fileAFaultReport(page, baseUrl, soft);
+        new BoardPage(page).expectArrived();
         // assert
         new BoardPage(page).expectArrived();
     }

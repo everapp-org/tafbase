@@ -29,14 +29,14 @@ def test_board_to_tot(page, base_url, soft):
     # assert
     TotPage(page).expect_arrived()
 
-def test_probe_the_report_button(page, base_url, soft):
+def test_files_a_fault_report(page, base_url, soft):
     # arrange
     sut = BoardPage(page)
     sut.goto(base_url)
     sut.expect_arrived()
     # act
-    elements.report_fault(page).click()
-    expect(elements.fault_probe(page)).to_be_visible()
+    actions.file_a_fault_report(page, base_url, soft)
+    BoardPage(page).expect_arrived()
     # assert
     BoardPage(page).expect_arrived()
 

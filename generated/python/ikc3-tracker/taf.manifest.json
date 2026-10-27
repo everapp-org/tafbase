@@ -21,12 +21,15 @@
       "test": "test_board_to_tot"
     },
     {
-      "actions": [],
-      "journey": "probe-the-report-button",
+      "actions": [
+        "file-a-fault-report"
+      ],
+      "journey": "files-a-fault-report",
       "states": [
+        "board",
         "board"
       ],
-      "test": "test_probe_the_report_button"
+      "test": "test_files_a_fault_report"
     }
   ]
 }

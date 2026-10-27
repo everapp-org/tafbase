@@ -22,15 +22,33 @@ public class Elements {
         return page.getByRole("button", new Page.GetByRoleOptions().setName("Sign in").setExact(true));
     }
     public static Locator haveACode(Page page) {
-        return page.getByRole("button", new Page.GetByRoleOptions().setName("I have a code"));
+        return page.locator("#have-code");
     }
     public static Locator signInWithCode(Page page) {
-        return page.getByRole("button", new Page.GetByRoleOptions().setName("Sign in with the code"));
+        return page.locator("#code-go");
     }
     public static Locator reportFault(Page page) {
         return page.locator("[data-import-id=\"top-bar/report-a-fault\"]");
     }
-    public static Locator faultProbe(Page page) {
-        return page.locator("#taf-does-not-exist");
+    public static Locator startNewInstead(Page page) {
+        return page.getByRole("button", new Page.GetByRoleOptions().setName("Start new instead"));
+    }
+    public static Locator reportChoiceFeat(Page page) {
+        return page.locator("[data-import-id=\"report-dialog/choice-feature-request\"]");
+    }
+    public static Locator reportText(Page page) {
+        return page.locator("[data-import-id=\"report-dialog/text\"]");
+    }
+    public static Locator reportDetails(Page page) {
+        return page.locator("[data-import-id=\"report-dialog/details\"]");
+    }
+    public static Locator reportChoiceTodo(Page page) {
+        return page.locator("[data-import-id=\"report-dialog/choice-todo\"]");
+    }
+    public static Locator reportFile(Page page) {
+        return page.locator("[data-import-id=\"report-dialog/file\"]");
+    }
+    public static Locator reportClose(Page page) {
+        return page.locator("[data-import-id=\"report-dialog/close\"]");
     }
 }

@@ -42,18 +42,35 @@
       "exact": true
     },
     "have-a-code": {
-      "role": "button",
-      "name": "I have a code"
+      "css": "#have-code"
     },
     "sign-in-with-code": {
-      "role": "button",
-      "name": "Sign in with the code"
+      "css": "#code-go"
     },
     "report-fault": {
       "css": "[data-import-id=\"top-bar/report-a-fault\"]"
     },
-    "fault-probe": {
-      "css": "#taf-does-not-exist"
+    "start-new-instead": {
+      "role": "button",
+      "name": "Start new instead"
+    },
+    "report-choice-feat": {
+      "css": "[data-import-id=\"report-dialog/choice-feature-request\"]"
+    },
+    "report-text": {
+      "css": "[data-import-id=\"report-dialog/text\"]"
+    },
+    "report-details": {
+      "css": "[data-import-id=\"report-dialog/details\"]"
+    },
+    "report-choice-todo": {
+      "css": "[data-import-id=\"report-dialog/choice-todo\"]"
+    },
+    "report-file": {
+      "css": "[data-import-id=\"report-dialog/file\"]"
+    },
+    "report-close": {
+      "css": "[data-import-id=\"report-dialog/close\"]"
     }
   },
   "actions": {
@@ -108,6 +125,11 @@
           "wait-for": {
             "state": "board"
           }
+        },
+        {
+          "maybe": {
+            "click": "start-new-instead"
+          }
         }
       ]
     },
@@ -132,6 +154,47 @@
           "dwell": 800
         }
       ]
+    },
+    "file-a-fault-report": {
+      "from": "board",
+      "to": "board",
+      "title": "file a fault report through the UI",
+      "do": [
+        {
+          "click": "report-fault"
+        },
+        {
+          "wait-for": {
+            "element": "report-text"
+          }
+        },
+        {
+          "fill": {
+            "element": "report-text",
+            "value": "taf: the suite exercising fault reporting \u2014 safe to delete"
+          }
+        },
+        {
+          "fill": {
+            "element": "report-details",
+            "value": "filed by a taf run of ikc3-tracker \u2014 the UI half of fail -> file"
+          }
+        },
+        {
+          "click": "report-choice-todo"
+        },
+        {
+          "click": "report-file"
+        },
+        {
+          "wait-for": {
+            "element": "report-close"
+          }
+        },
+        {
+          "click": "report-close"
+        }
+      ]
     }
   },
   "journeys": {
@@ -151,17 +214,10 @@
         "state": "tot"
       }
     },
-    "probe-the-report-button": {
+    "files-a-fault-report": {
       "start": "board",
       "steps": [
-        {
-          "click": "report-fault"
-        },
-        {
-          "wait-for": {
-            "element": "fault-probe"
-          }
-        }
+        "file-a-fault-report"
       ],
       "expect-final": {
         "state": "board"

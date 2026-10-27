@@ -45,7 +45,7 @@ def screen_model(tmp_path):
 def test_report_names_the_tests_a_run_executes():
     rep = dryrun.report(tracker(), env={})
     names = [t["test"] for t in rep["tests"]]
-    assert names == ["test_the_board_is_up", "test_board_to_tot", "test_probe_the_report_button"]
+    assert names == ["test_the_board_is_up", "test_board_to_tot", "test_files_a_fault_report"]
     t = rep["tests"][1]
     assert t["journey"] == "board-to-tot" and t["final"] == "tot"
     assert "dwell" in t["steps"]            # forms inside used actions show

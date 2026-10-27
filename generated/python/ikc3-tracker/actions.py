@@ -21,6 +21,10 @@ def log_in_with_code(page, base_url, soft=None):
     elements.sign_in_with_code(page).click()
     page.goto(base_url + ROUTES["board"])
     BoardPage(page).expect_arrived()
+    try:
+        elements.start_new_instead(page).click()
+    except Exception:
+        pass  # maybe: the step did not apply
 
 def open_board(page, base_url, soft=None):
     taf_journal.note("→ open the ticket board")
@@ -30,4 +34,15 @@ def open_tot(page, base_url, soft=None):
     taf_journal.note("→ open the TOT island")
     page.goto(base_url + ROUTES["tot"])
     page.wait_for_timeout(800)
+
+def file_a_fault_report(page, base_url, soft=None):
+    taf_journal.note("→ file a fault report through the UI")
+    elements.report_fault(page).click()
+    expect(elements.report_text(page)).to_be_visible()
+    elements.report_text(page).fill("taf: the suite exercising fault reporting — safe to delete")
+    elements.report_details(page).fill("filed by a taf run of ikc3-tracker — the UI half of fail -> file")
+    elements.report_choice_todo(page).click()
+    elements.report_file(page).click()
+    expect(elements.report_close(page)).to_be_visible()
+    elements.report_close(page).click()
 
