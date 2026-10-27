@@ -146,7 +146,9 @@ def main(argv=None):
     rc = sub.add_parser("record", help="drive the SUT by hand; drafts "
                                      "model clauses to a file")
     rc.add_argument("model")
-    rc.add_argument("--out", default="recorded.json")
+    rc.add_argument("--out", default=None,
+                    help="draft path (default: recorded-<name>.json; "
+                         "an existing file earns a timestamp)")
     rc.add_argument("--name", default="recorded",
                     help="the draft's title — the journey name to merge as")
     rc.add_argument("--base-url", help="override the model's base-url")
@@ -188,7 +190,8 @@ def main(argv=None):
             from taf import record as taf_record
             base = (args.base_url or os.environ.get("TAF_BASE_URL")
                     or m["sut"]["base-url"])
-            taf_record.record(base, args.out, title=args.name,
+            out = args.out or "recorded-%s.json" % args.name
+            taf_record.record(base, out, title=args.name,
                               needs=model.env_needs(m), m=m)
             return 0
 

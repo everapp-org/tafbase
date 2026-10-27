@@ -75,6 +75,16 @@ def _secret_locators(m):
     return out
 
 
+def _unique_out(out):
+    """A recording is an artifact — never silently overwritten: an
+    existing path earns a timestamp suffix."""
+    if not os.path.exists(out):
+        return out
+    stem, ext = os.path.splitext(out)
+    import time
+    return "%s-%s%s" % (stem, time.strftime("%Y%m%d-%H%M%S"), ext)
+
+
 def _slug(s):
     import re
     return re.sub(r"-+", "-",
@@ -112,6 +122,12 @@ def record(base, out, title="recorded", needs=(), env=None,
     env = os.environ if env is None else env
     events = []
     print("taf record — %s as %s" % (title, base), flush=True)
+    # the contract: values where they are safe to show, set/unset for
+    # secrets — the model names the need, never its value
+    bv = env.get("TAF_BASE_URL")
+    print("  env  %-18s %s" % ("TAF_BASE_URL",
+          "%s  (this shell)" % bv if bv else "unset → model/url flag"),
+          flush=True)
     for n in needs:
         print("  env  %-18s %s" % (n, "set" if env.get(n)
               else "unset — sign in by hand if the SUT asks"),
@@ -128,6 +144,7 @@ def record(base, out, title="recorded", needs=(), env=None,
         except (EOFError, KeyboardInterrupt):
             pass
         b.close()
+    out = _unique_out(out)
     elements = {}
     secrets = _secret_locators(m) if m else {}
     steps = [_to_step(e, elements, secrets) for e in events]
