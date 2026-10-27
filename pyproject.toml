@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tafbase"
+version = "0.1.0"
+description = "DSL First test automation: declare a SUT once, emit pytest+Playwright and JUnit+Playwright suites"
+requires-python = ">=3.9"
+dependencies = [
+    "playwright",
+    "pytest",
+    "websocket-client",
+]
+
+[project.scripts]
+taf = "taf.__main__:main"
+
+[tool.setuptools]
+packages = ["taf"]

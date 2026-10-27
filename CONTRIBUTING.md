@@ -8,11 +8,13 @@ This file is how to work *on* it.
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install pytest playwright websocket-client
+.venv/bin/pip install -e .                        # the `taf` command + deps
 .venv/bin/python -m playwright install chromium   # for live runs
 ```
 
-Always invoke `.venv/bin/python`, never the system interpreter.
+The editable install puts `taf` on the venv's PATH; `python -m taf`
+spells the same command. Always invoke `.venv/bin/python`, never the
+system interpreter.
 
 ## Tests
 
