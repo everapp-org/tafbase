@@ -258,13 +258,18 @@ def _probe_findings(m, env):
             f["hint"] = ("--sink URL points elsewhere; unset TAF_IKC3_WS "
                          "to skip fault reports")
             out.append(f)
-    browsers = env.get("PLAYWRIGHT_BROWSERS_PATH") or os.path.expanduser(
-        "~/.cache/ms-playwright")
-    if glob.glob(os.path.join(browsers, "chromium*")):
-        out.append(_finding("ok", "browsers", "a chromium build is installed"))
+    try:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as p:
+            exe = p.chromium.executable_path
+        present = os.path.exists(exe)
+    except Exception as e:
+        exe, present = str(e), False
+    if present:
+        out.append(_finding("ok", "browsers", "chromium: %s" % exe))
     else:
         f = _finding("missing", "browsers",
-                     "no chromium under %s" % browsers)
+                     "no usable chromium (%s)" % exe)
         f["hint"] = "install: python -m playwright install chromium"
         out.append(f)
     return out
