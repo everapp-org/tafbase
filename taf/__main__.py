@@ -10,7 +10,9 @@ import json
 import os
 import sys
 
-from taf import dryrun, emit_java, emit_python, graph, model, runner
+from taf import dryrun, graph, model, runner
+from taf.codegen.python import emitter as emit_python
+from taf.codegen.java import emitter as emit_java
 
 
 _CMDS = ("check", "walk", "emit", "dry-run", "env", "run", "record")

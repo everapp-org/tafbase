@@ -7,7 +7,8 @@ one declaration produces a committed, reviewable pytest suite).
 import json
 import os
 
-from taf import emit_python, model
+from taf import model
+from taf.codegen.python import emitter as emit_python
 
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

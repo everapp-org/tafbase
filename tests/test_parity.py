@@ -9,7 +9,9 @@ import json
 import os
 import re
 
-from taf import emit_java, emit_python, model, ops
+from taf import model, ops
+from taf.codegen.python import emitter as emit_python
+from taf.codegen.java import emitter as emit_java
 
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

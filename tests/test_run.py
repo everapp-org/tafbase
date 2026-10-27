@@ -10,7 +10,8 @@ import os
 import subprocess
 import sys
 
-from taf import emit_python, model, runner
+from taf import model, runner
+from taf.codegen.python import emitter as emit_python
 
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

@@ -9,7 +9,8 @@ import os
 import subprocess
 import sys
 
-from taf import dryrun, emit_python, model
+from taf import dryrun, model
+from taf.codegen.python import emitter as emit_python
 
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

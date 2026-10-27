@@ -19,7 +19,9 @@ import subprocess
 import sys
 import tempfile
 
-from taf import dryrun, emit_java, emit_python
+from taf import dryrun
+from taf.codegen.python import emitter as emit_python
+from taf.codegen.java import emitter as emit_java
 
 
 def _exec(cmd, cwd=None, env=None):
