@@ -13,6 +13,12 @@ start
 decl
     : 'vocabulary' '{' entry* '}'
     | 'locators'   '{' entry* '}'
+    | 'contract'   '{' contractMember* '}'
+    ;
+
+contractMember
+    : 'env' NAME STRING
+    | 'refusal' NAME
     ;
 
 entry

@@ -26,6 +26,15 @@ class FrameworkSpecListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by FrameworkSpecParser#contractMember.
+    def enterContractMember(self, ctx:FrameworkSpecParser.ContractMemberContext):
+        pass
+
+    # Exit a parse tree produced by FrameworkSpecParser#contractMember.
+    def exitContractMember(self, ctx:FrameworkSpecParser.ContractMemberContext):
+        pass
+
+
     # Enter a parse tree produced by FrameworkSpecParser#entry.
     def enterEntry(self, ctx:FrameworkSpecParser.EntryContext):
         pass

@@ -52,8 +52,18 @@ class _Walk:
                      "version": int(_text(ctx.NUMBER())),
                      "binding": "grammar-hosted"},
              "vocabulary": {}, "locators": {}}
+        m["contract"] = {"env": {}, "refusals": []}
         for d in ctx.decl():
-            kw = d.getChild(0).getText()          # 'vocabulary'|'locators'
+            kw = d.getChild(0).getText()          # vocabulary|locators|contract
+            if kw == "contract":
+                for cm in d.contractMember():
+                    kind = cm.getChild(0).getText()
+                    if kind == "env":
+                        m["contract"]["env"][_text(cm.NAME())] = \
+                            _str(cm.STRING())
+                    else:
+                        m["contract"]["refusals"].append(_text(cm.NAME()))
+                continue
             for e in d.entry():
                 m[kw][self._entry_name(e)] = self._entry(e)
         return m

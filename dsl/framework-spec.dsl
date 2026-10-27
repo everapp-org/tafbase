@@ -202,3 +202,30 @@ vocabulary {
     }
   }
 }
+
+contract {
+  env TAF_BASE_URL "effective base url — flag > env > model"
+  env TAF_RESULTS "results root"
+  env TAF_HEADLESS "headed runs when unset"
+  env TAF_SLOWMO "playwright slow_mo, milliseconds"
+  env TAF_VIDEO "record .webm into the test dir"
+  env TAF_DEBUG "pause on failure"
+  env TAF_RERUN "replay the last failed.txt only"
+  env TAF_IKC3_WS "fault-report websocket url"
+  refusal bad-locator
+  refusal unknown-step
+  refusal unknown-element
+  refusal unknown-state
+  refusal unknown-endpoint
+  refusal bad-dwell
+  refusal bad-wait-any
+  refusal bad-compare-screen
+  refusal bad-maybe
+  refusal bad-env
+  refusal bad-auth
+  refusal duplicate-name
+  refusal missing-field
+  refusal mixed-steps
+  refusal unknown-action
+  refusal edge-gap
+}
