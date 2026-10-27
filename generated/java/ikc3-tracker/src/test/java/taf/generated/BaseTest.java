@@ -77,6 +77,7 @@ public abstract class BaseTest {
 
 
     // @concept CONCEPT-dsl-v1-016-01-the-auth-clause
+    // @concept CONCEPT-playwright-v1-004-01-the-storage-state
     private static String authState;
     static void signInOnce() {
         var c = browser.newContext();

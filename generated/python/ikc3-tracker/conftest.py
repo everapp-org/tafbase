@@ -166,6 +166,7 @@ def pytest_collection_modifyitems(items, config):
     items[:] = [i for i in items if i.name in keep]
 
 # @concept CONCEPT-dsl-v1-016-01-the-auth-clause
+# @concept CONCEPT-playwright-v1-004-01-the-storage-state
 @pytest.fixture(scope="session")
 def auth_state(browser, base_url, run_dir):
     """One sign-in per run — the session kept as storage state; every

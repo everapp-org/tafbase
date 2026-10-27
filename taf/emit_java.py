@@ -186,6 +186,7 @@ def _auth_bootstrap(m):
     cls = _state_class(m["actions"][act]["from"])
     return '''
     // @concept CONCEPT-dsl-v1-016-01-the-auth-clause
+    // @concept CONCEPT-playwright-v1-004-01-the-storage-state
     private static String authState;
     static void signInOnce() {
         var c = browser.newContext();

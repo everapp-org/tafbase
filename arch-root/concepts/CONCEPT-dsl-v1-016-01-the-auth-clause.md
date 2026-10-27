@@ -50,6 +50,6 @@ taf run suts/ikc3-tracker.sut.model.json --slowmo 500 --video
 
 ## Neighbors
 
-[[CONCEPT-dsl-v1-015-01-the-env-value]] — the credential the action
-reads. [[CONCEPT-playwright-v1-002-01-the-browser-context]] — the
-isolation storage state shares *into* rather than around.
+[[CONCEPT-playwright-v1-004-01-the-storage-state]] — the mechanism
+the clause rides on. [[CONCEPT-dsl-v1-015-01-the-env-value]] — the
+credential the action reads.

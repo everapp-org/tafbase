@@ -148,6 +148,7 @@ def _auth_fixture(m):
     cls = _state_class(m["actions"][act]["from"])
     return '''
 # @concept CONCEPT-dsl-v1-016-01-the-auth-clause
+# @concept CONCEPT-playwright-v1-004-01-the-storage-state
 @pytest.fixture(scope="session")
 def auth_state(browser, base_url, run_dir):
     """One sign-in per run — the session kept as storage state; every
