@@ -38,12 +38,16 @@ def _dsl(name):
     return _DSL[name]
 
 
+def _spec():
+    return _dsl("framework-spec.dsl.json")
+
+
 def _rungs():
-    return _dsl("locators.dsl.json")["rungs"]
+    return _spec()["locators"]
 
 
 def _forms():
-    return _dsl("forms.dsl.json")["forms"]
+    return _spec()["vocabulary"]
 
 
 def _esc(v):
