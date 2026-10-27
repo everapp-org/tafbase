@@ -119,12 +119,19 @@ def pytest_runtest_makereport(item, call):
                     f.write(dom)
             except Exception:
                 pass
-        rid = ikc3_sink.file_report(
-            ws_url,
-            "taf journey failed: %s — %s" % (item.name, err),
-            url=url, dom=dom,
-        )
-        print("fault report filed:", rid)
+        fp = ikc3_sink.fingerprint(item.name, err)
+        old = ikc3_sink.filed(fp)
+        if old:
+            print("fault report already filed: %s (fp %s)" % (old, fp))
+            taf_journal.note("fault report already filed: %s" % old)
+        else:
+            rid = ikc3_sink.file_report(
+                ws_url,
+                "taf journey failed: %s — %s" % (item.name, err),
+                url=url, dom=dom,
+            )
+            ikc3_sink.record(fp, rid)
+            print("fault report filed:", rid)
         taf_journal.event("fail", test=item.name, error=err)
     except Exception as e:  # noqa: BLE001 — the sink is a side channel
         print("ikc3 sink could not file the report:", e)

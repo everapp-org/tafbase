@@ -47,7 +47,7 @@ def _loc(loc):
         return f'page.getByTestId("{l["testid"]}")'
     if rung == "xpath":
         return f'page.locator("xpath={l["xpath"]}")'
-    return f'page.locator("{l["css"]}")'
+    return f'page.locator("{l["css"].replace(chr(34), chr(92) + chr(34))}")'
 
 
 def _emit_step(step, endpoints, pad):

@@ -11,8 +11,47 @@ model element inside the tracker itself — the closed quality loop.
 Lane TAF/PLAN-taf-v1-001-01/C-3. No token support yet: works against a
 probe or deployment where authz is off (no IKC_*_TOKEN configured).
 """
+import hashlib
 import json
+import os
+import re
+import time
 import uuid
+
+
+def fingerprint(name, err):
+    """The same failure fingerprints the same across runs: the error
+    tail with tmp paths and object addresses normalized away."""
+    tail = re.sub(r"(/\S*/taf-run-\S+|0x[0-9a-fA-F]+)", "~", str(err))
+    return hashlib.sha1((name + "\n" + tail).encode()).hexdigest()[:12]
+
+
+def _ledger_path():
+    """results/filed.json — at the results root, so it persists across
+    runs and every run dir sees the same ledger."""
+    return os.path.join(os.environ.get("TAF_RESULTS", "results"),
+                        "filed.json")
+
+
+def filed(fp):
+    """The report id if this fingerprint filed before — else None.
+    The ledger is the do-not-repeat switch: a suite must not file the
+    same failure on every run."""
+    try:
+        return json.load(open(_ledger_path()))[fp]["id"]
+    except Exception:
+        return None
+
+
+def record(fp, report_id):
+    path = _ledger_path()
+    try:
+        led = json.load(open(path))
+    except Exception:
+        led = {}
+    led[fp] = {"id": report_id, "at": time.strftime("%Y-%m-%dT%H:%M:%S")}
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    json.dump(led, open(path, "w"), indent=1)
 
 
 def _edn_str(s):

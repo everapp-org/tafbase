@@ -27,4 +27,7 @@ public class Elements {
     public static Locator signInWithCode(Page page) {
         return page.getByRole("button", new Page.GetByRoleOptions().setName("Sign in with the code"));
     }
+    public static Locator reportFault(Page page) {
+        return page.locator("[data-import-id=\"top-bar/report-a-fault\"]");
+    }
 }
