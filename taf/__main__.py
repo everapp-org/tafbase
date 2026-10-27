@@ -113,11 +113,29 @@ def main(argv=None):
     r.add_argument("--lang", choices=["python", "java"], default="python",
                    help="which suite to emit and runner to call "
                         "(default: python → pytest; java → mvn test)")
-    r.add_argument("--probe", action="store_true",
-                   help="preflight: refuse to start while a probe finding "
-                        "is missing")
+    r.add_argument("--probe", dest="probe", action="store_true",
+                   default=True,
+                   help="preflight before running (default: on)")
+    r.add_argument("--no-probe", dest="probe", action="store_false",
+                   help="skip the preflight gate")
     r.add_argument("--keep", action="store_true",
                    help="keep the emitted temp suite")
+    # the run profile — inline TAF_* contract, no shell exports needed
+    r.add_argument("--base-url", help="override the model's base-url")
+    r.add_argument("--results", help="artifacts root (default: results)")
+    r.add_argument("--headless", action="store_true",
+                   help="headless browser (headed is the default)")
+    r.add_argument("--slowmo", type=int, metavar="MS",
+                   help="ms between Playwright actions — watchable runs")
+    r.add_argument("--video", action="store_true",
+                   help="record .webm into each test's results dir")
+    r.add_argument("--debug", action="store_true",
+                   help="pause at a failure, browser stays open")
+    r.add_argument("--rerun", action="store_true",
+                   help="replay only the last failed.txt")
+    r.add_argument("--sink", nargs="?", const=True, metavar="URL",
+                   help="file fault reports; bare --sink derives "
+                        "ws://<sut-host>/bus-ws")
 
     args = ap.parse_args(argv)
     try:
@@ -153,9 +171,12 @@ def main(argv=None):
             return 0
 
         if args.cmd == "run":
+            profile = {k: getattr(args, k) for k in
+                       ("base_url", "results", "headless", "slowmo",
+                        "video", "debug", "rerun", "sink")}
             return runner.run(m, suite=args.suite, lang=args.lang,
                               extra=extra, probe=args.probe,
-                              keep=args.keep)
+                              keep=args.keep, profile=profile)
 
         written = (emit_python if args.lang == "python" else emit_java).emit(m, args.outdir)
         for p in written:

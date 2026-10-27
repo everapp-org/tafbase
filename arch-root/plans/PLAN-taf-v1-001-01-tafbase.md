@@ -204,12 +204,15 @@ browser and breaks on failure; `requires:` declares suite preflight
 **Progress (2026-10-27).** `taf run` is the cycle in one command —
 check (the loader refuses), emit (a temp suite, or `--suite` for a
 committed one), execute (pytest; `mvn test` for `--lang java`); the
-exit code is the runner's and args after `--` reach it. `--probe` is
-the first gate: a missing probe finding refuses before a browser
-opens. Around it: `taf dry-run` reports what a run would do and lacks
-(CONCEPT-taf-v1-008-01); `taf env` prints the `TAF_*` contract as
-export lines a console evals. Still open: `requires:` in the model,
-the `--last-failed`/`--debug` spellings of `taf run`.
+exit code is the runner's and args after `--` reach it. The gate is
+on by default: a missing probe finding refuses before a browser opens
+(`--no-probe` skips it). The run profile is also inline —
+`--slowmo`, `--video`, `--headless`, `--sink`, `--debug`, `--rerun`,
+`--base-url`, `--results` set the `TAF_*` contract for the child, no
+shell exports needed. Around it: `taf dry-run` reports what a run
+would do and lacks (CONCEPT-taf-v1-008-01); `taf env` prints the
+`TAF_*` contract as export lines a console evals. Still open:
+`requires:` in the model, `--last-failed` as a `run` spelling.
 
 **Release note (draft)**
 - New: a failed run replays only its failures; a debug run pauses at the

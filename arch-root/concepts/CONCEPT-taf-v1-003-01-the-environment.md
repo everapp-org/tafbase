@@ -77,6 +77,8 @@ taf env suts/ikc3-tracker.sut.model.json --video --sink
 # prints the contract as export lines; a console adopts it by eval:
 eval "$(taf env suts/ikc3-tracker.sut.model.json --video --sink)"
 taf env suts/ikc3-tracker.sut.model.json --unset    # clears it again
+# or set it for one run only — the flags are the same contract:
+taf run suts/ikc3-tracker.sut.model.json --slowmo 500 --video --sink
 ```
 
 ## Neighbors

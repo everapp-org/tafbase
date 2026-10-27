@@ -22,16 +22,63 @@ import tempfile
 from taf import dryrun, emit_java, emit_python
 
 
-def _exec(cmd, cwd=None):
+def _exec(cmd, cwd=None, env=None):
     """The runner subprocess — patched out in tests."""
-    return subprocess.run(cmd, cwd=cwd)
+    return subprocess.run(cmd, cwd=cwd, env=env)
+
+
+def _child_env(env, base_url=None, results=None, headless=False,
+               slowmo=None, video=False, debug=False, rerun=False,
+               sink=None):
+    """Run-profile flags become the TAF_* contract of the child's
+    environment — an explicit flag wins over the shell's setting."""
+    child = dict(env)
+    if base_url:
+        child["TAF_BASE_URL"] = base_url
+    if results:
+        child["TAF_RESULTS"] = results
+    if headless:
+        child["TAF_HEADLESS"] = "1"
+    if slowmo is not None:
+        child["TAF_SLOWMO"] = str(slowmo)
+    if video:
+        child["TAF_VIDEO"] = "1"
+    if debug:
+        child["TAF_DEBUG"] = "1"
+    if rerun:
+        child["TAF_RERUN"] = "1"
+    if sink is True:
+        base = child.get("TAF_BASE_URL") or "http://x"
+        child["TAF_IKC3_WS"] = dryrun._bus_url(base)
+    elif sink:
+        child["TAF_IKC3_WS"] = sink
+    return child
+
+
+def _profile_bits(child):
+    """The effective run profile, one line of the header: headed,
+    slowmo 300ms, video, sink."""
+    bits = ["headless" if child.get("TAF_HEADLESS") == "1" else "headed"]
+    if child.get("TAF_SLOWMO") not in (None, "0"):
+        bits.append("slowmo %sms" % child["TAF_SLOWMO"])
+    if child.get("TAF_VIDEO"):
+        bits.append("video")
+    if child.get("TAF_DEBUG"):
+        bits.append("debug")
+    if child.get("TAF_RERUN"):
+        bits.append("rerun")
+    if child.get("TAF_IKC3_WS"):
+        bits.append("sink")
+    return ", ".join(bits)
 
 
 def run(m, suite=None, lang="python", extra=(), probe=False, keep=False,
-        env=None):
-    """check -> emit -> execute; returns the runner's exit code."""
+        env=None, profile=None):
+    """check -> emit -> execute; returns the runner's exit code.
+    `profile` is the run-profile flags (see _child_env)."""
     env = os.environ if env is None else env
-    base = env.get("TAF_BASE_URL") or m["sut"]["base-url"]
+    child = _child_env(env, **(profile or {}))
+    base = child.get("TAF_BASE_URL") or m["sut"]["base-url"]
     tmp = None
     if suite is None:
         tmp = tempfile.mkdtemp(prefix="taf-run-")
@@ -40,19 +87,19 @@ def run(m, suite=None, lang="python", extra=(), probe=False, keep=False,
         origin = "emitted (%s)" % ("kept" if keep else "temp")
     else:
         origin = "committed"
-    print("taf run — %s @ %s · %d test(s) · suite: %s (%s)"
-          % (m["sut"]["name"], base, len(m["journeys"]), suite, origin),
-          flush=True)
+    print("taf run — %s @ %s · %d test(s) · %s · suite: %s (%s)"
+          % (m["sut"]["name"], base, len(m["journeys"]),
+             _profile_bits(child), suite, origin), flush=True)
     try:
         if probe:
-            missing = [f for f in dryrun._probe_findings(m, env)
+            missing = [f for f in dryrun._probe_findings(m, child)
                        if f["level"] == "missing"]
             if missing:
                 for f in missing:
                     print("  preflight missing  %s — %s"
                           % (f["what"], f["detail"]), flush=True)
-                print("refusing to run — fix the missing, or drop --probe",
-                      flush=True)
+                print("refusing to run — fix the missing, "
+                      "or --no-probe skips the gate", flush=True)
                 return 1
         if lang == "java":
             cmd = (["mvn", "-q", "-f", os.path.join(suite, "pom.xml"),
@@ -60,7 +107,7 @@ def run(m, suite=None, lang="python", extra=(), probe=False, keep=False,
         else:
             cmd = ([sys.executable, "-m", "pytest", "-q"] + list(extra)
                    + [suite])
-        return _exec(cmd).returncode
+        return _exec(cmd, env=child).returncode
     finally:
         if tmp and not keep:
             shutil.rmtree(tmp, ignore_errors=True)

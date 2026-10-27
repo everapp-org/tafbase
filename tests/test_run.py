@@ -27,8 +27,9 @@ class Proc:
 
 
 def fake_exec(seen, rc=0):
-    def _run(cmd, cwd=None):
+    def _run(cmd, cwd=None, env=None):
         seen["cmd"] = cmd
+        seen["env"] = env
         return Proc(rc)
     return _run
 
@@ -37,7 +38,7 @@ def fake_exec(seen, rc=0):
 def test_run_emits_temp_and_invokes_pytest(tmp_path, monkeypatch, capsys):
     seen = {}
 
-    def _run(cmd, cwd=None):
+    def _run(cmd, cwd=None, env=None):
         seen["cmd"] = cmd
         seen["manifest"] = os.path.exists(
             os.path.join(cmd[-1], "taf.manifest.json"))
@@ -106,18 +107,40 @@ def test_java_runs_mvn_test(monkeypatch):
     assert cmd[0] == "mvn" and "pom.xml" in cmd[-2] and cmd[-1] == "test"
 
 
-# T-run-007 — the CLI splits at -- and forwards the runner args
+# T-run-007 — the CLI splits at -- and forwards the runner args;
+# the gate is on by default
 def test_cli_forwards_passthrough(tmp_path):
     r = subprocess.run(
-        [sys.executable, "-m", "taf", "run", TRACKER_MODEL, "--probe",
+        [sys.executable, "-m", "taf", "run", TRACKER_MODEL,
          "--", "--collect-only"],
         capture_output=True, text=True)
-    # probe refuses first (no SUT up): the point is parse order held
+    # probe is the default: it refuses first (no SUT up)
     assert r.returncode == 1
     assert "preflight missing" in r.stdout
     r = subprocess.run(
-        [sys.executable, "-m", "taf", "run", TRACKER_MODEL,
+        [sys.executable, "-m", "taf", "run", TRACKER_MODEL, "--no-probe",
          "--", "--collect-only", "-q"],
         capture_output=True, text=True)
     assert "test_journeys.py: 2" in r.stdout
     assert r.returncode == 0
+
+
+# T-run-008 — run-profile flags become the child's TAF_* contract
+def test_profile_flags_set_child_env(monkeypatch):
+    seen = {}
+    monkeypatch.setattr(runner, "_exec", fake_exec(seen))
+    runner.run(tracker(), env={},
+               profile={"slowmo": 500, "video": True, "sink": True,
+                        "base_url": "http://staging:9"})
+    env = seen["env"]
+    assert env["TAF_SLOWMO"] == "500" and env["TAF_VIDEO"] == "1"
+    assert env["TAF_BASE_URL"] == "http://staging:9"
+    assert env["TAF_IKC3_WS"] == "ws://staging:9/bus-ws"
+
+
+# T-run-009 — the header names the effective profile
+def test_header_shows_the_profile(monkeypatch, capsys):
+    monkeypatch.setattr(runner, "_exec", fake_exec({}))
+    runner.run(tracker(), env={}, profile={"slowmo": 500, "video": True})
+    out = capsys.readouterr().out
+    assert "headed" in out and "slowmo 500ms" in out and "video" in out
