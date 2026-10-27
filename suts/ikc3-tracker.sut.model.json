@@ -79,6 +79,9 @@
       "title": "sign in with a one-time code",
       "do": [
         {
+          "click": "have-a-code"
+        },
+        {
           "fill": {
             "element": "code",
             "value": "env-pool:TAF_SUT_CODES"

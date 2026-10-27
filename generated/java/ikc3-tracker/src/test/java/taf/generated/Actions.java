@@ -19,6 +19,7 @@ public class Actions {
     public static void logInWithCode(Page page, String baseUrl, SoftChecks soft) {
         try { TafJournal.note("→ sign in with a one-time code"); }
         catch (java.io.IOException e) { System.out.println("→ sign in with a one-time code"); }
+        Elements.haveACode(page).click();
         Elements.code(page).fill(TafJournal.envPool("TAF_SUT_CODES"));
         Elements.signIn(page).click();
         new BoardPage(page).expectArrived();
