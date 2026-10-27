@@ -16,9 +16,11 @@ import glob
 import importlib.util
 import json
 import os
+import shlex
 import shutil
 import socket
 import urllib.request
+import urllib.parse
 
 from taf import ops
 
@@ -267,6 +269,62 @@ def report(m, env=None, suite=None, lang="python", probe=False):
             "tests": tests,
             "env": _env_table(m, env),
             "findings": findings}
+
+
+def _bus_url(base_url):
+    """The IKC3 bus on the SUT's own host — ws for http, wss for https."""
+    p = urllib.parse.urlparse(base_url)
+    scheme = "wss" if p.scheme == "https" else "ws"
+    return "%s://%s/bus-ws" % (scheme, p.netloc)
+
+
+def env_lines(m, env=None, shell=None, base_url=None, results=None,
+              headless=False, slowmo=None, video=False, debug=False,
+              rerun=False, sink=None, unset=False):
+    """Shell lines for `eval "$(taf env ...)"` — the TAF_* contract as
+    exports. Base variables always export; opt-ins export when their
+    flag passed (or are already set); the rest print as comments — the
+    generated script documents what it did not turn on."""
+    env = os.environ if env is None else env
+    fish = (shell or os.path.basename(env.get("SHELL", ""))) == "fish"
+
+    def set_line(var, val):
+        return ("set -gx %s %s;" if fish else "export %s=%s") \
+            % (var, shlex.quote(str(val)))
+
+    def unset_line(var):
+        return ("set -e %s;" if fish else "unset %s") % var
+
+    base = base_url or env.get("TAF_BASE_URL") or m["sut"]["base-url"]
+    # (var, value or None, why) — None means opt-in not requested.
+    chosen = [
+        ("TAF_BASE_URL", base, "where the SUT lives"),
+        ("TAF_RESULTS", results or env.get("TAF_RESULTS") or "results",
+         "one folder per run"),
+        ("TAF_HEADLESS", "1" if (headless or env.get("TAF_HEADLESS") == "1")
+         else None, "headless, for CI"),
+        ("TAF_SLOWMO", str(slowmo) if slowmo is not None
+         else env.get("TAF_SLOWMO") or None, "ms between actions"),
+        ("TAF_VIDEO", "1" if (video or env.get("TAF_VIDEO")) else None,
+         "records .webm into the test's results dir"),
+        ("TAF_DEBUG", "1" if (debug or env.get("TAF_DEBUG")) else None,
+         "pauses at the failure"),
+        ("TAF_RERUN", "1" if (rerun or env.get("TAF_RERUN")) else None,
+         "replays only the last failed.txt"),
+        ("TAF_IKC3_WS",
+         _bus_url(base) if sink is True else sink or env.get("TAF_IKC3_WS"),
+         "a red test files a fault report"),
+    ]
+    lines = ["# taf env — %s" % m["sut"]["name"],
+             "# eval \"$(taf env <model> ...)\"  |  fish: taf env ... | source"]
+    for var, val, why in chosen:
+        if unset:
+            lines.append(unset_line(var))
+        elif val is not None:
+            lines.append("%s  # %s" % (set_line(var, val), why))
+        else:
+            lines.append("# %s  (%s)" % (set_line(var, 1), why))
+    return "\n".join(lines)
 
 
 _LEVELS = ("missing", "off", "note", "ok")

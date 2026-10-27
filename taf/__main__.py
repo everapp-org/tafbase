@@ -49,6 +49,27 @@ def main(argv=None):
     d.add_argument("--json", action="store_true",
                    help="print the report as JSON")
 
+    v = sub.add_parser("env",
+                       help="print TAF_* export lines — eval \"$(taf env ...)\"")
+    v.add_argument("model")
+    v.add_argument("--base-url", help="override the model's base-url")
+    v.add_argument("--results", help="artifacts root (default: results)")
+    v.add_argument("--headless", action="store_true")
+    v.add_argument("--slowmo", type=int, metavar="MS")
+    v.add_argument("--video", action="store_true",
+                   help="record .webm into each test's results dir")
+    v.add_argument("--debug", action="store_true",
+                   help="pause at a failure, browser stays open")
+    v.add_argument("--rerun", action="store_true",
+                   help="replay only the last failed.txt")
+    v.add_argument("--sink", nargs="?", const=True, metavar="URL",
+                   help="file fault reports; bare --sink derives "
+                        "ws://<sut-host>/bus-ws")
+    v.add_argument("--shell", choices=["sh", "fish"],
+                   help="default: detected from $SHELL")
+    v.add_argument("--unset", action="store_true",
+                   help="print lines that clear the TAF_* contract")
+
     args = ap.parse_args(argv)
     try:
         m = model.load(args.model)
@@ -72,6 +93,14 @@ def main(argv=None):
                                 probe=args.probe)
             print(json.dumps(rep, indent=2) if args.json
                   else dryrun.render(rep))
+            return 0
+
+        if args.cmd == "env":
+            print(dryrun.env_lines(
+                m, shell=args.shell, base_url=args.base_url,
+                results=args.results, headless=args.headless,
+                slowmo=args.slowmo, video=args.video, debug=args.debug,
+                rerun=args.rerun, sink=args.sink, unset=args.unset))
             return 0
 
         written = (emit_python if args.lang == "python" else emit_java).emit(m, args.outdir)
