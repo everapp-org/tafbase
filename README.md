@@ -34,6 +34,8 @@ tests/            pytest suite for the framework itself
     --suite generated/python/ikc3-tracker       # what would run, what it lacks
 eval "$(taf env suts/ikc3-tracker.sut.model.json --video --sink)"
                                                 # this console adopts a run profile
+.venv/bin/python -m taf run suts/ikc3-tracker.sut.model.json --probe
+                                                # emit + execute; refuse if the SUT is down
 .venv/bin/python -m taf emit --lang python suts/ikc3-tracker.sut.model.json -o generated/python/ikc3-tracker
 .venv/bin/python -m taf emit --lang java   suts/ikc3-tracker.sut.model.json -o generated/java/ikc3-tracker
 diff generated/python/ikc3-tracker/taf.manifest.json generated/java/ikc3-tracker/taf.manifest.json

@@ -9,10 +9,25 @@ import argparse
 import json
 import sys
 
-from taf import dryrun, emit_java, emit_python, graph, model
+from taf import dryrun, emit_java, emit_python, graph, model, runner
 
 
-_CMDS = ("check", "walk", "emit", "dry-run", "env")
+_CMDS = ("check", "walk", "emit", "dry-run", "env", "run")
+
+_EPILOG = """\
+the cycle: check → emit → execute
+  `taf run <model>` does it in one command; `taf <model>` alone is the
+  dry-run report; the phases below run singly when you want them.
+
+examples:
+  taf <model>                          what would run, what it lacks
+  taf run <model>                      emit + execute the suite
+  taf run <model> --probe              refuse to start if the SUT is down
+  taf run <model> -- -k board -v       after -- : args for the runner
+  eval "$(taf env <model> --video --sink)"
+  taf emit --lang java <model> -o generated/java/<sut>
+  taf walk <model> --from <state> --seed 7
+"""
 
 
 def main(argv=None):
@@ -20,8 +35,18 @@ def main(argv=None):
     # `taf <model>` is `taf dry-run <model>` — the report is the default.
     if argv and argv[0] not in _CMDS and argv[0] not in ("-h", "--help"):
         argv = ["dry-run"] + argv
+    if not argv:
+        argv = ["-h"]
+    # `run` splits at `--` itself: argparse REMAINDER would swallow the
+    # command's own flags.
+    extra = []
+    if argv[0] == "run" and "--" in argv:
+        i = argv.index("--")
+        argv, extra = argv[:i], argv[i + 1:]
     ap = argparse.ArgumentParser(
-        prog="taf", description="default command: dry-run — `taf <model>`")
+        prog="taf", epilog=_EPILOG,
+        description="default command: dry-run — `taf <model>`",
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     c = sub.add_parser("check", help="validate a model, print its refusals")
@@ -78,6 +103,22 @@ def main(argv=None):
     v.add_argument("--unset", action="store_true",
                    help="print lines that clear the TAF_* contract")
 
+    r = sub.add_parser("run",
+                       help="emit and execute the suite — the full cycle")
+    r.add_argument("model")
+    r.add_argument("--suite",
+                   help="run a committed emitted suite instead of a fresh emit")
+    r.add_argument("--journeys",
+                   help="JSON of extra journeys to merge in (e.g. `taf walk` output)")
+    r.add_argument("--lang", choices=["python", "java"], default="python",
+                   help="which suite to emit and runner to call "
+                        "(default: python → pytest; java → mvn test)")
+    r.add_argument("--probe", action="store_true",
+                   help="preflight: refuse to start while a probe finding "
+                        "is missing")
+    r.add_argument("--keep", action="store_true",
+                   help="keep the emitted temp suite")
+
     args = ap.parse_args(argv)
     try:
         m = model.load(args.model)
@@ -110,6 +151,11 @@ def main(argv=None):
                 slowmo=args.slowmo, video=args.video, debug=args.debug,
                 rerun=args.rerun, sink=args.sink, unset=args.unset))
             return 0
+
+        if args.cmd == "run":
+            return runner.run(m, suite=args.suite, lang=args.lang,
+                              extra=extra, probe=args.probe,
+                              keep=args.keep)
 
         written = (emit_python if args.lang == "python" else emit_java).emit(m, args.outdir)
         for p in written:

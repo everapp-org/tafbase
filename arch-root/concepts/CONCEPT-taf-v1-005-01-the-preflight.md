@@ -33,8 +33,10 @@ infrastructure facts.
 Partly landed — lane L-12. The static analogue exists: `taf check`'s
 refusals list every reason instead of dying on the first. The report
 form exists: `taf dry-run` names what a run lacks
-([[CONCEPT-taf-v1-008-01-the-dry-run]]). Still planned: `requires:` —
-the gate form, the run-time version of the same contract.
+([[CONCEPT-taf-v1-008-01-the-dry-run]]). The gate form begins:
+`taf run --probe` refuses to start while a probe finding is missing —
+before a browser opens. Still planned: `requires:` — the declared
+gate, the run-time version of the same contract.
 
 ## Touch it
 
