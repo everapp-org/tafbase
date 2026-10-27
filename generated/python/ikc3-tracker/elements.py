@@ -15,8 +15,11 @@ def code(page):
     return page.locator("#code-in")
 
 def sign_in(page):
-    return page.get_by_role("button", name="Sign in")
+    return page.get_by_role("button", name="Sign in", exact=True)
 
 def have_a_code(page):
     return page.get_by_role("button", name="I have a code")
+
+def sign_in_with_code(page):
+    return page.get_by_role("button", name="Sign in with the code")
 

@@ -21,7 +21,8 @@ public class Actions {
         catch (java.io.IOException e) { System.out.println("→ sign in with a one-time code"); }
         Elements.haveACode(page).click();
         Elements.code(page).fill(TafJournal.envPool("TAF_SUT_CODES"));
-        Elements.signIn(page).click();
+        Elements.signInWithCode(page).click();
+        page.navigate(baseUrl + BoardPage.ROUTE);
         new BoardPage(page).expectArrived();
     }
     public static void openBoard(Page page, String baseUrl, SoftChecks soft) {

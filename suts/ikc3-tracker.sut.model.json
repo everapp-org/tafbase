@@ -38,11 +38,16 @@
     },
     "sign-in": {
       "role": "button",
-      "name": "Sign in"
+      "name": "Sign in",
+      "exact": true
     },
     "have-a-code": {
       "role": "button",
       "name": "I have a code"
+    },
+    "sign-in-with-code": {
+      "role": "button",
+      "name": "Sign in with the code"
     }
   },
   "actions": {
@@ -88,7 +93,10 @@
           }
         },
         {
-          "click": "sign-in"
+          "click": "sign-in-with-code"
+        },
+        {
+          "navigate": "board"
         },
         {
           "wait-for": {

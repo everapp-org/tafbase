@@ -33,6 +33,9 @@ def _loc(loc):
     rung, l = ops.locator_rung(loc)
     if rung == "role":
         extra = f', new Page.GetByRoleOptions().setName("{l["name"]}")' if "name" in l else ""
+        if l.get("exact"):
+            extra += ('.setExact(true)' if extra else
+                      ", new Page.GetByRoleOptions().setExact(true)")
         return f'page.getByRole("{l["role"]}"{extra})'
     if rung == "label":
         return f'page.getByLabel("{l["label"]}")'

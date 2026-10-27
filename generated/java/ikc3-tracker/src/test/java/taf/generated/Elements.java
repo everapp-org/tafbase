@@ -19,9 +19,12 @@ public class Elements {
         return page.locator("#code-in");
     }
     public static Locator signIn(Page page) {
-        return page.getByRole("button", new Page.GetByRoleOptions().setName("Sign in"));
+        return page.getByRole("button", new Page.GetByRoleOptions().setName("Sign in").setExact(true));
     }
     public static Locator haveACode(Page page) {
         return page.getByRole("button", new Page.GetByRoleOptions().setName("I have a code"));
+    }
+    public static Locator signInWithCode(Page page) {
+        return page.getByRole("button", new Page.GetByRoleOptions().setName("Sign in with the code"));
     }
 }

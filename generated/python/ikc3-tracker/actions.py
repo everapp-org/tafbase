@@ -18,7 +18,8 @@ def log_in_with_code(page, base_url, soft=None):
     taf_journal.note("→ sign in with a one-time code")
     elements.have_a_code(page).click()
     elements.code(page).fill(taf_journal.env_pool("TAF_SUT_CODES"))
-    elements.sign_in(page).click()
+    elements.sign_in_with_code(page).click()
+    page.goto(base_url + ROUTES["board"])
     BoardPage(page).expect_arrived()
 
 def open_board(page, base_url, soft=None):

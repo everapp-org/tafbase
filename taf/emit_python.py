@@ -24,6 +24,8 @@ def _loc(loc, page="page"):
     """The Playwright call for one rung of the locator ladder."""
     if "role" in loc:
         extra = f', name="{loc["name"]}"' if "name" in loc else ""
+        if loc.get("exact"):
+            extra += ", exact=True"
         return f'{page}.get_by_role("{loc["role"]}"{extra})'
     if "label" in loc:
         return f'{page}.get_by_label("{loc["label"]}")'
