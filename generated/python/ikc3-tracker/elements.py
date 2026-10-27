@@ -12,7 +12,7 @@ def secret(page):
     return page.get_by_label("Secret")
 
 def code(page):
-    return page.get_by_label("Code")
+    return page.locator("#code-in")
 
 def sign_in(page):
     return page.get_by_role("button", name="Sign in")

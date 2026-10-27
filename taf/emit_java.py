@@ -191,8 +191,13 @@ def _auth_bootstrap(m):
     static void signInOnce() {
         var c = browser.newContext();
         var pg = c.newPage();
-        new %s(pg).gotoRoute(baseUrl);
-        Actions.%s(pg, baseUrl, null);
+        try {
+            new %s(pg).gotoRoute(baseUrl);
+            Actions.%s(pg, baseUrl, null);
+        } catch (RuntimeException e) {
+            if (System.getenv("TAF_DEBUG") != null) pg.pause();
+            throw e;
+        }
         authState = runDir + "/auth-state.json";
         c.storageState(new BrowserContext.StorageStateOptions()
             .setPath(java.nio.file.Paths.get(authState)));

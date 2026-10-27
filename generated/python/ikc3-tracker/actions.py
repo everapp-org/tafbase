@@ -16,7 +16,6 @@ def log_in(page, base_url, soft=None):
 
 def log_in_with_code(page, base_url, soft=None):
     taf_journal.note("→ sign in with a one-time code")
-    elements.have_a_code(page).click()
     elements.code(page).fill(taf_journal.env_pool("TAF_SUT_CODES"))
     elements.sign_in(page).click()
     BoardPage(page).expect_arrived()

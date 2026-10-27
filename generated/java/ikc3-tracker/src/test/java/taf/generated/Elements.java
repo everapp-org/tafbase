@@ -16,7 +16,7 @@ public class Elements {
         return page.getByLabel("Secret");
     }
     public static Locator code(Page page) {
-        return page.getByLabel("Code");
+        return page.locator("#code-in");
     }
     public static Locator signIn(Page page) {
         return page.getByRole("button", new Page.GetByRoleOptions().setName("Sign in"));

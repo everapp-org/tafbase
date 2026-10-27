@@ -176,8 +176,13 @@ def auth_state(browser, base_url, run_dir):
     path = os.path.join(run_dir, "auth-state.json")
     ctx = browser.new_context()
     pg = ctx.new_page()
-    LoginPage(pg).goto(base_url)
-    actions.log_in_with_code(pg, base_url)
+    try:
+        LoginPage(pg).goto(base_url)
+        actions.log_in_with_code(pg, base_url)
+    except Exception:
+        if os.environ.get("TAF_DEBUG"):
+            pg.pause()  # TAF_DEBUG: stop at the failure, browser stays open
+        raise
     ctx.storage_state(path=path)
     ctx.close()
     return path

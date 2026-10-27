@@ -34,7 +34,7 @@
       "label": "Secret"
     },
     "code": {
-      "label": "Code"
+      "css": "#code-in"
     },
     "sign-in": {
       "role": "button",
@@ -78,9 +78,6 @@
       "to": "board",
       "title": "sign in with a one-time code",
       "do": [
-        {
-          "click": "have-a-code"
-        },
         {
           "fill": {
             "element": "code",

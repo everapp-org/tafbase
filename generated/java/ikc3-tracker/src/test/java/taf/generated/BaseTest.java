@@ -82,8 +82,13 @@ public abstract class BaseTest {
     static void signInOnce() {
         var c = browser.newContext();
         var pg = c.newPage();
-        new LoginPage(pg).gotoRoute(baseUrl);
-        Actions.logInWithCode(pg, baseUrl, null);
+        try {
+            new LoginPage(pg).gotoRoute(baseUrl);
+            Actions.logInWithCode(pg, baseUrl, null);
+        } catch (RuntimeException e) {
+            if (System.getenv("TAF_DEBUG") != null) pg.pause();
+            throw e;
+        }
         authState = runDir + "/auth-state.json";
         c.storageState(new BrowserContext.StorageStateOptions()
             .setPath(java.nio.file.Paths.get(authState)));
