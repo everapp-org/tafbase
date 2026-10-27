@@ -73,11 +73,13 @@ def _profile_bits(child):
 
 
 def run(m, suite=None, lang="python", extra=(), probe=False, keep=False,
-        env=None, profile=None):
+        env=None, profile=None, setenv=None):
     """check -> emit -> execute; returns the runner's exit code.
-    `profile` is the run-profile flags (see _child_env)."""
+    `profile` is the run-profile flags (see _child_env); `setenv` is
+    --set NAME=VALUE pairs, arbitrary vars for the child."""
     env = os.environ if env is None else env
     child = _child_env(env, **(profile or {}))
+    child.update(setenv or {})
     base = child.get("TAF_BASE_URL") or m["sut"]["base-url"]
     tmp = None
     if suite is None:

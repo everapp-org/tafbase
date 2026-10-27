@@ -134,6 +134,10 @@ def main(argv=None):
                    help="pause at a failure, browser stays open")
     r.add_argument("--rerun", action="store_true",
                    help="replay only the last failed.txt")
+    r.add_argument("--set", dest="setenv", action="append",
+                   metavar="NAME=VALUE", default=[],
+                   help="inject any var into the run's env — "
+                        "--set TAF_SUT_CODES=XXXX-XXXX")
     r.add_argument("--sink", nargs="?", const=True, metavar="URL",
                    help="file fault reports; bare --sink derives "
                         "ws://<sut-host>/bus-ws")
@@ -177,6 +181,8 @@ def main(argv=None):
                         "video", "debug", "rerun", "sink")}
             return runner.run(m, suite=args.suite, lang=args.lang,
                               extra=extra, probe=args.probe,
+                              setenv=dict(s.split("=", 1)
+                                          for s in args.setenv),
                               keep=args.keep, profile=profile)
 
         written = (emit_python if args.lang == "python" else emit_java).emit(m, args.outdir)
