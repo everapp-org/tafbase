@@ -1,5 +1,14 @@
-# PRD — the framework model
+---
+id: SPEC-taf-v1-002-01-the-framework-model
+status: draft
+subproject: taf
+authored: 2026-10-27
+authors:
+  - George Petrov
+  - Devin
+---
 
+# The framework model (PRD)
 ## One line
 
 A test automation framework's semantics are declared once — as a
@@ -73,10 +82,11 @@ objects — the second generates the programs that read the first.
 ## Non-goals
 
 - No runtime interpreter of step semantics — semantics compile to
-  code; a human reads the generated framework
+  code; a human reads the model, the grammar, the generator and the generated framework
 - No GUI test runner — the console narration + journal are the feed
 - The generator itself is not model-driven (the bootstrap must end
   somewhere; it ends at handwritten emitters reading the tables)
+- As DSL First teaches, the model should be the source of truth and is used for onboarding new developers
 
 ## Status
 

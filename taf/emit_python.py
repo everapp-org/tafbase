@@ -147,7 +147,7 @@ def _emit_step_body(step, states, endpoints, pad):
                 inner = _emit_step({"expect": {k: v for k, v in arg.items()
                                                if k != "soft"}},
                                    states, endpoints, pad + "        ")
-                stmt = inner[0].strip()
+                stmt = inner[-1].strip()
                 return [
                     f"{pad}if soft is not None:",
                     f'{pad}    soft.check("{arg["element"]}", lambda: {stmt})',

@@ -1,0 +1,44 @@
+{
+  "comment": "The locator ladder as data — rung variants keyed by the optional keys a locator may carry. Emitters substitute ${key} with per-language-escaped values. The rung order itself lives in ops.locator_rung.",
+  "rungs": {
+    "role": {
+      "key": "role",
+      "variants": [
+        {"when": ["exact", "name"],
+         "spell": {
+           "python": "{page}.get_by_role(\"${role}\", name=\"${name}\", exact=True)",
+           "java": "page.getByRole(\"${role}\", new Page.GetByRoleOptions().setName(\"${name}\").setExact(true))"}},
+        {"when": ["name"],
+         "spell": {
+           "python": "{page}.get_by_role(\"${role}\", name=\"${name}\")",
+           "java": "page.getByRole(\"${role}\", new Page.GetByRoleOptions().setName(\"${name}\"))"}},
+        {"when": ["exact"],
+         "spell": {
+           "python": "{page}.get_by_role(\"${role}\", exact=True)",
+           "java": "page.getByRole(\"${role}\", new Page.GetByRoleOptions().setExact(true))"}},
+        {"when": [],
+         "spell": {
+           "python": "{page}.get_by_role(\"${role}\")",
+           "java": "page.getByRole(\"${role}\")"}}
+      ]
+    },
+    "label": {"key": "label",
+      "spell": {"python": "{page}.get_by_label(\"${label}\")",
+                "java": "page.getByLabel(\"${label}\")"}},
+    "text": {"key": "text",
+      "spell": {"python": "{page}.get_by_text(\"${text}\")",
+                "java": "page.getByText(\"${text}\")"}},
+    "placeholder": {"key": "placeholder",
+      "spell": {"python": "{page}.get_by_placeholder(\"${placeholder}\")",
+                "java": "page.getByPlaceholder(\"${placeholder}\")"}},
+    "testid": {"key": "testid",
+      "spell": {"python": "{page}.get_by_test_id(\"${testid}\")",
+                "java": "page.getByTestId(\"${testid}\")"}},
+    "xpath": {"key": "xpath",
+      "spell": {"python": "{page}.locator(\"xpath=${xpath}\")",
+                "java": "page.locator(\"xpath=${xpath}\")"}},
+    "css": {"key": "css",
+      "spell": {"python": "{page}.locator(\"${css}\")",
+                "java": "page.locator(\"${css}\")"}}
+  }
+}

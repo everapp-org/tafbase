@@ -28,27 +28,56 @@ def _state_class(name):
     return ops.state_class(name)
 
 
-def _loc(loc):
-    """The Playwright-Java locator call for one rung of the ladder."""
-    rung, l = ops.locator_rung(loc)
-    if rung == "role":
-        extra = f', new Page.GetByRoleOptions().setName("{l["name"]}")' if "name" in l else ""
-        if l.get("exact"):
-            extra += ('.setExact(true)' if extra else
-                      ", new Page.GetByRoleOptions().setExact(true)")
-        return f'page.getByRole("{l["role"]}"{extra})'
-    if rung == "label":
-        return f'page.getByLabel("{l["label"]}")'
-    if rung == "text":
-        return f'page.getByText("{l["text"]}")'
-    if rung == "placeholder":
-        return f'page.getByPlaceholder("{l["placeholder"]}")'
-    if rung == "testid":
-        return f'page.getByTestId("{l["testid"]}")'
-    if rung == "xpath":
-        return f'page.locator("xpath={l["xpath"]}")'
-    return f'page.locator("{l["css"].replace(chr(34), chr(92) + chr(34))}")'
+_DSL = {}
 
+
+def _dsl(name):
+    if name not in _DSL:
+        path = os.path.join(os.path.dirname(__file__), "..", "dsl", name)
+        _DSL[name] = json.load(open(path))
+    return _DSL[name]
+
+
+def _rungs():
+    return _dsl("locators.dsl.json")["rungs"]
+
+
+def _forms():
+    return _dsl("forms.dsl.json")["forms"]
+
+
+def _esc(v):
+    return str(v).replace("\\", "\\\\").replace('"', '\\"')
+
+
+def _sub(t, kw):
+    for k, v in kw.items():
+        t = t.replace("${%s}" % k, str(v))
+    return t
+
+
+def _variant_entry(entry, keys):
+    if "variants" not in entry:
+        return entry
+    ks = sorted(keys)
+    for v in entry["variants"]:
+        if sorted(v["when"]) == ks:
+            return v
+    return entry
+
+
+def _sp(entry, **kw):
+    """One spelled line from a table entry."""
+    return _sub(entry["spell"]["java"], kw)
+
+
+def _loc(loc):
+    """The Playwright-Java locator call for one rung of the ladder —
+    spelled by dsl/locators.dsl.json."""
+    rung, l = ops.locator_rung(loc)
+    entry = _rungs()[rung]
+    v = _variant_entry(entry, [k for k in loc if k != entry["key"]])
+    return _sp(v, page="page", **{k: _esc(l[k]) for k in l})
 
 def _caption(form, arg):
     """What the .srt says at this step — names only, never values."""
@@ -89,19 +118,21 @@ def _emit_step(step, endpoints, pad):
 
 
 def _emit_step_body(step, endpoints, pad):
+    """One model step → Java lines, spelled by dsl/forms.dsl.json."""
     form, arg = next(iter(step.items()))
+    e = _forms()[form]
+    darg = arg if isinstance(arg, dict) else {}
+    e = _variant_entry(e, [k for k in darg if k != "soft"])
+
     if form == "navigate":
-        return [f'{pad}page.navigate(baseUrl + {_state_class(arg)}.ROUTE);']
-    if form == "click":
+        return [pad + _sp(e, arg=arg, state_class=_state_class(arg))]
+    if form in ("click", "check"):
         name = arg.get("element") if isinstance(arg, dict) else arg
-        return [f"{pad}Elements.{_j(name)}(page).click();"]
-    if form == "check":
-        name = arg.get("element") if isinstance(arg, dict) else arg
-        return [f"{pad}Elements.{_j(name)}(page).check();"]
+        return [pad + _sp(e, **{"j:name": _j(name)})]
     if form == "select":
         name = arg.get("element") if isinstance(arg, dict) else arg
         val = f'"{arg["value"]}"' if isinstance(arg, dict) and "value" in arg else ""
-        return [f"{pad}Elements.{_j(name)}(page).selectOption({val});"]
+        return [pad + _sp(e, **{"j:name": _j(name), "val_quoted": val})]
     if form == "fill":
         v = arg.get("value", "")
         if isinstance(v, str) and v.startswith("env-pool:"):
@@ -110,44 +141,49 @@ def _emit_step_body(step, endpoints, pad):
         elif isinstance(v, str) and v.startswith("env:"):
             # env:NAME — the model names the need; the run reads the
             # variable. The secret is never in emitted code.
-            name = v[4:]
+            nm = v[4:]
             val = ('java.util.Objects.requireNonNull('
-                   'System.getenv("%s"), "%s is not set")' % (name, name))
+                   'System.getenv("%s"), "%s is not set")' % (nm, nm))
         else:
             val = '"%s"' % v
-        return [f'{pad}Elements.{_j(arg["element"])}(page).fill({val});']
+        return [pad + _sp(e, **{"j:name": _j(arg["element"]),
+                                "value_expr": val})]
     if form == "wait-for":
+        kw = {"j:element": _j(arg.get("element", ""))}
         if "state" in arg:
-            return [f"{pad}new {_state_class(arg['state'])}(page).expectArrived();"]
-        return [f"{pad}assertThat(Elements.{_j(arg['element'])}(page)).isVisible();"]
+            kw["state_class"] = _state_class(arg["state"])
+        return [pad + _sp(e, **kw)]
     if form == "api":
         name = arg if isinstance(arg, str) else arg.get("endpoint")
         args = {} if isinstance(arg, str) else arg.get("args") or {}
         ep = endpoints[name]
         path, status = ep["path"], (ep.get("expect") or {}).get("status", 200)
-        pexpr = f'"{path}"'
-        for k, v in args.items():
-            pexpr += f'.replace("{{{k}}}", "{v}")'
-        lines = [f'{pad}APIResponse resp = page.request().{ep["method"].lower()}(baseUrl + {pexpr});',
-                 f"{pad}assertEquals({status}, resp.status());"]
+        pexpr = f'"{path}"' + "".join(
+            f'.replace("{{{k}}}", "{v}")' for k, v in args.items())
+        kw = {"method_lower": ep["method"].lower(),
+              "pexpr": pexpr, "status": status}
+        tpl = e["spell"]["java"]
+        lines = [pad + _sub(tpl[0], kw), pad + _sub(tpl[1], kw)]
         if isinstance(arg, dict) and arg.get("save"):
             for k, jpath in arg["save"].items():
-                lines.append(f'{pad}saved.put("{k}", resp.json(){_jsonpath(jpath)});')
+                lines.append(pad + _sub(tpl[2],
+                {"save_key": k, "jsonpath": _jsonpath(jpath)}))
         return lines
     if form == "dwell":
         # A pause for a watching human — observation, not synchronization.
-        return [f"{pad}page.waitForTimeout({arg});"]
+        return [pad + _sp(e, arg=arg)]
     if form == "wait-any":
         locs = f"Elements.{_j(arg[0])}(page)" + "".join(
             f".or(Elements.{_j(n)}(page))" for n in arg[1:])
-        return [f"{pad}assertThat({locs}).isVisible();"]
+        return [pad + _sp(e, loc_chain=locs)]
     if form == "compare-screen":
-        return [f'{pad}assertThat(page).hasScreenshot();  // baseline: {arg}.png']
+        return [pad + _sp(e, arg=arg)]
     if form == "maybe":
         # An ifPresent step: try it, never fail.
         inner = _emit_step(arg, endpoints, pad + "    ")
-        return [f"{pad}try {{"] + inner + [
-            f"{pad}}} catch (Exception ignored) {{ /* maybe: not applicable */ }}"]
+        w = e["wrap"]["java"]
+        return ([pad + x for x in w["pre"]] + inner +
+                [pad + x for x in w["post"]])
     if form == "expect":
         if isinstance(arg, dict) and "element" in arg:
             el = f"Elements.{_j(arg['element'])}(page)"
@@ -157,7 +193,7 @@ def _emit_step_body(step, endpoints, pad):
                 inner = _emit_step({"expect": {k: v for k, v in arg.items()
                                                if k != "soft"}},
                                    endpoints, pad + "        ")
-                stmt = inner[0].strip()
+                stmt = inner[-1].strip()
                 return [
                     f"{pad}if (soft != null) {{",
                     f'{pad}    soft.check("{arg["element"]}", () -> {stmt[:-1]});',
@@ -165,17 +201,16 @@ def _emit_step_body(step, endpoints, pad):
                     f"{pad}    try {{ {stmt}",
                     f'{pad}    }} catch (AssertionError e) {{ System.out.println("soft expect failed: " + e.getMessage()); }}',
                     f"{pad}}}"]
-            if arg.get("hidden"):
-                return [f"{pad}assertThat({el}).isHidden();"]
+            kw = {"el": el}
             if "text" in arg:
-                return [f'{pad}assertThat({el}).hasText("{arg["text"]}");']
+                kw["text"] = _esc(arg["text"])
             if "count" in arg:
-                return [f"{pad}assertThat({el}).hasCount({arg['count']});"]
-            return [f"{pad}assertThat({el}).isVisible();"]
+                kw["count"] = arg["count"]
+            return [pad + _sp(e, **kw)]
         if isinstance(arg, dict) and "value" in arg:
-            return [f"{pad}assertEquals({json.dumps(arg.get('equals'))}, saved.get(\"{arg['value']}\"));"]
+            return [pad + _sp(e, value=_esc(arg["value"]),
+                              equals=json.dumps(arg.get("equals")))]
     return [f"{pad}// unsupported step: {form}"]
-
 
 def _jsonpath(p):
     """'$.a.b' -> .get("a").get("b") — v1 supports dotted keys only."""
