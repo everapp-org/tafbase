@@ -185,7 +185,8 @@ def main(argv=None):
 
         if args.cmd == "record":
             from taf import record as taf_record
-            base = args.base_url or m["sut"]["base-url"]
+            base = (args.base_url or os.environ.get("TAF_BASE_URL")
+                    or m["sut"]["base-url"])
             taf_record.record(base, args.out, title=args.name,
                               needs=model.env_needs(m), m=m)
             return 0
