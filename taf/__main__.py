@@ -12,8 +12,16 @@ import sys
 from taf import dryrun, emit_java, emit_python, graph, model
 
 
+_CMDS = ("check", "walk", "emit", "dry-run", "env")
+
+
 def main(argv=None):
-    ap = argparse.ArgumentParser(prog="taf")
+    argv = sys.argv[1:] if argv is None else argv
+    # `taf <model>` is `taf dry-run <model>` — the report is the default.
+    if argv and argv[0] not in _CMDS and argv[0] not in ("-h", "--help"):
+        argv = ["dry-run"] + argv
+    ap = argparse.ArgumentParser(
+        prog="taf", description="default command: dry-run — `taf <model>`")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     c = sub.add_parser("check", help="validate a model, print its refusals")

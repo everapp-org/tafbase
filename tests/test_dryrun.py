@@ -138,3 +138,13 @@ def test_cli_dry_run_prints_and_exits_0(tmp_path):
         [sys.executable, "-m", "taf", "dry-run", TRACKER_MODEL, "--json"],
         capture_output=True, text=True)
     assert json.loads(r.stdout)["sut"]["name"] == "ikc3-tracker"
+
+
+# T-dry-009 — bare `taf <model>` is the dry run
+def test_model_alone_defaults_to_dry_run(tmp_path):
+    bare = subprocess.run([sys.executable, "-m", "taf", TRACKER_MODEL],
+                          capture_output=True, text=True)
+    explicit = subprocess.run(
+        [sys.executable, "-m", "taf", "dry-run", TRACKER_MODEL],
+        capture_output=True, text=True)
+    assert bare.returncode == 0 and bare.stdout == explicit.stdout

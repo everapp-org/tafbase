@@ -42,10 +42,10 @@ unreachable SUT under `--probe`.
 ## Touch it
 
 ```bash
-.venv/bin/python -m taf dry-run suts/ikc3-tracker.sut.model.json
-.venv/bin/python -m taf dry-run suts/ikc3-tracker.sut.model.json \
+taf suts/ikc3-tracker.sut.model.json            # dry-run is the default command
+taf dry-run suts/ikc3-tracker.sut.model.json \
     --suite generated/python/ikc3-tracker --probe
-.venv/bin/python -m taf dry-run suts/ikc3-tracker.sut.model.json --json
+taf dry-run suts/ikc3-tracker.sut.model.json --json
 ```
 
 ## Neighbors
