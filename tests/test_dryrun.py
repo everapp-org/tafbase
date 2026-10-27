@@ -54,11 +54,9 @@ def test_report_names_the_tests_a_run_executes():
 # T-dry-001b — env: needs report missing when unset, ok when set
 def test_env_needs_are_findings():
     lv = levels(dryrun.report(tracker(), env={}))
-    assert lv["env TAF_SUT_HANDLE"] == "missing"
-    assert lv["env TAF_SUT_SECRET"] == "missing"
-    lv = levels(dryrun.report(
-        tracker(), env={"TAF_SUT_HANDLE": "a", "TAF_SUT_SECRET": "s"}))
-    assert lv["env TAF_SUT_HANDLE"] == "ok"
+    assert lv["env TAF_SUT_CODES"] == "missing"
+    lv = levels(dryrun.report(tracker(), env={"TAF_SUT_CODES": "c1"}))
+    assert lv["env TAF_SUT_CODES"] == "ok"
 
 
 # T-dry-002 — the env table is the contract as this shell sets it

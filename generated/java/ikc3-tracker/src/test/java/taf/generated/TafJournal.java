@@ -27,6 +27,23 @@ public class TafJournal {
 
     public static Path testDir() { return dir; }
 
+    private static final java.util.Map<String, java.util.Iterator<String>> pools =
+        new java.util.HashMap<>();
+
+    /** env-pool:NAME — one value per call from a whitespace-separated
+        env list. Single-use values spend in order; a dry pool
+        is a named error, never a silent empty fill. */
+    public static String envPool(String name) {
+        String v = System.getenv(name);
+        if (v == null)
+            throw new RuntimeException("env-pool:" + name + " — the variable is unset");
+        var it = pools.computeIfAbsent(name,
+            k -> java.util.Arrays.asList(v.split("\\s+")).iterator());
+        if (!it.hasNext())
+            throw new RuntimeException("env-pool:" + name + " ran dry — every value is spent");
+        return it.next();
+    }
+
     public static void note(String label) throws IOException {
         event("note", "\"label\": \"" + label.replace("\"", "'") + "\"");
         noteT.add(new long[]{(System.nanoTime() - start) / 1_000_000L});

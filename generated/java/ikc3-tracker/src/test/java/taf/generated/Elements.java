@@ -15,7 +15,13 @@ public class Elements {
     public static Locator secret(Page page) {
         return page.getByLabel("Secret");
     }
+    public static Locator code(Page page) {
+        return page.getByLabel("Code");
+    }
     public static Locator signIn(Page page) {
         return page.getByRole("button", new Page.GetByRoleOptions().setName("Sign in"));
+    }
+    public static Locator haveACode(Page page) {
+        return page.getByRole("button", new Page.GetByRoleOptions().setName("I have a code"));
     }
 }

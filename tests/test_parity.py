@@ -81,6 +81,7 @@ def test_env_fills_read_the_variable_in_both(tmp_path):
     assert 'os.environ["TAF_SUT_SECRET"]' in read(py, "actions.py")
     jv_a = read(jv, "src/test/java/taf/generated/Actions.java")
     assert 'System.getenv("TAF_SUT_SECRET")' in jv_a
+    assert 'TafJournal.envPool("TAF_SUT_CODES")' in jv_a
     assert "requireNonNull" in jv_a
 
 

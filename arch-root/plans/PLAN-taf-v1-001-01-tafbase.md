@@ -126,7 +126,10 @@ of `env:NAME` reads the variable at run time, so the model names the
 need and never holds the secret. Needs are derived from use:
 `taf dry-run` reports an unset one `missing`, `taf run` refuses on it,
 `taf env` prints it as a fill-in line. SPEC gains the clause and the
-`:bad-env` refusal.
+`:bad-env` refusal. One-time codes added `env-pool:` (a list spent in
+order) and `sut.auth` (CONCEPT-dsl-v1-016-01): sign in once per run,
+keep the session as storage state, every test's fresh context
+inherits it — isolation kept, one code per run.
 
 ### ▶ Lane TAF/PLAN-taf-v1-001-01/F-6 — the SUT graph (MBT)
 

@@ -11,6 +11,12 @@ def handle(page):
 def secret(page):
     return page.get_by_label("Secret")
 
+def code(page):
+    return page.get_by_label("Code")
+
 def sign_in(page):
     return page.get_by_role("button", name="Sign in")
+
+def have_a_code(page):
+    return page.get_by_role("button", name="I have a code")
 

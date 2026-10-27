@@ -52,13 +52,13 @@ def browser():
 
 
 @pytest.fixture
-def page(browser, journal):
+def page(browser, journal, auth_state):
     """A fresh context per test: full isolation, no shared state.
     TAF_VIDEO=<dir-name> records the run into the test's results dir."""
     opts = {}
     if os.environ.get("TAF_VIDEO"):
         opts["record_video_dir"] = taf_journal.test_dir()
-    ctx = browser.new_context(**opts)
+    ctx = browser.new_context(storage_state=auth_state, **opts)
     pg = ctx.new_page()
     yield pg
     if os.environ.get("TAF_DEBUG") and taf_journal.failed():
@@ -164,3 +164,19 @@ def pytest_collection_modifyitems(items, config):
     config.hook.pytest_deselected(
         items=[i for i in items if i.name not in keep])
     items[:] = [i for i in items if i.name in keep]
+
+# @concept CONCEPT-dsl-v1-016-01-the-auth-clause
+@pytest.fixture(scope="session")
+def auth_state(browser, base_url, run_dir):
+    """One sign-in per run — the session kept as storage state; every
+    test's fresh context inherits it. One credential spent per run."""
+    import actions
+    from pages import LoginPage
+    path = os.path.join(run_dir, "auth-state.json")
+    ctx = browser.new_context()
+    pg = ctx.new_page()
+    LoginPage(pg).goto(base_url)
+    actions.log_in_with_code(pg, base_url)
+    ctx.storage_state(path=path)
+    ctx.close()
+    return path

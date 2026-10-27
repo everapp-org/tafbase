@@ -91,6 +91,23 @@ def end(outcome=None):
     _outcome = "passed"
 
 
+_pools = {}
+
+
+def env_pool(name):
+    """env-pool:NAME — one value per call from a whitespace-separated
+    env list. Single-use values (codes) spend in order; a dry pool is
+    a named error, never a silent empty fill."""
+    if name not in os.environ:
+        raise RuntimeError("env-pool:%s — the variable is unset" % name)
+    it = _pools.setdefault(name, iter(os.environ[name].split()))
+    try:
+        return next(it)
+    except StopIteration:
+        raise RuntimeError(
+            "env-pool:%s ran dry — every value is spent" % name)
+
+
 _current = None
 _outcome = "passed"
 RUN_DIR = None  # results/<runId> of the session — set by the run_dir fixture

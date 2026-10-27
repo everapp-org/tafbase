@@ -32,6 +32,7 @@ public abstract class BaseTest {
             .setHeadless("1".equals(System.getenv("TAF_HEADLESS")))
             .setSlowMo(Double.parseDouble(
                 System.getenv().getOrDefault("TAF_SLOWMO", "0"))));
+        signInOnce();
     }
 
     // @concept CONCEPT-taf-v1-004-01-the-artifacts
@@ -43,7 +44,8 @@ public abstract class BaseTest {
     void fresh(org.junit.jupiter.api.TestInfo info) throws java.io.IOException {
         soft = new SoftChecks();
         TafJournal.begin(runDir, info.getDisplayName());
-        var opts = new Browser.NewContextOptions();
+        var opts = new Browser.NewContextOptions()
+            .setStorageStatePath(java.nio.file.Paths.get(authState));
         if (System.getenv("TAF_VIDEO") != null)
             opts.setRecordVideoDir(TafJournal.testDir());
         context = browser.newContext(opts);
@@ -73,6 +75,19 @@ public abstract class BaseTest {
         TafJournal.end(failed ? "failed" : "passed");
     }
 
+
+    // @concept CONCEPT-dsl-v1-016-01-the-auth-clause
+    private static String authState;
+    static void signInOnce() {
+        var c = browser.newContext();
+        var pg = c.newPage();
+        new LoginPage(pg).gotoRoute(baseUrl);
+        Actions.logInWithCode(pg, baseUrl, null);
+        authState = runDir + "/auth-state.json";
+        c.storageState(new BrowserContext.StorageStateOptions()
+            .setPath(java.nio.file.Paths.get(authState)));
+        c.close();
+    }
     @AfterAll
     static void shutdown() throws java.io.IOException {
         browser.close();

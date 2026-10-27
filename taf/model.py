@@ -86,6 +86,9 @@ def _check_step(step, elements, states, endpoints, clause, refusals):
         if isinstance(val, str) and val.startswith("env:") and not val[4:]:
             refusals.append(_refusal(clause, "bad-env",
                                      "env: names no variable: %r" % val))
+        if isinstance(val, str) and val.startswith("env-pool:") and not val[9:]:
+            refusals.append(_refusal(clause, "bad-env",
+                                     "env-pool: names no variable: %r" % val))
     elif form == "navigate":
         if arg not in states:
             refusals.append(_refusal(clause, "unknown-state",
@@ -253,6 +256,26 @@ def validate(doc):
             else:
                 _check_step(s, elements, states, endpoints, "%s.steps[%d]" % (clause, i), refusals)
 
+    auth = sut.get("auth")
+    if auth is not None:
+        if not isinstance(auth, dict) or "action" not in auth:
+            refusals.append(_refusal("sut.auth", "missing-field",
+                                     "auth needs an action"))
+        elif auth["action"] not in actions:
+            refusals.append(_refusal("sut.auth", "unknown-action",
+                                     "auth names no action: %r" % auth["action"]))
+        else:
+            act = actions[auth["action"]]
+            if "from" not in act:
+                refusals.append(_refusal(
+                    "sut.auth", "bad-auth",
+                    "the auth action needs a from state — the run "
+                    "navigates there to sign in"))
+            else:
+                visited.add(act["from"])
+                if act.get("to"):
+                    visited.add(act["to"])
+
     for name in states:
         if name not in visited:
             refusals.append(_refusal("states.%s" % name, "unreachable",
@@ -262,13 +285,14 @@ def validate(doc):
 
 
 def env_needs(m):
-    """The env: variables a model's steps read at run time — the needs
-    a run must satisfy. The model names the need; the environment
-    supplies the value; the secret is never in the model.
+    """The env:/env-pool: variables a run reads at run time — the needs
+    of the declared journeys, not of actions nothing walks. The model
+    names the need; the environment supplies the value.
 
     @concept CONCEPT-dsl-v1-015-01-the-env-value
     """
     needs = set()
+    actions = m.get("actions") or {}
 
     def scan(step):
         if not isinstance(step, dict) or len(step) != 1:
@@ -276,20 +300,27 @@ def env_needs(m):
         form, arg = next(iter(step.items()))
         if form == "fill" and isinstance(arg, dict):
             v = arg.get("value")
-            if isinstance(v, str) and v.startswith("env:"):
-                needs.add(v[4:])
+            if isinstance(v, str):
+                if v.startswith("env:"):
+                    needs.add(v[4:])
+                elif v.startswith("env-pool:"):
+                    needs.add(v[9:])
         elif form == "maybe" and isinstance(arg, dict):
             scan(arg)
 
-    for act in (m.get("actions") or {}).values():
-        if isinstance(act, dict):
-            for s in act.get("do", []):
-                scan(s)
     for j in (m.get("journeys") or {}).values():
-        if isinstance(j, dict):
-            for s in j.get("steps", []):
-                if isinstance(s, dict):
-                    scan(s)
+        if not isinstance(j, dict):
+            continue
+        for s in j.get("steps", []):
+            if isinstance(s, str):
+                for st in (actions.get(s) or {}).get("do", []):
+                    scan(st)
+            else:
+                scan(s)
+    auth = ((m.get("sut") or {}).get("auth") or {}).get("action")
+    if auth:
+        for st in (actions.get(auth) or {}).get("do", []):
+            scan(st)
     return sorted(needs)
 
 

@@ -35,7 +35,12 @@ for the contract; in short:
   steps (`navigate`, `click`, `fill`, `wait-for`, `expect`, `api`,
   `dwell`, `wait-any`, `maybe`), plus a `title` the run narrates.
   A `fill` value of `env:NAME` reads the variable at run time —
-  credentials name a need, they are never written down.
+  credentials name a need, they are never written down. A single-use
+  value (a one-time code) uses `env-pool:NAME`: the variable's words
+  spend one per call, in order.
+- `sut.auth` — sign-in-once: `{"action": "log-in-with-code"}` runs the
+  named action once per run at its `from` state and shares the
+  session as storage state, so one code covers the whole suite.
 - `journeys` — paths through states; `expect-final` names where a
   journey must end.
 - `endpoints` — HTTP calls an `api` step can make mid-journey.

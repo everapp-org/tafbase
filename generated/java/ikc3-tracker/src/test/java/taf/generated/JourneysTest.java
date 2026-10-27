@@ -15,12 +15,10 @@ public class JourneysTest extends BaseTest {
     @Test
     void theBoardIsUp() {
         // arrange
-        var sut = new LoginPage(page);
+        var sut = new BoardPage(page);
         sut.gotoRoute(baseUrl);
         sut.expectArrived();
         // act
-        Actions.logIn(page, baseUrl, soft);
-        new BoardPage(page).expectArrived();
         // assert
         new BoardPage(page).expectArrived();
     }
@@ -28,12 +26,10 @@ public class JourneysTest extends BaseTest {
     @Test
     void boardToTot() {
         // arrange
-        var sut = new LoginPage(page);
+        var sut = new BoardPage(page);
         sut.gotoRoute(baseUrl);
         sut.expectArrived();
         // act
-        Actions.logIn(page, baseUrl, soft);
-        new BoardPage(page).expectArrived();
         Actions.openTot(page, baseUrl, soft);
         new TotPage(page).expectArrived();
         // assert

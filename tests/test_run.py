@@ -17,7 +17,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TRACKER_MODEL = os.path.join(REPO, "suts", "ikc3-tracker.sut.model.json")
 
 # The tracker model needs env: credentials — the gate refuses without them.
-NEEDS = {"TAF_SUT_HANDLE": "ada", "TAF_SUT_SECRET": "s3cret"}
+NEEDS = {"TAF_SUT_CODES": "code-1 code-2"}
 
 
 def tracker():
@@ -137,7 +137,7 @@ def test_missing_env_need_refuses_by_default(monkeypatch, capsys):
     monkeypatch.setattr(runner, "_exec", fake_exec(seen))
     assert runner.run(tracker(), env={}, probe=True) == 1
     assert "cmd" not in seen
-    assert "env TAF_SUT_HANDLE" in capsys.readouterr().out
+    assert "env TAF_SUT_CODES" in capsys.readouterr().out
 
 
 def test_missing_env_need_only_warns_without_probe(monkeypatch, capsys):
@@ -146,7 +146,7 @@ def test_missing_env_need_only_warns_without_probe(monkeypatch, capsys):
     assert runner.run(tracker(), env={}, probe=False) == 0
     assert "cmd" in seen                           # the run proceeded
     out = capsys.readouterr().out
-    assert "preflight warning" in out and "env TAF_SUT_HANDLE" in out
+    assert "preflight warning" in out and "env TAF_SUT_CODES" in out
 
 
 # T-run-008 — run-profile flags become the child's TAF_* contract

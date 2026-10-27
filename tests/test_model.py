@@ -220,6 +220,42 @@ def test_env_needs_collects_what_steps_read():
     assert model.env_needs(m) == ["TAF_SUT_HANDLE", "TAF_SUT_SECRET"]
 
 
+# T-model-015 — sut.auth names an action; its from state is reachable
+def test_auth_clause_validation():
+    doc = minimal()
+    doc["sut"]["auth"] = {"action": "go-b"}
+    assert refusals_of(doc) == []
+    doc["sut"]["auth"] = {"action": "ghost"}
+    assert any(r["reason"] == "unknown-action" for r in refusals_of(doc))
+    doc["sut"]["auth"] = {}
+    assert any(r["reason"] == "missing-field" and r["clause"] == "sut.auth"
+               for r in refusals_of(doc))
+    doc["sut"]["auth"] = {"action": "to-b"}
+    doc["actions"]["to-b"] = {"to": "b", "do": []}   # no from — can't bootstrap
+    assert any(r["reason"] == "bad-auth" for r in refusals_of(doc))
+
+
+def test_env_needs_includes_the_auth_action():
+    doc = minimal()
+    doc["elements"]["code"] = {"label": "Code"}
+    doc["actions"]["auth-in"] = {
+        "from": "a", "to": "b",
+        "do": [{"fill": {"element": "code", "value": "env-pool:CODES"}}]}
+    doc["sut"]["auth"] = {"action": "auth-in"}
+    m = model.loads(json.dumps(doc))
+    assert model.env_needs(m) == ["CODES"]
+
+
+def test_env_pool_spends_in_order_and_dries(monkeypatch):
+    from taf import journal_runtime as jr
+    monkeypatch.setenv("P", "a b c")
+    assert [jr.env_pool("P"), jr.env_pool("P"), jr.env_pool("P")] == ["a", "b", "c"]
+    with pytest.raises(RuntimeError, match="ran dry"):
+        jr.env_pool("P")
+    with pytest.raises(RuntimeError, match="unset"):
+        jr.env_pool("NOPE")
+
+
 def test_load_raises_with_all_refusals():
     bad = dict(minimal())
     bad["states"] = {"a": {}}

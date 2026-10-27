@@ -63,7 +63,10 @@ def _emit_step(step, endpoints, pad):
         return [f"{pad}Elements.{_j(name)}(page).selectOption({val});"]
     if form == "fill":
         v = arg.get("value", "")
-        if isinstance(v, str) and v.startswith("env:"):
+        if isinstance(v, str) and v.startswith("env-pool:"):
+            # env-pool:NAME — a list in the env; one value spent per call.
+            val = 'TafJournal.envPool("%s")' % v[9:]
+        elif isinstance(v, str) and v.startswith("env:"):
             # env:NAME — the model names the need; the run reads the
             # variable. The secret is never in emitted code.
             name = v[4:]
@@ -176,8 +179,29 @@ def _pom(m):
 ''' % (_PKG, m["sut"]["name"])
 
 
+def _auth_bootstrap(m):
+    """sut.auth — one sign-in per run; the session kept as storage
+    state each fresh context inherits (@concept dsl-v1-016-01)."""
+    act = m["sut"]["auth"]["action"]
+    cls = _state_class(m["actions"][act]["from"])
+    return '''
+    // @concept CONCEPT-dsl-v1-016-01-the-auth-clause
+    private static String authState;
+    static void signInOnce() {
+        var c = browser.newContext();
+        var pg = c.newPage();
+        new %s(pg).gotoRoute(baseUrl);
+        Actions.%s(pg, baseUrl, null);
+        authState = runDir + "/auth-state.json";
+        c.storageState(new BrowserContext.StorageStateOptions()
+            .setPath(java.nio.file.Paths.get(authState)));
+        c.close();
+    }
+''' % (cls, _j(act))
+
+
 def _basetest(m):
-    return _HEADER + '''package %s;
+    conf = _HEADER + '''package %s;
 
 // @concept CONCEPT-java-v1-001-01-the-junit-lifecycle
 // @concept CONCEPT-playwright-v1-002-01-the-browser-context
@@ -261,6 +285,21 @@ public abstract class BaseTest {
     }
 }
 ''' % (_PKG, m["sut"]["base-url"])
+    auth = m["sut"].get("auth")
+    if auth:
+        conf = conf.replace(
+            'getOrDefault("TAF_SLOWMO", "0"))));\n    }',
+            'getOrDefault("TAF_SLOWMO", "0"))));\n'
+            '        signInOnce();\n    }')
+        conf = conf.replace(
+            "var opts = new Browser.NewContextOptions();",
+            "var opts = new Browser.NewContextOptions()\n"
+            "            .setStorageStatePath("
+            "java.nio.file.Paths.get(authState));")
+        conf = conf.replace(
+            "    @AfterAll\n    static void shutdown()",
+            _auth_bootstrap(m) + "    @AfterAll\n    static void shutdown()")
+    return conf
 
 
 def _page_class(name, st):
@@ -403,6 +442,21 @@ def _journal_class():
             "        current = Files.newBufferedWriter(dir.resolve(\"journal.jsonl\"));\n"
             "    }\n\n"
             "    public static Path testDir() { return dir; }\n\n"
+            "    private static final java.util.Map<String, java.util.Iterator<String>> pools =\n"
+            "        new java.util.HashMap<>();\n\n"
+            "    /** env-pool:NAME — one value per call from a whitespace-separated\n"
+            "        env list. Single-use values spend in order; a dry pool\n"
+            "        is a named error, never a silent empty fill. */\n"
+            "    public static String envPool(String name) {\n"
+            "        String v = System.getenv(name);\n"
+            "        if (v == null)\n"
+            "            throw new RuntimeException(\"env-pool:\" + name + \" — the variable is unset\");\n"
+            "        var it = pools.computeIfAbsent(name,\n"
+            "            k -> java.util.Arrays.asList(v.split(\"\\\\s+\")).iterator());\n"
+            "        if (!it.hasNext())\n"
+            "            throw new RuntimeException(\"env-pool:\" + name + \" ran dry — every value is spent\");\n"
+            "        return it.next();\n"
+            "    }\n\n"
             "    public static void note(String label) throws IOException {\n"
             "        event(\"note\", \"\\\"label\\\": \\\"\" + label.replace(\"\\\"\", \"'\") + \"\\\"\");\n"
             "        noteT.add(new long[]{(System.nanoTime() - start) / 1_000_000L});\n"
