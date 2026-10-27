@@ -38,14 +38,15 @@ def test_name_camel(journey):
 
 
 def locator_rung(loc):
-    """The one rung of the ladder a locator sits on, in preference order:
-    (rung, args-dict). `css`/`xpath` is the flagged last resort."""
-    for rung in ("role", "label", "text", "placeholder", "testid"):
+    """The one rung of the ladder a locator sits on, in the spec's
+    declared preference order: (rung, args-dict). The last rung in
+    the spec is the fallback."""
+    from taf import spec as _s
+    rungs = _s.rungs()
+    for rung in rungs[:-1]:
         if rung in loc:
             return rung, loc
-    if "xpath" in loc:
-        return "xpath", loc
-    return "css", loc
+    return rungs[-1], loc
 
 
 def journey_ops(model, name):
