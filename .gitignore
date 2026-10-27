@@ -7,3 +7,5 @@ results/
 *.egg-info/
 /tafenv.sh
 /recorded.json
+/recorded*.json
+/report*.json
