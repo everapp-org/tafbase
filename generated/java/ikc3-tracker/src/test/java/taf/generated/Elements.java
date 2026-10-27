@@ -30,4 +30,7 @@ public class Elements {
     public static Locator reportFault(Page page) {
         return page.locator("[data-import-id=\"top-bar/report-a-fault\"]");
     }
+    public static Locator faultProbe(Page page) {
+        return page.locator("#taf-does-not-exist");
+    }
 }

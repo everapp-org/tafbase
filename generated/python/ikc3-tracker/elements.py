@@ -26,3 +26,6 @@ def sign_in_with_code(page):
 def report_fault(page):
     return page.locator("[data-import-id=\"top-bar/report-a-fault\"]")
 
+def fault_probe(page):
+    return page.locator("#taf-does-not-exist")
+

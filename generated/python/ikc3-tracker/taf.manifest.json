@@ -19,6 +19,14 @@
         "tot"
       ],
       "test": "test_board_to_tot"
+    },
+    {
+      "actions": [],
+      "journey": "probe-the-report-button",
+      "states": [
+        "board"
+      ],
+      "test": "test_probe_the_report_button"
     }
   ]
 }

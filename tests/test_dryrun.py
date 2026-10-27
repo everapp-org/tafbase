@@ -45,7 +45,7 @@ def screen_model(tmp_path):
 def test_report_names_the_tests_a_run_executes():
     rep = dryrun.report(tracker(), env={})
     names = [t["test"] for t in rep["tests"]]
-    assert names == ["test_the_board_is_up", "test_board_to_tot"]
+    assert names == ["test_the_board_is_up", "test_board_to_tot", "test_probe_the_report_button"]
     t = rep["tests"][1]
     assert t["journey"] == "board-to-tot" and t["final"] == "tot"
     assert "dwell" in t["steps"]            # forms inside used actions show
@@ -140,7 +140,7 @@ def test_cli_dry_run_prints_and_exits_0(tmp_path):
         [sys.executable, "-m", "taf", "dry-run", TRACKER_MODEL],
         capture_output=True, text=True)
     assert r.returncode == 0, r.stderr
-    assert "would run — 2 test(s)" in r.stdout
+    assert "would run — 3 test(s)" in r.stdout
     assert "TAF_VIDEO" in r.stdout and "off" in r.stdout
     r = subprocess.run(
         [sys.executable, "-m", "taf", "dry-run", TRACKER_MODEL, "--json"],

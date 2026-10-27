@@ -12,7 +12,7 @@ import sys
 from taf import dryrun, emit_java, emit_python, graph, model, runner
 
 
-_CMDS = ("check", "walk", "emit", "dry-run", "env", "run")
+_CMDS = ("check", "walk", "emit", "dry-run", "env", "run", "record")
 
 _EPILOG = """\
 the cycle: check → emit → execute
@@ -142,6 +142,12 @@ def main(argv=None):
                    help="file fault reports; bare --sink derives "
                         "ws://<sut-host>/bus-ws")
 
+    rc = sub.add_parser("record", help="drive the SUT by hand; drafts "
+                                     "model clauses to a file")
+    rc.add_argument("model")
+    rc.add_argument("--out", default="recorded.json")
+    rc.add_argument("--base-url", help="override the model's base-url")
+
     args = ap.parse_args(argv)
     try:
         m = model.load(args.model)
@@ -174,6 +180,16 @@ def main(argv=None):
                 slowmo=args.slowmo, video=args.video, debug=args.debug,
                 rerun=args.rerun, sink=args.sink, unset=args.unset))
             return 0
+
+        if args.cmd == "record":
+            from taf import record as taf_record
+            base = args.base_url or m["sut"]["base-url"]
+            needs = model.env_needs(m)
+            missing = [n for n in needs if not os.environ.get(n)]
+            for n in missing:
+                print("note: env:%s is unset — sign in by hand "
+                      "if the SUT asks" % n)
+            return 0 if taf_record.record(base, args.out) else 1
 
         if args.cmd == "run":
             profile = {k: getattr(args, k) for k in

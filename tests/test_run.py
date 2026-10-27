@@ -127,7 +127,7 @@ def test_cli_forwards_passthrough(tmp_path):
         [sys.executable, "-m", "taf", "run", TRACKER_MODEL, "--no-probe",
          "--", "--collect-only", "-q"],
         capture_output=True, text=True, env=env)
-    assert "test_journeys.py: 2" in r.stdout
+    assert "test_journeys.py: 3" in r.stdout
     assert r.returncode == 0
 
 

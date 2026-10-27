@@ -51,6 +51,9 @@
     },
     "report-fault": {
       "css": "[data-import-id=\"top-bar/report-a-fault\"]"
+    },
+    "fault-probe": {
+      "css": "#taf-does-not-exist"
     }
   },
   "actions": {
@@ -146,6 +149,22 @@
       ],
       "expect-final": {
         "state": "tot"
+      }
+    },
+    "probe-the-report-button": {
+      "start": "board",
+      "steps": [
+        {
+          "click": "report-fault"
+        },
+        {
+          "wait-for": {
+            "element": "fault-probe"
+          }
+        }
+      ],
+      "expect-final": {
+        "state": "board"
       }
     }
   },

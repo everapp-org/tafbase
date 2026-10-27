@@ -36,4 +36,17 @@ public class JourneysTest extends BaseTest {
         new TotPage(page).expectArrived();
     }
 
+    @Test
+    void probeTheReportButton() {
+        // arrange
+        var sut = new BoardPage(page);
+        sut.gotoRoute(baseUrl);
+        sut.expectArrived();
+        // act
+        Elements.reportFault(page).click();
+        assertThat(Elements.faultProbe(page)).isVisible();
+        // assert
+        new BoardPage(page).expectArrived();
+    }
+
 }
