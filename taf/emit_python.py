@@ -164,12 +164,14 @@ def auth_state(browser, base_url, run_dir):
         %s(pg).goto(base_url)
         actions.%s(pg, base_url)
     except Exception:
-        # the bootstrap owns no journal — leave the DOM as evidence.
-        # setup-failure, not auth-failure: the action may have signed
-        # in and failed later (navigate, wait-for).
-        with open(os.path.join(run_dir, "setup-failure.dom.html"), "w",
+        # the bootstrap owns no journal — leave the same evidence a
+        # test failure leaves, under a setup/ dir in the run.
+        d = os.path.join(run_dir, "setup")
+        os.makedirs(d, exist_ok=True)
+        with open(os.path.join(d, "dom.html"), "w",
                   encoding="utf-8") as f:
             f.write(pg.content())
+        pg.screenshot(path=os.path.join(d, "screenshot.png"))
         if os.environ.get("TAF_DEBUG"):
             pg.pause()  # TAF_DEBUG: stop at the failure, browser stays open
         raise
