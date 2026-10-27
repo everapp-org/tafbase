@@ -44,6 +44,7 @@ public class Actions {
         catch (java.io.IOException e) { System.out.println("→ file a fault report through the UI"); }
         Elements.reportFault(page).click();
         assertThat(Elements.reportText(page)).isVisible();
+        Elements.reportChoiceFeat(page).click();
         Elements.reportText(page).fill("taf: the suite exercising fault reporting — safe to delete");
         Elements.reportDetails(page).fill("filed by a taf run of ikc3-tracker — the UI half of fail -> file");
         Elements.reportChoiceTodo(page).click();

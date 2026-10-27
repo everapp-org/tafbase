@@ -169,6 +169,9 @@
           }
         },
         {
+          "click": "report-choice-feat"
+        },
+        {
           "fill": {
             "element": "report-text",
             "value": "taf: the suite exercising fault reporting \u2014 safe to delete"

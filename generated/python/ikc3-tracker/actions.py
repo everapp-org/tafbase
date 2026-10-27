@@ -39,6 +39,7 @@ def file_a_fault_report(page, base_url, soft=None):
     taf_journal.note("→ file a fault report through the UI")
     elements.report_fault(page).click()
     expect(elements.report_text(page)).to_be_visible()
+    elements.report_choice_feat(page).click()
     elements.report_text(page).fill("taf: the suite exercising fault reporting — safe to delete")
     elements.report_details(page).fill("filed by a taf run of ikc3-tracker — the UI half of fail -> file")
     elements.report_choice_todo(page).click()
