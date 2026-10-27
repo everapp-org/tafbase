@@ -40,7 +40,49 @@ def _loc(loc, page="page"):
     return f'{page}.locator({json.dumps(loc["css"])})'
 
 
+def _caption(form, arg):
+    """What the .srt says at this step — element/state names only,
+    never values: a caption must not leak a secret."""
+    name = (lambda a: a.get("element") if isinstance(a, dict) else a)
+    if form == "navigate":
+        return "goto %s" % arg
+    if form in ("click", "check", "select"):
+        return "%s %s" % (form, name(arg))
+    if form == "fill":
+        return "fill %s" % name(arg)
+    if form == "wait-for":
+        return "wait-for %s" % (arg.get("state") or arg.get("element"))
+    if form == "api":
+        return "api %s" % (arg if isinstance(arg, str)
+                           else arg.get("endpoint"))
+    if form == "dwell":
+        return "dwell %sms" % arg
+    if form == "wait-any":
+        return "wait-any %s" % ", ".join(arg)
+    if form == "compare-screen":
+        return "compare-screen %s" % arg
+    if form == "save":
+        return "save %s" % arg
+    if form == "expect":
+        return "expect %s" % (arg.get("element") or arg.get("value")
+                              or arg.get("saved") or "?")
+    return form
+
+
 def _emit_step(step, states, endpoints, pad):
+    form, arg = next(iter(step.items()))
+    if form != "maybe":
+        # every step captions itself — narration rides the .srt
+        return ([f'{pad}taf_journal.note({_dq(_caption(form, arg))})'] +
+                _emit_step_body(step, states, endpoints, pad))
+    return _emit_step_body(step, states, endpoints, pad)
+
+
+def _dq(s):
+    return json.dumps(s)
+
+
+def _emit_step_body(step, states, endpoints, pad):
     form, arg = next(iter(step.items()))
     if form == "navigate":
         return [f'{pad}page.goto(base_url + ROUTES["{arg}"])']

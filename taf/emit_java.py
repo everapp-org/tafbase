@@ -50,7 +50,45 @@ def _loc(loc):
     return f'page.locator("{l["css"].replace(chr(34), chr(92) + chr(34))}")'
 
 
+def _caption(form, arg):
+    """What the .srt says at this step — names only, never values."""
+    name = (lambda a: a.get("element") if isinstance(a, dict) else a)
+    if form == "navigate":
+        return "goto %s" % arg
+    if form in ("click", "check", "select"):
+        return "%s %s" % (form, name(arg))
+    if form == "fill":
+        return "fill %s" % name(arg)
+    if form == "wait-for":
+        return "wait-for %s" % (arg.get("state") or arg.get("element"))
+    if form == "api":
+        return "api %s" % (arg if isinstance(arg, str)
+                           else arg.get("endpoint"))
+    if form == "dwell":
+        return "dwell %sms" % arg
+    if form == "wait-any":
+        return "wait-any %s" % ", ".join(arg)
+    if form == "compare-screen":
+        return "compare-screen %s" % arg
+    if form == "save":
+        return "save %s" % arg
+    if form == "expect":
+        return "expect %s" % (arg.get("element") or arg.get("value")
+                              or arg.get("saved") or "?")
+    return form
+
+
 def _emit_step(step, endpoints, pad):
+    form, arg = next(iter(step.items()))
+    if form != "maybe":
+        # every step captions itself — narration rides the .srt
+        return ([f'{pad}try {{ TafJournal.note("{_caption(form, arg)}"); }}'
+                 f' catch (java.io.IOException ignored) {{}}'] +
+                _emit_step_body(step, endpoints, pad))
+    return _emit_step_body(step, endpoints, pad)
+
+
+def _emit_step_body(step, endpoints, pad):
     form, arg = next(iter(step.items()))
     if form == "navigate":
         return [f'{pad}page.navigate(baseUrl + {_state_class(arg)}.ROUTE);']

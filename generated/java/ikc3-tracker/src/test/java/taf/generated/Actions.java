@@ -11,45 +11,67 @@ public class Actions {
     public static void logIn(Page page, String baseUrl, SoftChecks soft) {
         try { TafJournal.note("→ sign in with handle and secret"); }
         catch (java.io.IOException e) { System.out.println("→ sign in with handle and secret"); }
+        try { TafJournal.note("fill handle"); } catch (java.io.IOException ignored) {}
         Elements.handle(page).fill(java.util.Objects.requireNonNull(System.getenv("TAF_SUT_HANDLE"), "TAF_SUT_HANDLE is not set"));
+        try { TafJournal.note("fill secret"); } catch (java.io.IOException ignored) {}
         Elements.secret(page).fill(java.util.Objects.requireNonNull(System.getenv("TAF_SUT_SECRET"), "TAF_SUT_SECRET is not set"));
+        try { TafJournal.note("click sign-in"); } catch (java.io.IOException ignored) {}
         Elements.signIn(page).click();
+        try { TafJournal.note("wait-for board"); } catch (java.io.IOException ignored) {}
         new BoardPage(page).expectArrived();
     }
     public static void logInWithCode(Page page, String baseUrl, SoftChecks soft) {
         try { TafJournal.note("→ sign in with a one-time code"); }
         catch (java.io.IOException e) { System.out.println("→ sign in with a one-time code"); }
+        try { TafJournal.note("click have-a-code"); } catch (java.io.IOException ignored) {}
         Elements.haveACode(page).click();
+        try { TafJournal.note("fill code"); } catch (java.io.IOException ignored) {}
         Elements.code(page).fill(TafJournal.envPool("TAF_SUT_CODES"));
+        try { TafJournal.note("click sign-in-with-code"); } catch (java.io.IOException ignored) {}
         Elements.signInWithCode(page).click();
+        try { TafJournal.note("goto board"); } catch (java.io.IOException ignored) {}
         page.navigate(baseUrl + BoardPage.ROUTE);
+        try { TafJournal.note("wait-for board"); } catch (java.io.IOException ignored) {}
         new BoardPage(page).expectArrived();
         try {
+            try { TafJournal.note("click start-new-instead"); } catch (java.io.IOException ignored) {}
             Elements.startNewInstead(page).click();
         } catch (Exception ignored) { /* maybe: not applicable */ }
     }
     public static void openBoard(Page page, String baseUrl, SoftChecks soft) {
         try { TafJournal.note("→ open the ticket board"); }
         catch (java.io.IOException e) { System.out.println("→ open the ticket board"); }
+        try { TafJournal.note("goto board"); } catch (java.io.IOException ignored) {}
         page.navigate(baseUrl + BoardPage.ROUTE);
     }
     public static void openTot(Page page, String baseUrl, SoftChecks soft) {
         try { TafJournal.note("→ open the TOT island"); }
         catch (java.io.IOException e) { System.out.println("→ open the TOT island"); }
+        try { TafJournal.note("goto tot"); } catch (java.io.IOException ignored) {}
         page.navigate(baseUrl + TotPage.ROUTE);
+        try { TafJournal.note("dwell 800ms"); } catch (java.io.IOException ignored) {}
         page.waitForTimeout(800);
     }
     public static void fileAFaultReport(Page page, String baseUrl, SoftChecks soft) {
         try { TafJournal.note("→ file a fault report through the UI"); }
         catch (java.io.IOException e) { System.out.println("→ file a fault report through the UI"); }
+        try { TafJournal.note("click report-fault"); } catch (java.io.IOException ignored) {}
         Elements.reportFault(page).click();
+        try { TafJournal.note("wait-for report-text"); } catch (java.io.IOException ignored) {}
         assertThat(Elements.reportText(page)).isVisible();
+        try { TafJournal.note("click report-choice-feat"); } catch (java.io.IOException ignored) {}
         Elements.reportChoiceFeat(page).click();
+        try { TafJournal.note("fill report-text"); } catch (java.io.IOException ignored) {}
         Elements.reportText(page).fill("taf: the suite exercising fault reporting — safe to delete");
+        try { TafJournal.note("fill report-details"); } catch (java.io.IOException ignored) {}
         Elements.reportDetails(page).fill("filed by a taf run of ikc3-tracker — the UI half of fail -> file");
+        try { TafJournal.note("click report-choice-todo"); } catch (java.io.IOException ignored) {}
         Elements.reportChoiceTodo(page).click();
+        try { TafJournal.note("click report-file"); } catch (java.io.IOException ignored) {}
         Elements.reportFile(page).click();
+        try { TafJournal.note("wait-for report-close"); } catch (java.io.IOException ignored) {}
         assertThat(Elements.reportClose(page)).isVisible();
+        try { TafJournal.note("click report-close"); } catch (java.io.IOException ignored) {}
         Elements.reportClose(page).click();
     }
 }

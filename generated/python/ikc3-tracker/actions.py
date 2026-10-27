@@ -9,41 +9,63 @@ import taf_journal
 
 def log_in(page, base_url, soft=None):
     taf_journal.note("→ sign in with handle and secret")
+    taf_journal.note("fill handle")
     elements.handle(page).fill(os.environ["TAF_SUT_HANDLE"])
+    taf_journal.note("fill secret")
     elements.secret(page).fill(os.environ["TAF_SUT_SECRET"])
+    taf_journal.note("click sign-in")
     elements.sign_in(page).click()
+    taf_journal.note("wait-for board")
     BoardPage(page).expect_arrived()
 
 def log_in_with_code(page, base_url, soft=None):
     taf_journal.note("→ sign in with a one-time code")
+    taf_journal.note("click have-a-code")
     elements.have_a_code(page).click()
+    taf_journal.note("fill code")
     elements.code(page).fill(taf_journal.env_pool("TAF_SUT_CODES"))
+    taf_journal.note("click sign-in-with-code")
     elements.sign_in_with_code(page).click()
+    taf_journal.note("goto board")
     page.goto(base_url + ROUTES["board"])
+    taf_journal.note("wait-for board")
     BoardPage(page).expect_arrived()
     try:
+        taf_journal.note("click start-new-instead")
         elements.start_new_instead(page).click()
     except Exception:
         pass  # maybe: the step did not apply
 
 def open_board(page, base_url, soft=None):
     taf_journal.note("→ open the ticket board")
+    taf_journal.note("goto board")
     page.goto(base_url + ROUTES["board"])
 
 def open_tot(page, base_url, soft=None):
     taf_journal.note("→ open the TOT island")
+    taf_journal.note("goto tot")
     page.goto(base_url + ROUTES["tot"])
+    taf_journal.note("dwell 800ms")
     page.wait_for_timeout(800)
 
 def file_a_fault_report(page, base_url, soft=None):
     taf_journal.note("→ file a fault report through the UI")
+    taf_journal.note("click report-fault")
     elements.report_fault(page).click()
+    taf_journal.note("wait-for report-text")
     expect(elements.report_text(page)).to_be_visible()
+    taf_journal.note("click report-choice-feat")
     elements.report_choice_feat(page).click()
+    taf_journal.note("fill report-text")
     elements.report_text(page).fill("taf: the suite exercising fault reporting — safe to delete")
+    taf_journal.note("fill report-details")
     elements.report_details(page).fill("filed by a taf run of ikc3-tracker — the UI half of fail -> file")
+    taf_journal.note("click report-choice-todo")
     elements.report_choice_todo(page).click()
+    taf_journal.note("click report-file")
     elements.report_file(page).click()
+    taf_journal.note("wait-for report-close")
     expect(elements.report_close(page)).to_be_visible()
+    taf_journal.note("click report-close")
     elements.report_close(page).click()
 
