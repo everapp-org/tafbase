@@ -1,12 +1,13 @@
-# framework-spec — the model of tafbase's test-automation framework.
-# A project DSL (DSL-First §2.4): grammar-hosted binding, SPEC-taf-v1-002-02.
-# Consumers: emit_java (done); emit_python + model.py next.
+// framework-spec — the model of tafbase's test-automation framework.
+// A project DSL (DSL-First §2.4): grammar-hosted binding, SPEC-taf-v1-002-02.
+// Consumers: emit_java (done); emit_python + model.py next.
 
 framework tafbase
 version 1
 
 locators {
   rung role {
+    description "the a11y rung — role plus optional name/exact"
     key role
     variants {
       on exact, name {
@@ -28,31 +29,37 @@ locators {
     }
   }
   rung label {
+    description "an input named by its label"
     key label
     python """{page}.get_by_label("${label}")"""
     java """page.getByLabel("${label}")"""
   }
   rung text {
+    description "visible text — markers and errors"
     key text
     python """{page}.get_by_text("${text}")"""
     java """page.getByText("${text}")"""
   }
   rung placeholder {
+    description "input placeholder text"
     key placeholder
     python """{page}.get_by_placeholder("${placeholder}")"""
     java """page.getByPlaceholder("${placeholder}")"""
   }
   rung testid {
+    description "the test hook — data-testid style"
     key testid
     python """{page}.get_by_test_id("${testid}")"""
     java """page.getByTestId("${testid}")"""
   }
   rung xpath {
+    description "the escape hatch — brittle, rare"
     key xpath
     python """{page}.locator("xpath=${xpath}")"""
     java """page.locator("xpath=${xpath}")"""
   }
   rung css {
+    description "ids, data-* attrs, structure — the working rung"
     key css
     python """{page}.locator("${css}")"""
     java """page.locator("${css}")"""
@@ -61,24 +68,28 @@ locators {
 
 vocabulary {
   form navigate {
+    description "go to a state by route"
     arg state-name
     caption """goto ${arg}"""
     python """page.goto(base_url + ROUTES["${arg}"])"""
     java """page.navigate(baseUrl + ${state_class}.ROUTE);"""
   }
   form click {
+    description "press an element"
     arg element name
     caption """click ${element}"""
     python """elements.${py:name}(page).click()"""
     java """Elements.${j:name}(page).click();"""
   }
   form check {
+    description "tick a checkbox element"
     arg element name
     caption """check ${element}"""
     python """elements.${py:name}(page).check()"""
     java """Elements.${j:name}(page).check();"""
   }
   form select {
+    description "choose a select option"
     arg element name
     arg value string
     caption """select ${element}"""
@@ -86,6 +97,7 @@ vocabulary {
     java """Elements.${j:name}(page).selectOption(${val_quoted});"""
   }
   form fill {
+    description "type a value — env:/env-pool: name the need, never the secret"
     arg element name
     arg value "string|env:|env-pool:"
     caption """fill ${element}"""
@@ -93,6 +105,7 @@ vocabulary {
     java """Elements.${j:name}(page).fill(${value_expr});"""
   }
   form wait-for {
+    description "synchronize on a state marker or element"
     arg state name
     arg element name
     caption """wait-for ${arg}"""
@@ -108,6 +121,7 @@ vocabulary {
     }
   }
   form api {
+    description "call a declared endpoint, assert status, save fields"
     arg endpoint name
     arg args map
     arg save map
@@ -122,24 +136,28 @@ vocabulary {
     }
   }
   form dwell {
+    description "a pause for a watching human — observation, not synchronization"
     arg ms number
     caption """dwell ${arg}ms"""
     python """page.wait_for_timeout(${arg})"""
     java """page.waitForTimeout(${arg});"""
   }
   form wait-any {
+    description "the first of several elements to appear wins"
     arg list-of element-name
     caption """wait-any ${arg}"""
     python """expect(${loc_chain}).to_be_visible()"""
     java """assertThat(${loc_chain}).isVisible();"""
   }
   form compare-screen {
+    description "pixel-compare against a golden baseline"
     arg name string
     caption """compare-screen ${arg}"""
     python """expect(page).to_have_screenshot("${arg}.png")"""
     java """assertThat(page).hasScreenshot();  // baseline: ${arg}.png"""
   }
   form expect {
+    description "assert visibility, text, count, or a saved value — soft collects for end-of-test flush"
     arg element name
     arg text string
     arg count number
@@ -172,6 +190,7 @@ vocabulary {
     }
   }
   form maybe {
+    description "ifPresent semantics — try a step, never fail on it"
     arg step nested
     caption """maybe ${inner}"""
     wrap {

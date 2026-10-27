@@ -65,7 +65,9 @@ class _Walk:
         out = {"arg": {}}
         for mem in e.member():
             kw = mem.getChild(0).getText()
-            if kw == "arg":
+            if kw == "description":
+                out["description"] = _str(mem.STRING())
+            elif kw == "arg":
                 nm = _text(mem.NAME())
                 at = mem.argType()
                 out["arg"][nm] = (_str(at.STRING()) if at.STRING()

@@ -20,7 +20,8 @@ entry
     ;
 
 member
-    : 'arg' NAME argType?
+    : 'description' STRING
+    | 'arg' NAME argType?
     | 'caption' STRING
     | 'key' NAME
     | 'python' STRING
@@ -65,7 +66,11 @@ STRING
     ;
 
 COMMENT
-    : '#' ~[\r\n]* -> skip
+    : '//' ~[\r\n]* -> skip
+    ;
+
+BLOCK_COMMENT
+    : '/*' .*? '*/' -> skip
     ;
 
 WS
