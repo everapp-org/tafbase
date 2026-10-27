@@ -48,19 +48,22 @@ def _dq(s):
 
 
 def _emit_step_body(step, states, endpoints, pad):
+    """One model step → Python lines, spelled by
+    dsl/framework-spec.dsl."""
     form, arg = next(iter(step.items()))
+    e = _forms()[form]
+    darg = arg if isinstance(arg, dict) else {}
+    e = _variant_entry(e, [k for k in darg if k != "soft"])
+
     if form == "navigate":
-        return [f'{pad}page.goto(base_url + ROUTES["{arg}"])']
-    if form == "click":
+        return [pad + _sp(e, arg=arg)]
+    if form in ("click", "check"):
         name = arg.get("element") if isinstance(arg, dict) else arg
-        return [f"{pad}elements.{_py(name)}(page).click()"]
-    if form == "check":
-        name = arg.get("element") if isinstance(arg, dict) else arg
-        return [f"{pad}elements.{_py(name)}(page).check()"]
+        return [pad + _sp(e, **{"py:name": _py(name)})]
     if form == "select":
         name = arg.get("element") if isinstance(arg, dict) else arg
         val = f'"{arg["value"]}"' if isinstance(arg, dict) and "value" in arg else ""
-        return [f"{pad}elements.{_py(name)}(page).select_option({val})"]
+        return [pad + _sp(e, **{"py:name": _py(name), "val_quoted": val})]
     if form == "fill":
         v = arg.get("value", "")
         if isinstance(v, str) and v.startswith("env-pool:"):
@@ -72,37 +75,44 @@ def _emit_step_body(step, states, endpoints, pad):
             val = 'os.environ[%s]' % json.dumps(v[4:])
         else:
             val = '"%s"' % v
-        return [f'{pad}elements.{_py(arg["element"])}(page).fill({val})']
+        return [pad + _sp(e, **{"py:name": _py(arg["element"]),
+                                "value_expr": val})]
     if form == "wait-for":
+        kw = {"py:element": _py(arg.get("element", ""))}
         if "state" in arg:
-            return [f"{pad}{_state_class(arg['state'])}(page).expect_arrived()"]
-        return [f"{pad}expect(elements.{_py(arg['element'])}(page)).to_be_visible()"]
+            kw["state_class"] = _state_class(arg["state"])
+        return [pad + _sp(e, **kw)]
     if form == "api":
         name = arg if isinstance(arg, str) else arg.get("endpoint")
         args = {} if isinstance(arg, str) else arg.get("args") or {}
         ep = endpoints[name]
         path, status = ep["path"], (ep.get("expect") or {}).get("status", 200)
-        lines = [f'{pad}resp = page.request.{ep["method"].lower()}(base_url + "{path}".format(**{json.dumps(args)}))',
-                 f"{pad}assert resp.status == {status}"]
+        kw = {"method_lower": ep["method"].lower(),
+              "pexpr": '"%s".format(**%s)' % (path, json.dumps(args)),
+              "status": status}
+        tpl = e["spell"]["python"]
+        lines = [pad + _sub(tpl[0], kw), pad + _sub(tpl[1], kw)]
         if isinstance(arg, dict) and arg.get("save"):
             for k, jpath in arg["save"].items():
-                lines.append(f"{pad}saved[{json.dumps(k)}] = resp.json(){_jsonpath(jpath)}")
+                lines.append(pad + _sub(tpl[2],
+                {"save_key": json.dumps(k),
+                 "jsonpath": _jsonpath(jpath)}))
         return lines
     if form == "dwell":
         # A pause for a watching human — observation, not synchronization.
-        return [f"{pad}page.wait_for_timeout({arg})"]
+        return [pad + _sp(e, arg=arg)]
     if form == "wait-any":
         locs = f"elements.{_py(arg[0])}(page)" + "".join(
             f".or_(elements.{_py(n)}(page))" for n in arg[1:])
-        return [f"{pad}expect({locs}).to_be_visible()"]
+        return [pad + _sp(e, loc_chain=locs)]
     if form == "compare-screen":
-        return [f'{pad}expect(page).to_have_screenshot("{arg}.png")']
+        return [pad + _sp(e, arg=arg)]
     if form == "maybe":
         # An ifPresent step: try it, never fail.
         inner = _emit_step(arg, states, endpoints, pad + "    ")
-        return [f"{pad}try:"] + inner + [
-            f"{pad}except Exception:",
-            f"{pad}    pass  # maybe: the step did not apply"]
+        w = e["wrap"]["python"]
+        return ([pad + x for x in w["pre"]] + inner +
+                [pad + x for x in w["post"]])
     if form == "expect":
         if isinstance(arg, dict) and "element" in arg:
             el = f"elements.{_py(arg['element'])}(page)"
@@ -121,13 +131,13 @@ def _emit_step_body(step, states, endpoints, pad):
                     f"{pad}        {stmt}",
                     f"{pad}    except AssertionError as _e:",
                     f'{pad}        print("soft expect failed:", _e)']
-            if arg.get("hidden"):
-                return [f"{pad}expect({el}).to_be_hidden()"]
+            kw = {"el": el}
             if "text" in arg:
-                return [f'{pad}expect({el}).to_have_text("{arg["text"]}")']
+                kw["text"] = _esc(arg["text"])
             if "count" in arg:
-                return [f"{pad}expect({el}).to_have_count({arg['count']})"]
-            return [f"{pad}expect({el}).to_be_visible()"]
+                kw["count"] = arg["count"]
+            return [pad + _sp(e, **kw)]
         if isinstance(arg, dict) and "value" in arg:
-            return [f"{pad}assert saved[{json.dumps(arg['value'])}] == {json.dumps(arg.get('equals'))}"]
+            return [pad + _sp(e, value=json.dumps(arg["value"]),
+                              equals=json.dumps(arg.get("equals")))]
     return [f"{pad}# unsupported step: {form}"]
