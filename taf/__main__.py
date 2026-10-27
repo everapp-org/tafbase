@@ -7,6 +7,7 @@
 
 import argparse
 import json
+import os
 import sys
 
 from taf import dryrun, emit_java, emit_python, graph, model, runner
