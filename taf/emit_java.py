@@ -496,6 +496,19 @@ def _journal_class():
             "                 .append('\\n').append(noteL.get(i)).append(\"\\n\\n\");\n"
             "            }\n"
             "            Files.writeString(dir.resolve(\"journal.srt\"), s.toString());\n"
+            # the video is page@<uuid>.webm — a sidecar pairs only
+            # when basenames match
+            "            try (var ds = Files.list(dir)) {\n"
+            "                ds.filter(f -> f.getFileName().toString().endsWith(\".webm\"))\n"
+            "                  .forEach(v -> {\n"
+            "                      try {\n"
+            "                          String n = v.getFileName().toString();\n"
+            "                          Files.copy(dir.resolve(\"journal.srt\"),\n"
+            "                              v.resolveSibling(n.substring(0, n.length() - 5) + \".srt\"),\n"
+            "                              java.nio.file.StandardCopyOption.REPLACE_EXISTING);\n"
+            "                      } catch (java.io.IOException ignored) {}\n"
+            "                  });\n"
+            "            }\n"
             "        }\n"
             "    }\n"
             "}\n")

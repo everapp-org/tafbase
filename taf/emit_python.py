@@ -332,6 +332,7 @@ def pytest_sessionfinish(session, exitstatus):
     with open(os.path.join(run, "failed.txt"), "w",
               encoding="utf-8") as f:
         f.write("\\n".join(sorted(names)))
+    print("\\nresults → %%s" %% run)
 
 
 def _last_failed_file():

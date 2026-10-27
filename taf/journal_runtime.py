@@ -88,6 +88,12 @@ def end(outcome=None):
         _current = None
     if _dir and _notes:
         _write_srt(os.path.join(_dir, "journal.srt"), _notes)
+        # the video is page@<uuid>.webm — a sidecar only pairs when
+        # the basenames match, so the track copies to the video's name
+        import glob, shutil
+        for v in glob.glob(os.path.join(_dir, "*.webm")):
+            shutil.copy(os.path.join(_dir, "journal.srt"),
+                        os.path.splitext(v)[0] + ".srt")
     _outcome = "passed"
 
 

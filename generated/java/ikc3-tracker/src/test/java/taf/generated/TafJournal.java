@@ -77,6 +77,17 @@ public class TafJournal {
                  .append('\n').append(noteL.get(i)).append("\n\n");
             }
             Files.writeString(dir.resolve("journal.srt"), s.toString());
+            try (var ds = Files.list(dir)) {
+                ds.filter(f -> f.getFileName().toString().endsWith(".webm"))
+                  .forEach(v -> {
+                      try {
+                          String n = v.getFileName().toString();
+                          Files.copy(dir.resolve("journal.srt"),
+                              v.resolveSibling(n.substring(0, n.length() - 5) + ".srt"),
+                              java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                      } catch (java.io.IOException ignored) {}
+                  });
+            }
         }
     }
 }
