@@ -164,8 +164,10 @@ def auth_state(browser, base_url, run_dir):
         %s(pg).goto(base_url)
         actions.%s(pg, base_url)
     except Exception:
-        # the bootstrap owns no journal — leave the DOM as evidence
-        with open(os.path.join(run_dir, "auth-failure.dom.html"), "w",
+        # the bootstrap owns no journal — leave the DOM as evidence.
+        # setup-failure, not auth-failure: the action may have signed
+        # in and failed later (navigate, wait-for).
+        with open(os.path.join(run_dir, "setup-failure.dom.html"), "w",
                   encoding="utf-8") as f:
             f.write(pg.content())
         if os.environ.get("TAF_DEBUG"):
