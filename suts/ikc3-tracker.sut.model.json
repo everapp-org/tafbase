@@ -16,13 +16,13 @@
     "board": {
       "route": "/index.html?island=board",
       "marker": {
-        "css": ".ikc-dock-theme"
+        "css": "#top-bar"
       }
     },
     "tot": {
       "route": "/index.html?island=tot",
       "marker": {
-        "css": ".ikc-dock-theme"
+        "css": "#top-bar"
       }
     }
   },

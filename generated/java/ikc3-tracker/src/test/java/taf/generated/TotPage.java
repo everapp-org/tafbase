@@ -17,7 +17,7 @@ public class TotPage {
 
     public TotPage(Page page) {
         this.page = page;
-        this.marker = page.locator(".ikc-dock-theme");
+        this.marker = page.locator("#top-bar");
     }
 
     public void gotoRoute(String baseUrl) { page.navigate(baseUrl + ROUTE); }
