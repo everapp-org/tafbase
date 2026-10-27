@@ -10,7 +10,7 @@ authors:
 
 # The framework-spec DSL
 
-A project-specific, data-hosted DSL (DSL-First §2.4/§2.5 — the family
+A project-specific, grammar-hosted DSL (DSL-First §2.4 — ANTLR — the family
 member Kernel/Behavior/Verification/Catalog cannot express: spellings
 as data). The model `dsl/framework-spec.dsl.json` declares what the
 framework is; emitters derive framework code from it.
@@ -20,6 +20,11 @@ framework is; emitters derive framework code from it.
 | Clause | Shape | Meaning |
 |---|---|---|
 | `dsl` | `{name, version, binding}` | language identity + version |
+
+The grammar is `dsl/FrameworkSpec.g4`; the parser is ANTLR-generated
+into `taf/_antlr/` (regenerate on grammar change — see
+`taf/dsl_parse.py` docstring); `dsl_parse` walks the tree to the
+model dict.
 | `vocabulary` | `{form: entry}` | step forms of the SUT language |
 | `locators` | `{rung: entry}` | locator-ladder rungs |
 

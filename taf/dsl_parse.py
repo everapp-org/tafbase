@@ -1,181 +1,110 @@
 """The framework-spec parser — grammar-hosted binding.
 
-dsl/framework-spec.dsl is the model; parse() yields the dict
-consumers read: {"dsl": {name, version, framework, binding},
-"vocabulary": {form: entry}, "locators": {rung: entry}}.
+dsl/FrameworkSpec.g4 is the declared grammar; ANTLR generates the
+parser (taf/_antlr/); parse() walks the parse tree into the model
+dict consumers read:
 
-Grammar:
-    spec     := 'framework' IDENT 'version' NUMBER? decl*
-    decl     := 'vocabulary' '{' form* '}' | 'locators' '{' rung* '}'
-    form     := 'form' IDENT '{' member* '}'
-    rung     := 'rung' IDENT '{' member* '}'
-    member   := 'arg' IDENT STRING? | 'caption' STRING | 'key' IDENT
-              | ('python'|'java') STRING          # single spell
-              | 'variants' '{' variant* '}'
-              | 'lines' '{' (lang STRING)* '}'    # spell as line list
-              | 'wrap' '{' (lang 'pre'|'post' STRING)* '}'
-    variant  := 'on' IDENT (',' IDENT)* '{' (lang STRING)* '}'
-    STRING   := '"' esc '"' | TRIPLE raw TRIPLE   # TRIPLE = three '"'
-    comment  := '#' to end of line
+    {"dsl": {name, framework, version, binding},
+     "vocabulary": {form: entry}, "locators": {rung: entry}}
+
+Regenerate the parser after grammar changes:
+
+    java -cp "$ANTLR_CP" org.antlr.v4.Tool -Dlanguage=Python3 \\
+        -o /tmp/antlrgen dsl/FrameworkSpec.g4
+    mv /tmp/antlrgen/dsl/*.py taf/_antlr/
+
+where $ANTLR_CP is the antlr tool + runtime jars.
 """
+
+import os
 
 
 def parse(text):
     """DSL text → the model dict."""
-    return _Parser(_lex(text)).spec()
+    from antlr4 import InputStream, CommonTokenStream
+    from taf._antlr.FrameworkSpecLexer import FrameworkSpecLexer
+    from taf._antlr.FrameworkSpecParser import FrameworkSpecParser
+    lex = FrameworkSpecLexer(InputStream(text))
+    tree = FrameworkSpecParser(CommonTokenStream(lex)).start()
+    return _Walk().visit_start(tree)
 
 
-def _lex(text):
-    toks = []
-    i, n = 0, len(text)
-    while i < n:
-        c = text[i]
-        if c == "#":
-            while i < n and text[i] != "\n":
-                i += 1
-        elif c.isspace():
-            i += 1
-        elif text.startswith('"""', i):
-            j = text.index('"""', i + 3)
-            toks.append(("str", text[i + 3:j]))
-            i = j + 3
-        elif c == '"':
-            j, buf = i + 1, ""
-            while text[j] != '"':
-                if text[j] == "\\":
-                    j += 1
-                buf += text[j]
-                j += 1
-            toks.append(("str", buf))
-            i = j + 1
-        elif c in "{},":
-            toks.append((c, c))
-            i += 1
-        else:
-            j = i
-            while j < n and (not text[j].isspace()
-                             and text[j] not in '{}",#'):
-                j += 1
-            toks.append(("id", text[i:j]))
-            i = j
-    return toks
+def parse_file(path):
+    return parse(open(path, encoding="utf-8").read())
 
 
-_RESERVED = {"arg", "caption", "key", "variants", "lines", "wrap",
-             "python", "java", "on", "pre", "post", "form", "rung",
-             "framework", "version", "vocabulary", "locators"}
+def _text(ctx):
+    return ctx.getText()
 
 
-class _Parser:
-    def __init__(self, toks):
-        self.toks = toks
-        self.i = 0
+def _str(tok):
+    """'...' unescaped or TRIPLE raw."""
+    s = tok.getText()
+    if s.startswith('"""'):
+        return s[3:-3]
+    return s[1:-1].replace('\\"', '"')
 
-    def _peek(self):
-        return self.toks[self.i][0] if self.i < len(self.toks) else None
 
-    def _take(self, kind=None):
-        if self.i >= len(self.toks):
-            raise SyntaxError("unexpected end of dsl")
-        t = self.toks[self.i]
-        if kind and t[0] != kind:
-            raise SyntaxError("expected %r, got %r (%s)"
-                              % (kind, t[0], t[1][:40]))
-        self.i += 1
-        return t[1]
-
-    def spec(self):
-        self._take("id")  # 'framework'
-        fw = self._take("id")
-        self._take("id")  # 'version'
-        ver = self._take("id")
-        m = {"dsl": {"name": "framework-spec", "framework": fw,
-                     "version": int(ver), "binding": "grammar-hosted"},
+class _Walk:
+    def visit_start(self, ctx):
+        m = {"dsl": {"name": "framework-spec",
+                     "framework": _text(ctx.NAME()),
+                     "version": int(_text(ctx.NUMBER())),
+                     "binding": "grammar-hosted"},
              "vocabulary": {}, "locators": {}}
-        while self._peek() is not None:
-            kw = self._take("id")
-            if kw in ("vocabulary", "locators"):
-                kind = "form" if kw == "vocabulary" else "rung"
-                self._take("{")
-                while self._peek() != "}":
-                    self._take("id")  # 'form'|'rung'
-                    name = self._take("id")
-                    m[kw][name] = self._body()
-                self._take("}")
-            else:
-                raise SyntaxError("expected vocabulary|locators, got %r" % kw)
+        for d in ctx.decl():
+            kw = d.getChild(0).getText()          # 'vocabulary'|'locators'
+            for e in d.entry():
+                m[kw][self._entry_name(e)] = self._entry(e)
         return m
 
-    def _body(self):
-        self._take("{")
-        e = {"arg": {}}
-        while self._peek() != "}":
-            kw = self._take("id")
-            if kw == "arg":
-                nm = self._take("id")
-                nxt = self.toks[self.i] if self.i < len(self.toks) else (None, None)
-                if nxt[0] == "str" or (
-                        nxt[0] == "id" and nxt[1] not in _RESERVED):
-                    e["arg"][nm] = self._take(nxt[0])
-                else:
-                    e["arg"][nm] = nm
-            elif kw == "caption":
-                e["caption"] = self._take("str")
-            elif kw == "key":
-                e["key"] = self._take("id")
-            elif kw == "variants":
-                e["variants"] = self._variants()
-            elif kw == "lines":
-                e["spell"] = self._langs_list()
-            elif kw == "wrap":
-                e["wrap"] = self._wrap()
-            elif kw in ("python", "java"):
-                e.setdefault("spell", {})[kw] = self._take("str")
-                # rhs evaluated before subscript — no subscript take here
-            else:
-                raise SyntaxError("unknown member %r" % kw)
-        self._take("}")
-        if len(e["arg"]) == 1:
-            e["arg"] = next(iter(e["arg"].values()))
-        return e
+    def _entry_name(self, e):
+        return _text(e.NAME())
 
-    def _variants(self):
-        self._take("{")
-        out = []
-        while self._peek() != "}":
-            self._take("id")  # 'on'
-            keys = []
-            while self._peek() != "{":
-                if self._peek() == ",":
-                    self._take(",")
-                else:
-                    keys.append(self._take("id"))
-            self._take("{")
-            sp = {}
-            while self._peek() != "}":
-                lang = self._take("id")
-                sp[lang] = self._take("str")
-            self._take("}")
-            out.append({"when": keys, "spell": sp})
-        self._take("}")
+    def _entry(self, e):
+        out = {"arg": {}}
+        for mem in e.member():
+            kw = mem.getChild(0).getText()
+            if kw == "arg":
+                nm = _text(mem.NAME())
+                at = mem.argType()
+                out["arg"][nm] = (_str(at.STRING()) if at.STRING()
+                                  else _text(at.NAME())) if at else nm
+            elif kw == "caption":
+                out["caption"] = _str(mem.STRING())
+            elif kw == "key":
+                out["key"] = _text(mem.NAME())
+            elif kw in ("python", "java"):
+                out.setdefault("spell", {})[kw] = _str(mem.STRING())
+            elif kw == "variants":
+                out["variants"] = [self._variant(v)
+                                   for v in mem.variant()]
+            elif kw == "lines":
+                out["spell"] = self._lang_lines(mem)
+            elif kw == "wrap":
+                out["wrap"] = self._wrap(mem)
+        if len(out["arg"]) == 1:
+            out["arg"] = next(iter(out["arg"].values()))
         return out
 
-    def _langs_list(self):
-        """lines {} — per-language ordered spell lists."""
-        self._take("{")
+    def _variant(self, v):
+        when = [_text(n) for n in v.NAME()]
         sp = {}
-        while self._peek() != "}":
-            sp.setdefault(self._take("id"), []).append(self._take("str"))
-        self._take("}")
+        for ll in v.langLine():
+            sp[ll.getChild(0).getText()] = _str(ll.STRING())
+        return {"when": when, "spell": sp}
+
+    def _lang_lines(self, mem):
+        sp = {}
+        for ll in mem.langLine():
+            sp.setdefault(ll.getChild(0).getText(),
+                          []).append(_str(ll.STRING()))
         return sp
 
-    def _wrap(self):
-        """wrap {} — per-language pre/post line lists."""
-        self._take("{")
+    def _wrap(self, mem):
         w = {}
-        while self._peek() != "}":
-            lang, side = self._take("id"), self._take("id")
-            w.setdefault(lang, {}).setdefault(side, []).append(
-                self._take("str"))
-        self._take("}")
+        for wl in mem.wrapLine():
+            lang, side = wl.getChild(0).getText(), wl.getChild(1).getText()
+            w.setdefault(lang, {}).setdefault(
+                side, []).append(_str(wl.STRING()))
         return w
