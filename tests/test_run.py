@@ -73,7 +73,9 @@ def test_probe_missing_refuses_to_run(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(runner, "_exec", fake_exec(seen))
     assert runner.run(m, probe=True) == 1
     assert "cmd" not in seen                   # no browser ever opened
-    assert "preflight missing" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert "preflight missing" in out
+    assert "--base-url" in out                 # the hint names the fix
 
 
 # T-run-004 — --suite runs the committed suite, no emit

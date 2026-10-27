@@ -98,6 +98,8 @@ def run(m, suite=None, lang="python", extra=(), probe=False, keep=False,
                 for f in missing:
                     print("  preflight missing  %s — %s"
                           % (f["what"], f["detail"]), flush=True)
+                    if f.get("hint"):
+                        print("      ↳ %s" % f["hint"], flush=True)
                 print("refusing to run — fix the missing, "
                       "or --no-probe skips the gate", flush=True)
                 return 1

@@ -221,8 +221,12 @@ def _probe_findings(m, env):
             out.append(_finding("ok", "sut",
                                 "%s answers: HTTP %d" % (url, r.status)))
     except Exception as e:
-        out.append(_finding("missing", "sut",
-                            "%s does not answer: %s" % (url, e)))
+        f = _finding("missing", "sut",
+                     "%s does not answer: %s" % (url, e))
+        f["hint"] = ("point the run at a live SUT: --base-url URL (one "
+                     "run), TAF_BASE_URL (this console), or sut.base-url "
+                     "in the model")
+        out.append(f)
     ws = env.get("TAF_IKC3_WS")
     if ws:
         hostport = ws.split("://", 1)[-1].split("/", 1)[0]
@@ -232,16 +236,20 @@ def _probe_findings(m, env):
                 out.append(_finding("ok", "ikc3 bus",
                                     "%s accepts a connection" % hostport))
         except Exception as e:
-            out.append(_finding("missing", "ikc3 bus",
-                                "%s refuses: %s" % (hostport, e)))
+            f = _finding("missing", "ikc3 bus",
+                         "%s refuses: %s" % (hostport, e))
+            f["hint"] = ("--sink URL points elsewhere; unset TAF_IKC3_WS "
+                         "to skip fault reports")
+            out.append(f)
     browsers = env.get("PLAYWRIGHT_BROWSERS_PATH") or os.path.expanduser(
         "~/.cache/ms-playwright")
     if glob.glob(os.path.join(browsers, "chromium*")):
         out.append(_finding("ok", "browsers", "a chromium build is installed"))
     else:
-        out.append(_finding("missing", "browsers",
-                            "no chromium under %s — run "
-                            "`playwright install chromium`" % browsers))
+        f = _finding("missing", "browsers",
+                     "no chromium under %s" % browsers)
+        f["hint"] = "install: python -m playwright install chromium"
+        out.append(f)
     return out
 
 
@@ -354,6 +362,8 @@ def render(rep):
     for lv in _LEVELS:
         for f in by[lv]:
             lines.append("  %-8s %-24s %s" % (lv, f["what"], f["detail"]))
+            if f.get("hint"):
+                lines.append("           ↳ %s" % f["hint"])
     if not rep["findings"]:
         lines.append("  (nothing to report)")
     lines.append("")
