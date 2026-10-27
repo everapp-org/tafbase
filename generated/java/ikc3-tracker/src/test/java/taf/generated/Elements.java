@@ -6,6 +6,7 @@ package taf.generated;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.AriaRole;
 
 /** Named locators, one method each — the locator ladder. */
 public class Elements {
@@ -19,7 +20,7 @@ public class Elements {
         return page.locator("#code-in");
     }
     public static Locator signIn(Page page) {
-        return page.getByRole("button", new Page.GetByRoleOptions().setName("Sign in").setExact(true));
+        return page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Sign in").setExact(true));
     }
     public static Locator haveACode(Page page) {
         return page.locator("#have-code");
@@ -31,7 +32,7 @@ public class Elements {
         return page.locator("[data-import-id=\"top-bar/report-a-fault\"]");
     }
     public static Locator startNewInstead(Page page) {
-        return page.getByRole("button", new Page.GetByRoleOptions().setName("Start new instead"));
+        return page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Start new instead"));
     }
     public static Locator reportChoiceFeat(Page page) {
         return page.locator("[data-import-id=\"report-dialog/choice-feature-request\"]");

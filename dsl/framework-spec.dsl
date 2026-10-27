@@ -12,19 +12,19 @@ locators {
     variants {
       on exact, name {
         python """{page}.get_by_role("${role}", name="${name}", exact=True)"""
-        java """page.getByRole("${role}", new Page.GetByRoleOptions().setName("${name}").setExact(true))"""
+        java """page.getByRole(AriaRole.${role_enum}, new Page.GetByRoleOptions().setName("${name}").setExact(true))"""
       }
       on name {
         python """{page}.get_by_role("${role}", name="${name}")"""
-        java """page.getByRole("${role}", new Page.GetByRoleOptions().setName("${name}"))"""
+        java """page.getByRole(AriaRole.${role_enum}, new Page.GetByRoleOptions().setName("${name}"))"""
       }
       on exact {
         python """{page}.get_by_role("${role}", exact=True)"""
-        java """page.getByRole("${role}", new Page.GetByRoleOptions().setExact(true))"""
+        java """page.getByRole(AriaRole.${role_enum}, new Page.GetByRoleOptions().setExact(true))"""
       }
       on {
         python """{page}.get_by_role("${role}")"""
-        java """page.getByRole("${role}")"""
+        java """page.getByRole(AriaRole.${role_enum})"""
       }
     }
   }

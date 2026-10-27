@@ -31,7 +31,8 @@ def _elements_class(m):
     lines = [_HEADER, f"package {_PKG};\n\n",
              "// @concept CONCEPT-playwright-v1-001-01-the-locator-ladder\n\n",
              "import com.microsoft.playwright.Locator;\n",
-             "import com.microsoft.playwright.Page;\n\n",
+             "import com.microsoft.playwright.Page;\n",
+             "import com.microsoft.playwright.options.AriaRole;\n\n",
              "/** Named locators, one method each — the locator ladder. */\n",
              "public class Elements {\n"]
     for name, loc in m["elements"].items():

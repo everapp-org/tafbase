@@ -73,7 +73,9 @@ def _loc(loc):
     rung, l = ops.locator_rung(loc)
     entry = _rungs()[rung]
     v = _variant_entry(entry, [k for k in loc if k != entry["key"]])
-    return _sp(v, page="page", **{k: _esc(l[k]) for k in l})
+    kw = {k: _esc(l[k]) for k in l}
+    kw["role_enum"] = l.get("role", "").upper()
+    return _sp(v, page="page", **kw)
 
 
 def _jsonpath(p):
