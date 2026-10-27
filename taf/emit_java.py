@@ -31,15 +31,13 @@ def _state_class(name):
 _DSL = {}
 
 
-def _dsl(name):
-    if name not in _DSL:
-        path = os.path.join(os.path.dirname(__file__), "..", "dsl", name)
-        _DSL[name] = json.load(open(path))
-    return _DSL[name]
-
-
 def _spec():
-    return _dsl("framework-spec.dsl.json")
+    if "spec" not in _DSL:
+        from taf import dsl_parse
+        path = os.path.join(os.path.dirname(__file__), "..",
+                            "dsl", "framework-spec.dsl")
+        _DSL["spec"] = dsl_parse.parse(open(path).read())
+    return _DSL["spec"]
 
 
 def _rungs():
