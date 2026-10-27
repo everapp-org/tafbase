@@ -2,13 +2,14 @@
 
     python -m taf emit --lang python <sut.model.json> -o <outdir>
     python -m taf check <sut.model.json>
+    python -m taf dry-run <sut.model.json>
 """
 
 import argparse
 import json
 import sys
 
-from taf import emit_java, emit_python, graph, model
+from taf import dryrun, emit_java, emit_python, graph, model
 
 
 def main(argv=None):
@@ -34,6 +35,20 @@ def main(argv=None):
     e.add_argument("--journeys",
                    help="JSON of extra journeys to merge in (e.g. `taf walk` output)")
 
+    d = sub.add_parser("dry-run",
+                       help="report what a run would do and what it lacks")
+    d.add_argument("model")
+    d.add_argument("--suite",
+                   help="an emitted suite dir — checks goldens and freshness")
+    d.add_argument("--journeys",
+                   help="JSON of extra journeys to merge in (e.g. `taf walk` output)")
+    d.add_argument("--lang", choices=["python", "java"], default="python",
+                   help="which toolchain to check (default: python)")
+    d.add_argument("--probe", action="store_true",
+                   help="also touch the network: SUT, ikc3 bus, browsers")
+    d.add_argument("--json", action="store_true",
+                   help="print the report as JSON")
+
     args = ap.parse_args(argv)
     try:
         m = model.load(args.model)
@@ -48,9 +63,16 @@ def main(argv=None):
             print(json.dumps({"journeys": {name: j}}, indent=2))
             return 0
 
-        if args.journeys:
+        if getattr(args, "journeys", None):
             with open(args.journeys, encoding="utf-8") as f:
                 m = graph.with_journeys(m, json.load(f)["journeys"])
+
+        if args.cmd == "dry-run":
+            rep = dryrun.report(m, suite=args.suite, lang=args.lang,
+                                probe=args.probe)
+            print(json.dumps(rep, indent=2) if args.json
+                  else dryrun.render(rep))
+            return 0
 
         written = (emit_python if args.lang == "python" else emit_java).emit(m, args.outdir)
         for p in written:

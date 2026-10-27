@@ -30,6 +30,8 @@ tests/            pytest suite for the framework itself
 
 ```
 .venv/bin/python -m taf check suts/ikc3-tracker.sut.model.json   # validate
+.venv/bin/python -m taf dry-run suts/ikc3-tracker.sut.model.json \
+    --suite generated/python/ikc3-tracker       # what would run, what it lacks
 .venv/bin/python -m taf emit --lang python suts/ikc3-tracker.sut.model.json -o generated/python/ikc3-tracker
 .venv/bin/python -m taf emit --lang java   suts/ikc3-tracker.sut.model.json -o generated/java/ikc3-tracker
 diff generated/python/ikc3-tracker/taf.manifest.json generated/java/ikc3-tracker/taf.manifest.json

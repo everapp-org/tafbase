@@ -201,6 +201,14 @@ vocabulary replaces a 300-line runtime factory.
 browser and breaks on failure; `requires:` declares suite preflight
 (mail server, service up) that fails fast.
 
+**Progress (2026-10-27).** The report form of the preflight lands first:
+`taf dry-run` names the tests a run would execute, the `TAF_*` contract
+as the shell sets it, and what the run lacks — video off, a missing
+golden, a stale suite dir, a SUT that does not answer (`--probe`).
+A report, not a gate: exit 0, the person decides
+(CONCEPT-taf-v1-008-01). Still open: `taf run` itself, `requires:` —
+the fail-fast form.
+
 **Release note (draft)**
 - New: a failed run replays only its failures; a debug run pauses at the
   broken step with the browser open.

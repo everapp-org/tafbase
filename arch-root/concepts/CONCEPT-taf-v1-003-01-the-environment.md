@@ -53,7 +53,14 @@ twelve-factor form of the same idea.
 | `TAF_IKC3_WS`  | `pytest_runtest_makereport` | when set, a red test files a fault report   |
 | `TAF_HEADLESS` | `conftest.py`, `BaseTest`   | `1` for CI; headed is the default           |
 | `TAF_SLOWMO`   | `conftest.py`, `BaseTest`   | ms between Playwright actions               |
+| `TAF_VIDEO`    | `conftest.py`, `BaseTest`   | when set, the run records `.webm`           |
+| `TAF_DEBUG`    | `conftest.py`, `BaseTest`   | when set, a failure pauses the browser      |
+| `TAF_RERUN`    | `conftest.py`               | replays only the last `failed.txt`          |
+| `TAF_RESULTS`  | `conftest.py`, `BaseTest`   | the artifacts root; default `results/`      |
 | `TAF_LIVE`     | `tests/test_live.py`        | opts the live acceptance tests in           |
+
+`taf dry-run` prints this table as the current shell sets it —
+[[CONCEPT-taf-v1-008-01-the-dry-run]].
 
 `TAF_BASE_URL` appears in `taf/emit_python.py`, `taf/emit_java.py`, and
 every emitted `conftest.py`/`BaseTest.java`. `TAF_IKC3_WS` drives
