@@ -117,7 +117,8 @@ def main(argv=None):
                    default=True,
                    help="preflight before running (default: on)")
     r.add_argument("--no-probe", dest="probe", action="store_false",
-                   help="skip the preflight gate")
+                   help="skip the gate: probes never run, env needs "
+                        "warn instead of refusing")
     r.add_argument("--keep", action="store_true",
                    help="keep the emitted temp suite")
     # the run profile — inline TAF_* contract, no shell exports needed

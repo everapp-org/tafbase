@@ -214,8 +214,9 @@ browser and breaks on failure; `requires:` declares suite preflight
 check (the loader refuses), emit (a temp suite, or `--suite` for a
 committed one), execute (pytest; `mvn test` for `--lang java`); the
 exit code is the runner's and args after `--` reach it. The gate is
-on by default: a missing probe finding refuses before a browser opens
-(`--no-probe` skips it). The run profile is also inline —
+on by default: a missing finding refuses before a browser opens —
+a dead SUT, an unset `env:` need (`--no-probe` skips the gate; needs
+warn, they do not refuse). The run profile is also inline —
 `--slowmo`, `--video`, `--headless`, `--sink`, `--debug`, `--rerun`,
 `--base-url`, `--results` set the `TAF_*` contract for the child, no
 shell exports needed. Around it: `taf dry-run` reports what a run

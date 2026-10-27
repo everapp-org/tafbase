@@ -131,13 +131,22 @@ def test_cli_forwards_passthrough(tmp_path):
     assert r.returncode == 0
 
 
-# T-run-010 — an unset env: need is a gate, no probe required
-def test_missing_env_need_refuses_without_probe(monkeypatch, capsys):
+# T-run-010 — an unset env: need gates by default, warns under --no-probe
+def test_missing_env_need_refuses_by_default(monkeypatch, capsys):
     seen = {}
     monkeypatch.setattr(runner, "_exec", fake_exec(seen))
-    assert runner.run(tracker(), env={}, probe=False) == 1
+    assert runner.run(tracker(), env={}, probe=True) == 1
     assert "cmd" not in seen
     assert "env TAF_SUT_HANDLE" in capsys.readouterr().out
+
+
+def test_missing_env_need_only_warns_without_probe(monkeypatch, capsys):
+    seen = {}
+    monkeypatch.setattr(runner, "_exec", fake_exec(seen))
+    assert runner.run(tracker(), env={}, probe=False) == 0
+    assert "cmd" in seen                           # the run proceeded
+    out = capsys.readouterr().out
+    assert "preflight warning" in out and "env TAF_SUT_HANDLE" in out
 
 
 # T-run-008 — run-profile flags become the child's TAF_* contract
