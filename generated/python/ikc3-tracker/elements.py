@@ -23,3 +23,6 @@ def have_a_code(page):
 def sign_in_with_code(page):
     return page.get_by_role("button", name="Sign in with the code")
 
+def report_fault(page):
+    return page.locator("[data-import-id="top-bar/report-a-fault"]")
+

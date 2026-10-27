@@ -48,6 +48,9 @@
     "sign-in-with-code": {
       "role": "button",
       "name": "Sign in with the code"
+    },
+    "report-fault": {
+      "css": "[data-import-id=\"top-bar/report-a-fault\"]"
     }
   },
   "actions": {
