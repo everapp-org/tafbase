@@ -91,18 +91,20 @@ def run(m, suite=None, lang="python", extra=(), probe=False, keep=False,
           % (m["sut"]["name"], base, len(m["journeys"]),
              _profile_bits(child), suite, origin), flush=True)
     try:
+        missing = [f for f in dryrun._needs_findings(m, child)
+                   if f["level"] == "missing"]
         if probe:
-            missing = [f for f in dryrun._probe_findings(m, child)
-                       if f["level"] == "missing"]
-            if missing:
-                for f in missing:
-                    print("  preflight missing  %s — %s"
-                          % (f["what"], f["detail"]), flush=True)
-                    if f.get("hint"):
-                        print("      ↳ %s" % f["hint"], flush=True)
-                print("refusing to run — fix the missing, "
-                      "or --no-probe skips the gate", flush=True)
-                return 1
+            missing += [f for f in dryrun._probe_findings(m, child)
+                        if f["level"] == "missing"]
+        if missing:
+            for f in missing:
+                print("  preflight missing  %s — %s"
+                      % (f["what"], f["detail"]), flush=True)
+                if f.get("hint"):
+                    print("      ↳ %s" % f["hint"], flush=True)
+            print("refusing to run — fix the missing, "
+                  "or --no-probe skips the probes", flush=True)
+            return 1
         if lang == "java":
             cmd = (["mvn", "-q", "-f", os.path.join(suite, "pom.xml"),
                     "test"] + list(extra))

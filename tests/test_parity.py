@@ -74,6 +74,16 @@ def test_same_actions_same_steps(tmp_path):
     assert 'page.navigate(baseUrl + TotPage.ROUTE);' in jv_a
 
 
+def test_env_fills_read_the_variable_in_both(tmp_path):
+    """env:NAME resolves at run time, in the language's own spelling —
+    the secret is in neither suite."""
+    py, jv = emit_both(tmp_path)
+    assert 'os.environ["TAF_SUT_SECRET"]' in read(py, "actions.py")
+    jv_a = read(jv, "src/test/java/taf/generated/Actions.java")
+    assert 'System.getenv("TAF_SUT_SECRET")' in jv_a
+    assert "requireNonNull" in jv_a
+
+
 def test_page_objects_carry_the_same_markers(tmp_path):
     py, jv = emit_both(tmp_path)
     assert 'locator(".ikc-dock-theme")' in read(py, "pages.py")

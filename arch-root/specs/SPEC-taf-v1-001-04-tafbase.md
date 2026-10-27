@@ -124,8 +124,10 @@ A model is one JSON document, `*.sut.model.json` by convention:
 - `sut.name` and `sut.base-url` are required; `elements`, `actions`,
   `endpoints` may be absent or empty.
 - Step forms: `click`/`check`/`select` take an element name; `fill`
-  takes `{element, value}`; `navigate` and `wait-for` take a state or
-  element name; `api` takes an endpoint name plus optional `args`;
+  takes `{element, value}` — a value of `env:NAME` reads the variable
+  at run time, so the model names the need and never holds the
+  secret; `navigate` and `wait-for` take a state or element name;
+  `api` takes an endpoint name plus optional `args`;
   `save` takes `{name: "$.json.path"}`; `expect` takes `{element,
   assertion}` or `{saved, assertion}`, plus `soft: true` to collect
   into the soft stack — flushed once at test end; `dwell` takes
@@ -152,6 +154,7 @@ message}`:
 | `:bad-locator` | a locator matches no rung of TAF-2 |
 | `:unknown-state` | `from`/`to`/`start`/`expect-final`/`navigate`/`wait-for` declares no state |
 | `:unknown-element` | a step declares no element |
+| `:bad-env` | an `env:` value names no variable |
 | `:unknown-endpoint` | an `api` step declares no endpoint |
 | `:unknown-action` | a journey step declares no action |
 | `:unknown-step` | a step's key is no form of TAF-3 |

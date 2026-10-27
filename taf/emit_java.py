@@ -3,6 +3,7 @@ TAF/PLAN-taf-v1-001-01/D-4.
 
 @concept CONCEPT-dsl-v1-001-01-the-sut-model
 @concept CONCEPT-playwright-v1-001-01-the-locator-ladder
+@concept CONCEPT-dsl-v1-015-01-the-env-value
 
 Same model, same ops (taf/ops.py), Java syntax: a pom.xml, a BaseTest
 with the JUnit lifecycle (the fixture's Java face), one public class per
@@ -61,7 +62,16 @@ def _emit_step(step, endpoints, pad):
         val = f'"{arg["value"]}"' if isinstance(arg, dict) and "value" in arg else ""
         return [f"{pad}Elements.{_j(name)}(page).selectOption({val});"]
     if form == "fill":
-        return [f'{pad}Elements.{_j(arg["element"])}(page).fill("{arg.get("value", "")}");']
+        v = arg.get("value", "")
+        if isinstance(v, str) and v.startswith("env:"):
+            # env:NAME — the model names the need; the run reads the
+            # variable. The secret is never in emitted code.
+            name = v[4:]
+            val = ('java.util.Objects.requireNonNull('
+                   'System.getenv("%s"), "%s is not set")' % (name, name))
+        else:
+            val = '"%s"' % v
+        return [f'{pad}Elements.{_j(arg["element"])}(page).fill({val});']
     if form == "wait-for":
         if "state" in arg:
             return [f"{pad}new {_state_class(arg['state'])}(page).expectArrived();"]

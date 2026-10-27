@@ -197,6 +197,29 @@ def test_mixed_steps():
     assert any(r["reason"] == "mixed-steps" for r in refusals_of(doc))
 
 
+# T-model-014 — env: values name a need; an empty env: is a refusal
+def test_env_fill_names_a_variable():
+    doc = minimal()
+    doc["elements"]["secret"] = {"label": "Secret"}
+    doc["actions"]["go-b"]["do"] = [
+        {"fill": {"element": "secret", "value": "env:TAF_SUT_SECRET"}}]
+    assert refusals_of(doc) == []
+    doc["actions"]["go-b"]["do"] = [
+        {"fill": {"element": "secret", "value": "env:"}}]
+    reasons = [r["reason"] for r in refusals_of(doc)]
+    assert "bad-env" in reasons
+
+
+def test_env_needs_collects_what_steps_read():
+    doc = minimal()
+    doc["elements"]["secret"] = {"label": "Secret"}
+    doc["actions"]["go-b"]["do"] = [
+        {"fill": {"element": "secret", "value": "env:TAF_SUT_SECRET"}},
+        {"maybe": {"fill": {"element": "secret", "value": "env:TAF_SUT_HANDLE"}}}]
+    m = model.loads(json.dumps(doc))
+    assert model.env_needs(m) == ["TAF_SUT_HANDLE", "TAF_SUT_SECRET"]
+
+
 def test_load_raises_with_all_refusals():
     bad = dict(minimal())
     bad["states"] = {"a": {}}

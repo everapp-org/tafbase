@@ -61,6 +61,17 @@ def test_sink_derives_the_bus_url():
     assert env["TAF_IKC3_WS"] == "ws://other:9/custom"
 
 
+# T-env-003b — the model's env: needs print as fill-in lines
+def test_model_needs_become_fillin_lines():
+    out = dryrun.env_lines(tracker(), env={})
+    assert "export TAF_SUT_HANDLE=''" in out
+    assert "export TAF_SUT_SECRET=''" in out
+    # a set secret is never echoed into the file
+    out = dryrun.env_lines(tracker(), env={"TAF_SUT_HANDLE": "ada",
+                                         "TAF_SUT_SECRET": "hunter2"})
+    assert "hunter2" not in out and "TAF_SUT_SECRET is set" in out
+
+
 # T-env-004 — already-set vars re-export (idempotent in a console)
 def test_existing_env_reexports():
     env = exported(dryrun.env_lines(
@@ -75,7 +86,8 @@ def test_unset_clears_every_var():
               if l.startswith("unset ")]
     assert set(unsets) == {"TAF_BASE_URL", "TAF_RESULTS", "TAF_HEADLESS",
                            "TAF_SLOWMO", "TAF_VIDEO", "TAF_DEBUG",
-                           "TAF_RERUN", "TAF_IKC3_WS"}
+                           "TAF_RERUN", "TAF_IKC3_WS",
+                           "TAF_SUT_HANDLE", "TAF_SUT_SECRET"}
 
 
 # T-env-006 — fish gets its own spelling

@@ -6,23 +6,28 @@
 """
 
 import actions
-from pages import BoardPage, TotPage
+import elements
+from pages import LoginPage, BoardPage, TotPage
 
 def test_the_board_is_up(page, base_url, soft):
     # arrange
-    sut = BoardPage(page)
+    sut = LoginPage(page)
     sut.goto(base_url)
     sut.expect_arrived()
     # act
+    actions.log_in(page, base_url, soft)
+    BoardPage(page).expect_arrived()
     # assert
     BoardPage(page).expect_arrived()
 
 def test_board_to_tot(page, base_url, soft):
     # arrange
-    sut = BoardPage(page)
+    sut = LoginPage(page)
     sut.goto(base_url)
     sut.expect_arrived()
     # act
+    actions.log_in(page, base_url, soft)
+    BoardPage(page).expect_arrived()
     actions.open_tot(page, base_url, soft)
     TotPage(page).expect_arrived()
     # assert

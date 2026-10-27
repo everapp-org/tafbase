@@ -59,8 +59,8 @@ def test_the_manifest_traces_tests_to_model(tmp_path):
     assert man["sut"] == "ikc3-tracker"
     t = {t["test"]: t for t in man["tests"]}
     assert t["test_board_to_tot"]["journey"] == "board-to-tot"
-    assert t["test_board_to_tot"]["actions"] == ["open-tot"]
-    assert t["test_board_to_tot"]["states"] == ["board", "tot"]
+    assert t["test_board_to_tot"]["actions"] == ["log-in", "open-tot"]
+    assert t["test_board_to_tot"]["states"] == ["login", "board", "tot"]
 
 
 def test_conftest_is_real_playwright(tmp_path):
@@ -148,3 +148,13 @@ def test_generated_code_is_python(tmp_path):
     for name in os.listdir(out):
         if name.endswith(".py"):
             py_compile.compile(os.path.join(out, name), doraise=True)
+
+
+# T-emit-009 — env: values read at run time; the secret is never emitted
+def test_env_fill_reads_the_variable(tmp_path):
+    acts = read(emit(tmp_path), "actions.py")
+    assert 'elements.handle(page).fill(os.environ["TAF_SUT_HANDLE"])' in acts
+    assert "import os" in acts
+    # and the journey file has no inline env step — no os import
+    journeys = read(emit(tmp_path), "test_journeys.py")
+    assert "import os" not in journeys

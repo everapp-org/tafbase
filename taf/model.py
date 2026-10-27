@@ -2,6 +2,7 @@
 
 @concept CONCEPT-dsl-v1-001-01-the-sut-model
 @concept CONCEPT-playwright-v1-001-01-the-locator-ladder
+@concept CONCEPT-dsl-v1-015-01-the-env-value
 
 Implements SPEC-taf-v1-001-04: loads a sut.model.json document, validates
 every clause, and reports every refusal as {"clause", "reason", "message"}.
@@ -81,6 +82,10 @@ def _check_step(step, elements, states, endpoints, clause, refusals):
         if name not in elements:
             refusals.append(_refusal(clause, "unknown-element",
                                      "fill names no element: %r" % (arg,)))
+        val = arg.get("value") if isinstance(arg, dict) else None
+        if isinstance(val, str) and val.startswith("env:") and not val[4:]:
+            refusals.append(_refusal(clause, "bad-env",
+                                     "env: names no variable: %r" % val))
     elif form == "navigate":
         if arg not in states:
             refusals.append(_refusal(clause, "unknown-state",
@@ -254,6 +259,38 @@ def validate(doc):
                                      "no journey reaches state %r" % name))
 
     return refusals
+
+
+def env_needs(m):
+    """The env: variables a model's steps read at run time — the needs
+    a run must satisfy. The model names the need; the environment
+    supplies the value; the secret is never in the model.
+
+    @concept CONCEPT-dsl-v1-015-01-the-env-value
+    """
+    needs = set()
+
+    def scan(step):
+        if not isinstance(step, dict) or len(step) != 1:
+            return
+        form, arg = next(iter(step.items()))
+        if form == "fill" and isinstance(arg, dict):
+            v = arg.get("value")
+            if isinstance(v, str) and v.startswith("env:"):
+                needs.add(v[4:])
+        elif form == "maybe" and isinstance(arg, dict):
+            scan(arg)
+
+    for act in (m.get("actions") or {}).values():
+        if isinstance(act, dict):
+            for s in act.get("do", []):
+                scan(s)
+    for j in (m.get("journeys") or {}).values():
+        if isinstance(j, dict):
+            for s in j.get("steps", []):
+                if isinstance(s, dict):
+                    scan(s)
+    return sorted(needs)
 
 
 def _strip_dupes_marks(node):

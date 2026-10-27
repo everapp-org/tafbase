@@ -8,7 +8,20 @@
 
 from playwright.sync_api import expect
 
-ROUTES = {"board": "/index.html?island=board", "tot": "/index.html?island=tot"}
+ROUTES = {"login": "/index.html?island=board", "board": "/index.html?island=board", "tot": "/index.html?island=tot"}
+
+class LoginPage:
+    """The 'login' state. Its marker proves arrival."""
+
+    def __init__(self, page):
+        self.page = page
+        self.marker = page.get_by_text("The bus records who wrote a thought only when it knows who you are.")
+
+    def goto(self, base_url):
+        self.page.goto(base_url + ROUTES["login"])
+
+    def expect_arrived(self):
+        expect(self.marker).to_be_visible()
 
 class BoardPage:
     """The 'board' state. Its marker proves arrival."""

@@ -8,6 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /** One method per declared action — the edges of the graph. */
 public class Actions {
+    public static void logIn(Page page, String baseUrl, SoftChecks soft) {
+        try { TafJournal.note("→ sign in with handle and secret"); }
+        catch (java.io.IOException e) { System.out.println("→ sign in with handle and secret"); }
+        Elements.handle(page).fill(java.util.Objects.requireNonNull(System.getenv("TAF_SUT_HANDLE"), "TAF_SUT_HANDLE is not set"));
+        Elements.secret(page).fill(java.util.Objects.requireNonNull(System.getenv("TAF_SUT_SECRET"), "TAF_SUT_SECRET is not set"));
+        Elements.signIn(page).click();
+        new BoardPage(page).expectArrived();
+    }
     public static void openBoard(Page page, String baseUrl, SoftChecks soft) {
         try { TafJournal.note("→ open the ticket board"); }
         catch (java.io.IOException e) { System.out.println("→ open the ticket board"); }

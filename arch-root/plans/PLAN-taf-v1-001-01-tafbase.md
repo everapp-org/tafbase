@@ -119,6 +119,15 @@ in ~4 s (T-taf-004, opt-in `TAF_LIVE=1`; `TAF_BASE_URL` retargets the
 emitted suites without regenerating). The `.ikc-dock-theme` markers and
 `?island=` routes verified as real. The filing half is lane C-3's.
 
+**Progress (2026-10-27).** The deployed tracker signs in: the model
+grew a `login` state and a `log-in` edge, and journeys start there.
+Credentials drove the `env:` value (CONCEPT-dsl-v1-015-01) — a `fill`
+of `env:NAME` reads the variable at run time, so the model names the
+need and never holds the secret. Needs are derived from use:
+`taf dry-run` reports an unset one `missing`, `taf run` refuses on it,
+`taf env` prints it as a fill-in line. SPEC gains the clause and the
+`:bad-env` refusal.
+
 ### ▶ Lane TAF/PLAN-taf-v1-001-01/F-6 — the SUT graph (MBT)
 
 The model grows from journeys to a graph: states and transitions as data,

@@ -34,6 +34,8 @@ for the contract; in short:
 - `actions` — the SUT's steps, `from`/`to` edges with a `do` list of
   steps (`navigate`, `click`, `fill`, `wait-for`, `expect`, `api`,
   `dwell`, `wait-any`, `maybe`), plus a `title` the run narrates.
+  A `fill` value of `env:NAME` reads the variable at run time —
+  credentials name a need, they are never written down.
 - `journeys` — paths through states; `expect-final` names where a
   journey must end.
 - `endpoints` — HTTP calls an `api` step can make mid-journey.

@@ -2,19 +2,24 @@
   "sut": "ikc3-tracker",
   "tests": [
     {
-      "actions": [],
+      "actions": [
+        "log-in"
+      ],
       "journey": "the-board-is-up",
       "states": [
+        "login",
         "board"
       ],
       "test": "test_the_board_is_up"
     },
     {
       "actions": [
+        "log-in",
         "open-tot"
       ],
       "journey": "board-to-tot",
       "states": [
+        "login",
         "board",
         "tot"
       ],

@@ -3,7 +3,16 @@
 """One function per declared action — the edges of the graph."""
 
 from pages import ROUTES
+import os
+import elements
 import taf_journal
+
+def log_in(page, base_url, soft=None):
+    taf_journal.note("→ sign in with handle and secret")
+    elements.handle(page).fill(os.environ["TAF_SUT_HANDLE"])
+    elements.secret(page).fill(os.environ["TAF_SUT_SECRET"])
+    elements.sign_in(page).click()
+    BoardPage(page).expect_arrived()
 
 def open_board(page, base_url, soft=None):
     taf_journal.note("→ open the ticket board")

@@ -4,6 +4,10 @@
     "base-url": "http://127.0.0.1:4856"
   },
   "states": {
+    "login": {
+      "route": "/index.html?island=board",
+      "marker": {"text": "The bus records who wrote a thought only when it knows who you are."}
+    },
     "board": {
       "route": "/index.html?island=board",
       "marker": {"css": ".ikc-dock-theme"}
@@ -13,8 +17,21 @@
       "marker": {"css": ".ikc-dock-theme"}
     }
   },
-  "elements": {},
+  "elements": {
+    "handle": {"label": "Handle"},
+    "secret": {"label": "Secret"},
+    "sign-in": {"role": "button", "name": "Sign in"}
+  },
   "actions": {
+    "log-in": {
+      "from": "login",
+      "to": "board",
+      "title": "sign in with handle and secret",
+      "do": [{"fill": {"element": "handle", "value": "env:TAF_SUT_HANDLE"}},
+             {"fill": {"element": "secret", "value": "env:TAF_SUT_SECRET"}},
+             {"click": "sign-in"},
+             {"wait-for": {"state": "board"}}]
+    },
     "open-board": {
       "to": "board",
       "title": "open the ticket board",
@@ -29,13 +46,13 @@
   },
   "journeys": {
     "the-board-is-up": {
-      "start": "board",
-      "steps": [],
+      "start": "login",
+      "steps": ["log-in"],
       "expect-final": {"state": "board"}
     },
     "board-to-tot": {
-      "start": "board",
-      "steps": ["open-tot"],
+      "start": "login",
+      "steps": ["log-in", "open-tot"],
       "expect-final": {"state": "tot"}
     }
   },

@@ -22,7 +22,7 @@ import socket
 import urllib.request
 import urllib.parse
 
-from taf import ops
+from taf import model, ops
 
 # The TAF_* contract, in display order. Each row names what the
 # variable means when the run reads it — unset rows show the default
@@ -161,6 +161,23 @@ def _model_findings(m, suite):
     return out
 
 
+def _needs_findings(m, env):
+    """env: variables the model reads at run time — a need unset is
+    missing, no network required (@concept CONCEPT-dsl-v1-015-01)."""
+    out = []
+    for name in model.env_needs(m):
+        if env.get(name):
+            out.append(_finding("ok", "env %s" % name, "set"))
+        else:
+            f = _finding("missing", "env %s" % name,
+                         "the model needs env:%s and it is unset" % name)
+            f["hint"] = ("export %s=..., or uncomment it in tafenv.sh — "
+                         "the model names the need, never the secret"
+                         % name)
+            out.append(f)
+    return out
+
+
 def _suite_findings(m, suite):
     if not os.path.isdir(suite):
         return [_finding("missing", "suite",
@@ -266,7 +283,8 @@ def report(m, env=None, suite=None, lang="python", probe=False):
                       "start": j["start"], "actions": t["actions"],
                       "steps": forms,
                       "final": (j.get("expect-final") or {}).get("state")})
-    findings = (_env_findings(m, env) +
+    findings = (_needs_findings(m, env) +
+                _env_findings(m, env) +
                 _model_findings(m, suite) +
                 (_suite_findings(m, suite) if suite else []) +
                 _toolchain_findings(lang))
@@ -332,6 +350,15 @@ def env_lines(m, env=None, shell=None, base_url=None, results=None,
             lines.append("%s  # %s" % (set_line(var, val), why))
         else:
             lines.append("# %s  (%s)" % (set_line(var, 1), why))
+    for name in model.env_needs(m):
+        why = "the model's env:%s need" % name
+        if unset:
+            lines.append(unset_line(name))
+        elif env.get(name):
+            # set already — and a secret is never echoed into the file
+            lines.append("# %s is set  (%s)" % (name, why))
+        else:
+            lines.append("# %s  (%s)" % (set_line(name, ""), why))
     return "\n".join(lines)
 
 

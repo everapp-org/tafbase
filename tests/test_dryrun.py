@@ -51,6 +51,16 @@ def test_report_names_the_tests_a_run_executes():
     assert "dwell" in t["steps"]            # forms inside used actions show
 
 
+# T-dry-001b — env: needs report missing when unset, ok when set
+def test_env_needs_are_findings():
+    lv = levels(dryrun.report(tracker(), env={}))
+    assert lv["env TAF_SUT_HANDLE"] == "missing"
+    assert lv["env TAF_SUT_SECRET"] == "missing"
+    lv = levels(dryrun.report(
+        tracker(), env={"TAF_SUT_HANDLE": "a", "TAF_SUT_SECRET": "s"}))
+    assert lv["env TAF_SUT_HANDLE"] == "ok"
+
+
 # T-dry-002 — the env table is the contract as this shell sets it
 def test_env_table_shows_set_and_default():
     rep = dryrun.report(tracker(), env={"TAF_VIDEO": "1", "TAF_HEADLESS": "1"})

@@ -3,6 +3,7 @@ TAF/PLAN-taf-v1-001-01/B-2.
 
 @concept CONCEPT-dsl-v1-001-01-the-sut-model
 @concept CONCEPT-playwright-v1-001-01-the-locator-ladder
+@concept CONCEPT-dsl-v1-015-01-the-env-value
 
 The output is committed, reviewable Python: conftest.py (fixtures),
 pages.py (one page object per state), elements.py (one function per
@@ -52,7 +53,14 @@ def _emit_step(step, states, endpoints, pad):
         val = f'"{arg["value"]}"' if isinstance(arg, dict) and "value" in arg else ""
         return [f"{pad}elements.{_py(name)}(page).select_option({val})"]
     if form == "fill":
-        return [f'{pad}elements.{_py(arg["element"])}(page).fill("{arg.get("value", "")}")']
+        v = arg.get("value", "")
+        if isinstance(v, str) and v.startswith("env:"):
+            # env:NAME — the model names the need; the run reads the
+            # variable. The secret is never in emitted code.
+            val = 'os.environ[%s]' % json.dumps(v[4:])
+        else:
+            val = '"%s"' % v
+        return [f'{pad}elements.{_py(arg["element"])}(page).fill({val})']
     if form == "wait-for":
         if "state" in arg:
             return [f"{pad}{_state_class(arg['state'])}(page).expect_arrived()"]
@@ -328,16 +336,31 @@ def _elements(m):
     return "".join(lines)
 
 
+def _uses_env_step(step):
+    if not isinstance(step, dict) or len(step) != 1:
+        return False
+    form, arg = next(iter(step.items()))
+    if form == "fill" and isinstance(arg, dict):
+        return str(arg.get("value", "")).startswith("env:")
+    if form == "maybe":
+        return _uses_env_step(arg)
+    return False
+
+
+def _uses_env(steps):
+    return any(_uses_env_step(s) for s in steps)
+
+
 def _actions(m):
     if not m.get("actions"):
         return None
+    uses_env = any(_uses_env(a.get("do", []))
+                   for a in m["actions"].values())
     lines = [_HEADER,
              '"""One function per declared action — the edges of the graph."""\n\n',
              "from pages import ROUTES\n",
-             "import elements\n",
-             "import taf_journal\n\n"] if m.get("elements") else [_HEADER,
-             '"""One function per declared action — the edges of the graph."""\n\n',
-             "from pages import ROUTES\n",
+             "import os\n" if uses_env else "",
+             "import elements\n" if m.get("elements") else "",
              "import taf_journal\n\n"]
     for name, act in m["actions"].items():
         body = _emit_steps(act.get("do", []), m["states"], m.get("endpoints") or {}, "    ")
@@ -362,6 +385,8 @@ def _journeys(m):
              "@concept CONCEPT-testing-v1-001-01-arrange-act-assert\n"
              '"""\n\n']
     imports = ["import actions"]
+    if any(_uses_env(j.get("steps", [])) for j in m["journeys"].values()):
+        imports.append("import os")
     if m.get("elements"):
         imports.append("import elements")
     imports.append("from pages import %s" % ", ".join(
