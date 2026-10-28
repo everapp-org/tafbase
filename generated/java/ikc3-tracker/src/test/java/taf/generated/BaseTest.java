@@ -10,7 +10,8 @@ import org.junit.jupiter.api.*;
 
 /** The fixture's Java face: one browser for the run, one fresh context
     per test — isolation by construction. */
-public abstract class BaseTest {
+public abstract class BaseTest
+        implements org.junit.jupiter.api.extension.TestWatcher {
     // @concept CONCEPT-taf-v1-003-01-the-environment
     protected static String baseUrl =
         System.getenv().getOrDefault("TAF_BASE_URL", "http://127.0.0.1:4856");
@@ -19,6 +20,7 @@ public abstract class BaseTest {
     protected BrowserContext context;
     protected Page page;
     protected SoftChecks soft;
+    private boolean failed;
     // @concept CONCEPT-testing-v1-004-01-the-rerun
     private static final java.util.List<String> FAILED =
         new java.util.ArrayList<>();
@@ -52,12 +54,23 @@ public abstract class BaseTest {
         page = context.newPage();
     }
 
+    // @concept CONCEPT-testing-v1-002-01-the-failure-funnel
+    @Override
+    public void testFailed(org.junit.jupiter.api.extension.ExtensionContext ctx,
+                           Throwable cause) { failed = true; }
+    @Override
+    public void testSucceeded(org.junit.jupiter.api.extension.ExtensionContext ctx) {
+        failed = false;
+    }
+    @Override
+    public void testAborted(org.junit.jupiter.api.extension.ExtensionContext ctx,
+                            Throwable cause) { failed = false; }
+
     @AfterEach
-    void closeContext(org.junit.jupiter.api.extension.ExtensionContext ctx)
+    void closeContext(org.junit.jupiter.api.TestInfo info)
             throws java.io.IOException {
-        boolean failed = ctx.getExecutionException().isPresent();
         if (failed) {
-            FAILED.add(ctx.getDisplayName());
+            FAILED.add(info.getDisplayName());
             try {  // evidence for a human: the screen, the DOM
                 page.screenshot(new Page.ScreenshotOptions()
                     .setPath(TafJournal.testDir().resolve("screenshot.png")));
@@ -65,7 +78,7 @@ public abstract class BaseTest {
                     TafJournal.testDir().resolve("dom.html"), page.content());
             } catch (Exception ignored) { }
             TafJournal.event("fail", "\"test\": \""
-                + ctx.getDisplayName().replace("\"", "'") + "\"");
+                + info.getDisplayName().replace("\"", "'") + "\"");
             if (System.getenv("TAF_DEBUG") != null)
                 page.pause();  // TAF_DEBUG: stop at the failure, browser stays open
         }
