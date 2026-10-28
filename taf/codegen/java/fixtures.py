@@ -74,6 +74,7 @@ public abstract class BaseTest
             + " video=" + (System.getenv("TAF_VIDEO") != null ? "on" : "off")
             + " arrive_ms=" + System.getenv().getOrDefault("TAF_ARRIVE_MS", "15000")
             + " results=" + runDir);
+        // AUTH:CALL — the auth bootstrap splices signInOnce() here
     }
 
     // @concept CONCEPT-taf-v1-004-01-the-artifacts
@@ -146,9 +147,12 @@ public abstract class BaseTest
     auth = m["sut"].get("auth")
     if auth:
         conf = conf.replace(
-            'getOrDefault("TAF_SLOWMO", "0"))));\n    }',
-            'getOrDefault("TAF_SLOWMO", "0"))));\n'
-            '        signInOnce();\n    }')
+            '        // AUTH:CALL — the auth bootstrap splices signInOnce() here\n',
+            '        signInOnce();  // AUTH:CALL\n')
+    else:
+        conf = conf.replace(
+            '        // AUTH:CALL — the auth bootstrap splices signInOnce() here\n', '')
+    if auth:
         conf = conf.replace(
             "var opts = new Browser.NewContextOptions();",
             "var opts = new Browser.NewContextOptions()\n"

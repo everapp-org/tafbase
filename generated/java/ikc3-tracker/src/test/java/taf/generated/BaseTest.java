@@ -42,6 +42,7 @@ public abstract class BaseTest
             + " video=" + (System.getenv("TAF_VIDEO") != null ? "on" : "off")
             + " arrive_ms=" + System.getenv().getOrDefault("TAF_ARRIVE_MS", "15000")
             + " results=" + runDir);
+        signInOnce();  // AUTH:CALL
     }
 
     // @concept CONCEPT-taf-v1-004-01-the-artifacts
