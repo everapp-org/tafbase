@@ -7,6 +7,7 @@
 """
 
 from playwright.sync_api import expect
+import os
 
 ROUTES = {"login": "/index.html?island=board", "board": "/index.html?island=board", "tot": "/index.html?island=tot"}
 
@@ -21,7 +22,7 @@ class LoginPage:
         self.page.goto(base_url + ROUTES["login"])
 
     def expect_arrived(self):
-        expect(self.marker).to_be_visible()
+        expect(self.marker).to_be_visible(timeout=float(os.environ.get("TAF_ARRIVE_MS", "15000")))
 
 class BoardPage:
     """The 'board' state. Its marker proves arrival."""
@@ -34,7 +35,7 @@ class BoardPage:
         self.page.goto(base_url + ROUTES["board"])
 
     def expect_arrived(self):
-        expect(self.marker).to_be_visible()
+        expect(self.marker).to_be_visible(timeout=float(os.environ.get("TAF_ARRIVE_MS", "15000")))
 
 class TotPage:
     """The 'tot' state. Its marker proves arrival."""
@@ -47,5 +48,5 @@ class TotPage:
         self.page.goto(base_url + ROUTES["tot"])
 
     def expect_arrived(self):
-        expect(self.marker).to_be_visible()
+        expect(self.marker).to_be_visible(timeout=float(os.environ.get("TAF_ARRIVE_MS", "15000")))
 

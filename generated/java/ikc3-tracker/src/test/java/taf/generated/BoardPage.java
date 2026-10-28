@@ -7,6 +7,7 @@ package taf.generated;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 /** The 'board' state. Its marker proves arrival. */
@@ -21,5 +22,8 @@ public class BoardPage {
     }
 
     public void gotoRoute(String baseUrl) { page.navigate(baseUrl + ROUTE); }
-    public void expectArrived() { assertThat(marker).isVisible(); }
+    public void expectArrived() {
+        double ms = Double.parseDouble(System.getenv().getOrDefault("TAF_ARRIVE_MS", "15000"));
+        assertThat(marker).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(ms));
+    }
 }

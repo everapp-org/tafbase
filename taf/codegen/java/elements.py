@@ -10,6 +10,7 @@ def _page_class(name, st):
             "// @concept CONCEPT-playwright-v1-003-01-auto-waiting\n\n"
             "import com.microsoft.playwright.Locator;\n"
             "import com.microsoft.playwright.Page;\n"
+            "import com.microsoft.playwright.assertions.LocatorAssertions;\n"
             "import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;\n\n"
             f"/** The '{name}' state. Its marker proves arrival. */\n"
             f"public class {_state_class(name)} {{\n"
@@ -21,7 +22,10 @@ def _page_class(name, st):
             f"        this.marker = {_loc(st['marker'])};\n"
             "    }\n\n"
             "    public void gotoRoute(String baseUrl) { page.navigate(baseUrl + ROUTE); }\n"
-            "    public void expectArrived() { assertThat(marker).isVisible(); }\n"
+            "    public void expectArrived() {\n"
+            "        double ms = Double.parseDouble(System.getenv().getOrDefault(\"TAF_ARRIVE_MS\", \"15000\"));\n"
+            "        assertThat(marker).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(ms));\n"
+            "    }\n"
             "}\n")
 
 

@@ -208,6 +208,7 @@ contract {
   env TAF_RESULTS "results root"
   env TAF_HEADLESS "headed runs when unset"
   env TAF_SLOWMO "playwright slow_mo, milliseconds"
+  env TAF_ARRIVE_MS "arrival patience per state, ms — default 15000"
   env TAF_VIDEO "record .webm into the test dir"
   env TAF_DEBUG "pause on failure"
   env TAF_RERUN "replay the last failed.txt only"

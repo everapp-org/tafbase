@@ -8,7 +8,7 @@ def _pages(m):
              '"""One page object per declared state.\n\n'
              "@concept CONCEPT-pom-v1-001-01-the-page-object\n"
              "@concept CONCEPT-playwright-v1-003-01-auto-waiting\n"
-             '"""\n\nfrom playwright.sync_api import expect\n\n',
+             '"""\n\nfrom playwright.sync_api import expect\nimport os\n\n',
              "ROUTES = {%s}\n\n" % ", ".join(f'"{n}": "{s.get("route", "")}"'
                                              for n, s in m["states"].items())]
     for name, st in m["states"].items():
@@ -21,7 +21,8 @@ def _pages(m):
             f"    def goto(self, base_url):\n"
             f'        self.page.goto(base_url + ROUTES["{name}"])\n\n'
             f"    def expect_arrived(self):\n"
-            f"        expect(self.marker).to_be_visible()\n\n")
+            f"        expect(self.marker).to_be_visible("
+            f"timeout=float(os.environ.get(\"TAF_ARRIVE_MS\", \"15000\")))\n\n")
     return "".join(lines)
 
 

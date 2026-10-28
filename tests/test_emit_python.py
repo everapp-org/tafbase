@@ -42,7 +42,7 @@ def test_pages_prove_arrival(tmp_path):
     pages = read(emit(tmp_path), "pages.py")
     assert 'class BoardPage' in pages and 'class TotPage' in pages
     assert 'locator("#top-bar")' in pages
-    assert 'expect(self.marker).to_be_visible()' in pages
+    assert 'expect(self.marker).to_be_visible(' in pages
 
 
 def test_journey_test_is_aaa(tmp_path):
