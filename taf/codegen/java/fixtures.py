@@ -62,10 +62,18 @@ public abstract class BaseTest
         playwright = Playwright.create();
         // Headed by default — a learner should see the journey happen.
         // TAF_HEADLESS=1 for CI; TAF_SLOWMO=<ms> slows each action.
+        boolean headless = "1".equals(System.getenv("TAF_HEADLESS"));
         browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
-            .setHeadless("1".equals(System.getenv("TAF_HEADLESS")))
+            .setHeadless(headless)
             .setSlowMo(Double.parseDouble(
                 System.getenv().getOrDefault("TAF_SLOWMO", "0"))));
+        // The run contract, printed once: what env shaped this run.
+        System.out.println("taf env: base_url=" + baseUrl
+            + " headless=" + headless
+            + " slowmo=" + System.getenv().getOrDefault("TAF_SLOWMO", "0")
+            + " video=" + (System.getenv("TAF_VIDEO") != null ? "on" : "off")
+            + " arrive_ms=" + System.getenv().getOrDefault("TAF_ARRIVE_MS", "15000")
+            + " results=" + runDir);
     }
 
     // @concept CONCEPT-taf-v1-004-01-the-artifacts
@@ -77,6 +85,7 @@ public abstract class BaseTest
     void fresh(org.junit.jupiter.api.TestInfo info) throws java.io.IOException {
         soft = new SoftChecks();
         TafJournal.begin(runDir, info.getDisplayName());
+        System.out.println("── " + info.getDisplayName() + " ──");
         var opts = new Browser.NewContextOptions();
         if (System.getenv("TAF_VIDEO") != null)
             opts.setRecordVideoDir(TafJournal.testDir());
@@ -126,6 +135,11 @@ public abstract class BaseTest
         java.nio.file.Files.writeString(
             java.nio.file.Paths.get(runDir, "failed.txt"),
             String.join("\\n", FAILED));  // the rerun manifest
+        // The artifact manifest: where this run's evidence lives.
+        System.out.println("results → " + runDir);
+        if (!FAILED.isEmpty())
+            System.out.println("failed → " + String.join(", ", FAILED)
+                + "  (rerun: TAF_RERUN=1 mvn test)");
     }
 }
 ''' % (_PKG, m["sut"]["base-url"])

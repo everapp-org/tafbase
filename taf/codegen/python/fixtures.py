@@ -60,6 +60,8 @@ from playwright.sync_api import sync_playwright
 
 import taf_journal
 
+_MODEL_BASE_URL = "%s"
+
 
 # @concept CONCEPT-taf-v1-004-01-the-artifacts
 @pytest.fixture(scope="session")
@@ -84,7 +86,7 @@ def journal(run_dir, request):
 # @concept CONCEPT-taf-v1-003-01-the-environment
 @pytest.fixture(scope="session")
 def base_url():
-    return os.environ.get("TAF_BASE_URL", "%s")
+    return os.environ.get("TAF_BASE_URL", _MODEL_BASE_URL)
 
 
 @pytest.fixture(scope="session")
@@ -183,6 +185,18 @@ def pytest_runtest_makereport(item, call):
         taf_journal.event("fail", test=item.name, error=err)
     except Exception as e:  # noqa: BLE001 — the sink is a side channel
         print("ikc3 sink could not file the report:", e)
+
+
+def pytest_sessionstart(session):
+    """The run contract, printed once: what env shaped this run."""
+    print("taf env: base_url=%%s headless=%%s slowmo=%%s video=%%s "
+          "arrive_ms=%%s results=%%s" %% (
+              os.environ.get("TAF_BASE_URL", _MODEL_BASE_URL),
+              os.environ.get("TAF_HEADLESS", "0") == "1",
+              os.environ.get("TAF_SLOWMO", "0"),
+              "on" if "TAF_VIDEO" in os.environ else "off",
+              os.environ.get("TAF_ARRIVE_MS", "15000"),
+              os.environ.get("TAF_RESULTS", "results")))
 
 
 # @concept CONCEPT-testing-v1-004-01-the-rerun
