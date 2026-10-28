@@ -35,8 +35,8 @@ public class TafJournal {
         is a named error, never a silent empty fill. */
     public static String envPool(String name) {
         String v = System.getenv(name);
-        if (v == null)
-            throw new RuntimeException("env-pool:" + name + " — the variable is unset");
+        if (v == null || v.isBlank())
+            throw new RuntimeException("env-pool:" + name + " — the variable is unset or blank");
         var it = pools.computeIfAbsent(name,
             k -> java.util.Arrays.asList(v.split("\\s+")).iterator());
         if (!it.hasNext())
