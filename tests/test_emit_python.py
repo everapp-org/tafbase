@@ -41,7 +41,7 @@ def test_the_tracker_model_emits_a_suite(tmp_path):
 def test_pages_prove_arrival(tmp_path):
     pages = read(emit(tmp_path), "pages.py")
     assert 'class BoardPage' in pages and 'class TotPage' in pages
-    assert 'locator("#top-bar")' in pages
+    assert 'locator(\"[data-import-id=\\\"top-bar\\\"]\")' in pages
     assert 'expect(self.marker).to_be_visible(' in pages
 
 

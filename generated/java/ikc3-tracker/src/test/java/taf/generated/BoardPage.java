@@ -18,7 +18,7 @@ public class BoardPage {
 
     public BoardPage(Page page) {
         this.page = page;
-        this.marker = page.locator("#top-bar");
+        this.marker = page.locator("[data-import-id=\"top-bar\"]");
     }
 
     public void gotoRoute(String baseUrl) { page.navigate(baseUrl + ROUTE); }

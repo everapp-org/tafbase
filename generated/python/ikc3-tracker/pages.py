@@ -29,7 +29,7 @@ class BoardPage:
 
     def __init__(self, page):
         self.page = page
-        self.marker = page.locator("#top-bar")
+        self.marker = page.locator("[data-import-id=\"top-bar\"]")
 
     def goto(self, base_url):
         self.page.goto(base_url + ROUTES["board"])
@@ -42,7 +42,7 @@ class TotPage:
 
     def __init__(self, page):
         self.page = page
-        self.marker = page.locator("#top-bar")
+        self.marker = page.locator("[data-import-id=\"top-bar\"]")
 
     def goto(self, base_url):
         self.page.goto(base_url + ROUTES["tot"])
