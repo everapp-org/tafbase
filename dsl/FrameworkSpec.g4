@@ -14,6 +14,11 @@ decl
     : 'vocabulary' '{' entry* '}'
     | 'locators'   '{' entry* '}'
     | 'contract'   '{' contractMember* '}'
+    | 'artifacts'  '{' artifactMember* '}'
+    ;
+
+artifactMember
+    : 'artifact' NAME STRING
     ;
 
 contractMember

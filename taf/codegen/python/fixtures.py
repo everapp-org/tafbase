@@ -23,7 +23,7 @@ def auth_state(browser, base_url, run_dir):
     test's fresh context inherits it. One credential spent per run."""
     import actions
     from pages import %s
-    path = os.path.join(run_dir, "auth-state.json")
+    path = os.path.join(run_dir, "@@auth-state@@")
     ctx = browser.new_context()
     pg = ctx.new_page()
     try:
@@ -34,10 +34,10 @@ def auth_state(browser, base_url, run_dir):
         # test failure leaves, under a setup/ dir in the run.
         d = os.path.join(run_dir, "setup")
         os.makedirs(d, exist_ok=True)
-        with open(os.path.join(d, "dom.html"), "w",
+        with open(os.path.join(d, "@@dom@@"), "w",
                   encoding="utf-8") as f:
             f.write(pg.content())
-        pg.screenshot(path=os.path.join(d, "screenshot.png"))
+        pg.screenshot(path=os.path.join(d, "@@screenshot@@"))
         if os.environ.get("TAF_DEBUG"):
             pg.pause()  # TAF_DEBUG: stop at the failure, browser stays open
         raise
@@ -163,8 +163,8 @@ def pytest_runtest_makereport(item, call):
         d = taf_journal.test_dir()
         if d and page:
             try:  # evidence for a human: the screen, the DOM
-                page.screenshot(path=os.path.join(d, "screenshot.png"))
-                with open(os.path.join(d, "dom.html"), "w",
+                page.screenshot(path=os.path.join(d, "@@screenshot@@"))
+                with open(os.path.join(d, "@@dom@@"), "w",
                           encoding="utf-8") as f:
                     f.write(dom)
             except Exception:
@@ -207,9 +207,9 @@ def pytest_sessionfinish(session, exitstatus):
     if not run:
         return
     names = [os.path.basename(os.path.dirname(jf))
-             for jf in glob.glob(os.path.join(run, "*", "journal.jsonl"))
+             for jf in glob.glob(os.path.join(run, "*", "@@journal@@"))
              if '"outcome": "failed"' in open(jf, encoding="utf-8").read()]
-    with open(os.path.join(run, "failed.txt"), "w",
+    with open(os.path.join(run, "@@failed@@"), "w",
               encoding="utf-8") as f:
         f.write("\\n".join(sorted(names)))
     print("\\nresults → %%s" %% run)
@@ -218,7 +218,7 @@ def pytest_sessionfinish(session, exitstatus):
 def _last_failed_file():
     import glob
     files = glob.glob(os.path.join(
-        os.environ.get("TAF_RESULTS", "results"), "*", "failed.txt"))
+        os.environ.get("TAF_RESULTS", "results"), "*", "@@failed@@"))
     return max(files) if files else None
 
 

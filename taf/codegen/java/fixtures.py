@@ -23,7 +23,7 @@ def _auth_bootstrap(m):
             if (System.getenv("TAF_DEBUG") != null) pg.pause();
             throw e;
         }
-        authState = runDir + "/auth-state.json";
+        authState = runDir + "/@@auth-state@@";
         c.storageState(new BrowserContext.StorageStateOptions()
             .setPath(java.nio.file.Paths.get(authState)));
         c.close();
@@ -113,9 +113,9 @@ public abstract class BaseTest
             FAILED.add(info.getDisplayName());
             try {  // evidence for a human: the screen, the DOM
                 page.screenshot(new Page.ScreenshotOptions()
-                    .setPath(TafJournal.testDir().resolve("screenshot.png")));
+                    .setPath(TafJournal.testDir().resolve("@@screenshot@@")));
                 java.nio.file.Files.writeString(
-                    TafJournal.testDir().resolve("dom.html"), page.content());
+                    TafJournal.testDir().resolve("@@dom@@"), page.content());
             } catch (Exception ignored) { }
             TafJournal.event("fail", "\\\"test\\\": \\\""
                 + info.getDisplayName().replace("\\\"", "'") + "\\\"");
@@ -134,7 +134,7 @@ public abstract class BaseTest
         playwright.close();
         java.nio.file.Files.createDirectories(java.nio.file.Paths.get(runDir));
         java.nio.file.Files.writeString(
-            java.nio.file.Paths.get(runDir, "failed.txt"),
+            java.nio.file.Paths.get(runDir, "@@failed@@"),
             String.join("\\n", FAILED));  // the rerun manifest
         // The artifact manifest: where this run's evidence lives.
         System.out.println("results → " + runDir);

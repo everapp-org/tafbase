@@ -79,9 +79,12 @@ def emit(model, outdir):
     for name, st in model["states"].items():
         files[os.path.join(pkgdir, f"{_state_class(name)}.java")] = _page_class(name, st)
     written = []
+    from taf import spec as _s
     for path, content in files.items():
         if content is None:
             continue
+        for k, v in _s.artifacts().items():
+            content = content.replace("@@%s@@" % k, v)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)

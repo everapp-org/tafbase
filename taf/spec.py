@@ -27,5 +27,10 @@ def forms():
     return tuple(spec()["vocabulary"].keys())
 
 
+def artifacts():
+    """Generated-file names a framework leaves behind."""
+    return spec()["artifacts"]
+
+
 def entry(section, name):
     return spec()[section][name]

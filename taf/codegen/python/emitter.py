@@ -4,6 +4,7 @@ import json
 import os
 
 from taf import ops
+from taf import spec as _s
 from .common import _HEADER
 from .fixtures import _conftest, _auth_fixture
 from .elements import _pages, _elements
@@ -47,6 +48,8 @@ def emit(model, outdir):
     for name, content in files.items():
         if content is None:
             continue
+        for k, v in _s.artifacts().items():
+            content = content.replace("@@%s@@" % k, v)
         path = os.path.join(outdir, name)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:

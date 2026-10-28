@@ -53,8 +53,13 @@ class _Walk:
                      "binding": "grammar-hosted"},
              "vocabulary": {}, "locators": {}}
         m["contract"] = {"env": {}, "refusals": []}
+        m["artifacts"] = {}
         for d in ctx.decl():
             kw = d.getChild(0).getText()          # vocabulary|locators|contract
+            if kw == "artifacts":
+                for am in d.artifactMember():
+                    m["artifacts"][_text(am.NAME())] = _str(am.STRING())
+                continue
             if kw == "contract":
                 for cm in d.contractMember():
                     kind = cm.getChild(0).getText()

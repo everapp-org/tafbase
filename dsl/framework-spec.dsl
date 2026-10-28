@@ -230,3 +230,14 @@ contract {
   refusal unknown-action
   refusal edge-gap
 }
+
+artifacts {
+  // what a generated framework leaves behind — names, not paths:
+  // per-test artifacts resolve inside the test's own dir
+  artifact journal    "journal.jsonl"   // the event log, one per test
+  artifact subtitles  "journal.srt"     // timed narration, copied to the video name
+  artifact screenshot "screenshot.png"  // the screen at failure
+  artifact dom        "dom.html"        // the page DOM at failure
+  artifact auth-state "auth-state.json" // the signed-in session, once per run
+  artifact failed     "failed.txt"      // the rerun manifest, per run dir
+}
