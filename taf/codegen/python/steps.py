@@ -49,20 +49,20 @@ def _dq(s):
 
 def _emit_step_body(step, states, endpoints, pad):
     """One model step → Python lines, spelled by
-    dsl/framework-spec.dsl."""
+    taf/dsl/framework-spec.dsl."""
     form, arg = next(iter(step.items()))
     e = _forms()[form]
     darg = arg if isinstance(arg, dict) else {}
     e = _variant_entry(e, [k for k in darg if k != "soft"])
 
     if form == "navigate":
-        return [pad + _sp(e, arg=arg)]
+        return [pad + _sp(e, arg=_esc(arg))]
     if form in ("click", "check"):
         name = arg.get("element") if isinstance(arg, dict) else arg
         return [pad + _sp(e, **{"py:name": _py(name)})]
     if form == "select":
         name = arg.get("element") if isinstance(arg, dict) else arg
-        val = f'"{arg["value"]}"' if isinstance(arg, dict) and "value" in arg else ""
+        val = json.dumps(arg["value"]) if isinstance(arg, dict) and "value" in arg else ""
         return [pad + _sp(e, **{"py:name": _py(name), "val_quoted": val})]
     if form == "fill":
         v = arg.get("value", "")
@@ -74,7 +74,7 @@ def _emit_step_body(step, states, endpoints, pad):
             # variable. The secret is never in emitted code.
             val = 'os.environ[%s]' % json.dumps(v[4:])
         else:
-            val = '"%s"' % v
+            val = json.dumps(v)
         return [pad + _sp(e, **{"py:name": _py(arg["element"]),
                                 "value_expr": val})]
     if form == "wait-for":
@@ -88,7 +88,7 @@ def _emit_step_body(step, states, endpoints, pad):
         ep = endpoints[name]
         path, status = ep["path"], (ep.get("expect") or {}).get("status", 200)
         kw = {"method_lower": ep["method"].lower(),
-              "pexpr": '"%s".format(**%s)' % (path, json.dumps(args)),
+              "pexpr": '%s.format(**%s)' % (json.dumps(path), json.dumps(args)),
               "status": status}
         tpl = e["spell"]["python"]
         lines = [pad + _sub(tpl[0], kw), pad + _sub(tpl[1], kw)]
@@ -106,7 +106,7 @@ def _emit_step_body(step, states, endpoints, pad):
             f".or_(elements.{_py(n)}(page))" for n in arg[1:])
         return [pad + _sp(e, loc_chain=locs)]
     if form == "compare-screen":
-        return [pad + _sp(e, arg=arg)]
+        return [pad + _sp(e, arg=_esc(arg))]
     if form == "maybe":
         # An ifPresent step: try it, never fail.
         inner = _emit_step(arg, states, endpoints, pad + "    ")
@@ -125,7 +125,7 @@ def _emit_step_body(step, states, endpoints, pad):
                 stmt = inner[-1].strip()
                 return [
                     f"{pad}if soft is not None:",
-                    f'{pad}    soft.check("{arg["element"]}", lambda: {stmt})',
+                    f'{pad}    soft.check({json.dumps(arg["element"])}, lambda: {stmt})',
                     f"{pad}else:",
                     f"{pad}    try:",
                     f"{pad}        {stmt}",
@@ -139,5 +139,5 @@ def _emit_step_body(step, states, endpoints, pad):
             return [pad + _sp(e, **kw)]
         if isinstance(arg, dict) and "value" in arg:
             return [pad + _sp(e, value=json.dumps(arg["value"]),
-                              equals=json.dumps(arg.get("equals")))]
+                              equals=repr(arg.get("equals")))]
     return [f"{pad}# unsupported step: {form}"]

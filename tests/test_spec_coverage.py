@@ -1,4 +1,4 @@
-"""The §3.5 coverage gate — every coordinate in dsl/framework-spec.dsl
+"""The §3.5 coverage gate — every coordinate in taf/dsl/framework-spec.dsl
 is pinned by an emission in BOTH languages. A form or rung that no
 emitter can spell fails here, not in a generated file."""
 

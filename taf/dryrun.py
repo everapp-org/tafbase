@@ -260,8 +260,21 @@ def _probe_findings(m, env):
             out.append(f)
     try:
         from playwright.sync_api import sync_playwright
-        with sync_playwright() as p:
-            exe = p.chromium.executable_path
+        # probe against the env the run will see — a --set override
+        # shapes the child's browser lookup too
+        bp = env.get("PLAYWRIGHT_BROWSERS_PATH")
+        old = os.environ.get("PLAYWRIGHT_BROWSERS_PATH")
+        try:
+            if bp:
+                os.environ["PLAYWRIGHT_BROWSERS_PATH"] = bp
+            with sync_playwright() as p:
+                exe = p.chromium.executable_path
+        finally:
+            if bp:
+                if old is None:
+                    os.environ.pop("PLAYWRIGHT_BROWSERS_PATH", None)
+                else:
+                    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = old
         present = os.path.exists(exe)
     except Exception as e:
         exe, present = str(e), False

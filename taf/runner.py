@@ -30,8 +30,7 @@ def _exec(cmd, cwd=None, env=None):
 
 
 def _child_env(env, base_url=None, results=None, headless=False,
-               slowmo=None, video=False, debug=False, rerun=False,
-               sink=None):
+               slowmo=None, video=False, debug=False, rerun=False):
     """Run-profile flags become the TAF_* contract of the child's
     environment — an explicit flag wins over the shell's setting."""
     child = dict(env)
@@ -49,11 +48,6 @@ def _child_env(env, base_url=None, results=None, headless=False,
         child["TAF_DEBUG"] = "1"
     if rerun:
         child["TAF_RERUN"] = "1"
-    if sink is True:
-        base = child.get("TAF_BASE_URL") or "http://x"
-        child["TAF_IKC3_WS"] = dryrun._bus_url(base)
-    elif sink:
-        child["TAF_IKC3_WS"] = sink
     return child
 
 
@@ -80,9 +74,17 @@ def run(m, suite=None, lang="python", extra=(), probe=False, keep=False,
     `profile` is the run-profile flags (see _child_env); `setenv` is
     --set NAME=VALUE pairs, arbitrary vars for the child."""
     env = os.environ if env is None else env
-    child = _child_env(env, **(profile or {}))
+    profile = dict(profile or {})
+    sink = profile.pop("sink", None)
+    child = _child_env(env, **profile)
     child.update(setenv or {})
     base = child.get("TAF_BASE_URL") or m["sut"]["base-url"]
+    if sink is True:
+        # bare --sink — the bus lives on the SUT's own host, resolved
+        # only now that the effective base_url is known
+        child["TAF_IKC3_WS"] = dryrun._bus_url(base)
+    elif sink:
+        child["TAF_IKC3_WS"] = sink
     tmp = None
     if suite is None:
         tmp = tempfile.mkdtemp(prefix="taf-run-")

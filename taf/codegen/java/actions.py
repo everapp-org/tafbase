@@ -26,9 +26,9 @@ def _actions_class(m):
         body = "\n".join(l for step in steps
                          for l in _emit_step(step, m.get("endpoints") or {}, "        "))
         # Every action narrates itself — the label; the run reads as a story.
-        title = act.get("title", name)
-        narrate = (f'        try {{ TafJournal.note("→ {title}"); }}\n'
-                   f'        catch (java.io.IOException e) {{ System.out.println("→ {title}"); }}\n')
+        title = _q("→ " + act.get("title", name))
+        narrate = (f'        try {{ TafJournal.note({title}); }}\n'
+                   f'        catch (java.io.IOException e) {{ System.out.println({title}); }}\n')
         lines.append(f"    public static void {_j(name)}(Page page, String baseUrl, SoftChecks soft) {{\n"
                      f"{narrate}{decl}{body or '        // no steps'}\n    }}\n")
     lines.append("}\n")

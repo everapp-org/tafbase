@@ -45,7 +45,9 @@ document.addEventListener("click", (e) => {
   window.__tafEmit({type: "click", loc: ladder(e.target)});
 }, true);
 document.addEventListener("change", (e) => {
-  window.__tafEmit({type: "fill", loc: ladder(e.target), value: e.target.value});
+  const pw = e.target.type === "password";
+  window.__tafEmit({type: "fill", loc: ladder(e.target), pw: pw,
+                    value: pw ? "" : e.target.value});
 }, true);
 setInterval(() => {
   if (location.href !== window.__taf_last_nav) {
@@ -109,6 +111,11 @@ def _to_step(ev, elements, secrets=None):
         return {"click": name}
     if secrets and key in secrets:
         return {"fill": {"element": name, "value": secrets[key]}}
+    if ev.get("pw"):
+        # A password field the model never declared env: for — the
+        # recorder still does not keep the secret; the author names
+        # the variable (env:NAME-ME unset refuses the run, loudly).
+        return {"fill": {"element": name, "value": "env:NAME-ME"}}
     return {"fill": {"element": name, "value": ev.get("value", "")}}
 
 

@@ -10,8 +10,7 @@ import org.junit.jupiter.api.*;
 
 /** The fixture's Java face: one browser for the run, one fresh context
     per test — isolation by construction. */
-public abstract class BaseTest
-        implements org.junit.jupiter.api.extension.TestWatcher {
+public abstract class BaseTest {
     // @concept CONCEPT-taf-v1-003-01-the-environment
     protected static String baseUrl =
         System.getenv().getOrDefault("TAF_BASE_URL", "http://127.0.0.1:4856");
@@ -64,37 +63,62 @@ public abstract class BaseTest
     }
 
     // @concept CONCEPT-testing-v1-002-01-the-failure-funnel
-    @Override
-    public void testFailed(org.junit.jupiter.api.extension.ExtensionContext ctx,
-                           Throwable cause) { failed = true; }
-    @Override
-    public void testSucceeded(org.junit.jupiter.api.extension.ExtensionContext ctx) {
-        failed = false;
-    }
-    @Override
-    public void testAborted(org.junit.jupiter.api.extension.ExtensionContext ctx,
-                            Throwable cause) { failed = false; }
+    // A TestWatcher fires AFTER @AfterEach — too late for evidence.
+    // These two extensions land the verdict early enough: after the
+    // test body, and on a @BeforeEach failure.
+    @org.junit.jupiter.api.extension.RegisterExtension
+    final org.junit.jupiter.api.extension.AfterTestExecutionCallback outcome =
+            ctx -> {
+        failed = ctx.getExecutionException()
+            .map(t -> !(t instanceof org.opentest4j.TestAbortedException))
+            .orElse(false);
+        if (soft != null) {
+            try {
+                soft.flush();  // collect-and-flush: every failed check shows
+            } catch (AssertionError | RuntimeException e) {
+                failed = true;   // a soft-only failure is still a failure
+                throw e;
+            }
+        }
+    };
+    @org.junit.jupiter.api.extension.RegisterExtension
+    final org.junit.jupiter.api.extension.LifecycleMethodExecutionExceptionHandler setupFailure =
+            new org.junit.jupiter.api.extension.LifecycleMethodExecutionExceptionHandler() {
+        @Override
+        public void handleBeforeEachMethodExecutionException(
+                org.junit.jupiter.api.extension.ExtensionContext ctx,
+                Throwable t) throws Throwable {
+            failed = true;
+            throw t;
+        }
+    };
 
     @AfterEach
     void closeContext(org.junit.jupiter.api.TestInfo info)
             throws java.io.IOException {
-        if (failed) {
-            FAILED.add(info.getDisplayName());
-            try {  // evidence for a human: the screen, the DOM
-                page.screenshot(new Page.ScreenshotOptions()
-                    .setPath(TafJournal.testDir().resolve("screenshot.png")));
-                java.nio.file.Files.writeString(
-                    TafJournal.testDir().resolve("dom.html"), page.content());
-            } catch (Exception ignored) { }
-            TafJournal.event("fail", "\"test\": \""
-                + info.getDisplayName().replace("\"", "'") + "\"");
-            if (System.getenv("TAF_DEBUG") != null)
-                page.pause();  // TAF_DEBUG: stop at the failure, browser stays open
+        try {
+            if (failed) {
+                FAILED.add(info.getDisplayName());
+                if (page != null) {
+                    try {  // evidence for a human: the screen, the DOM
+                        page.screenshot(new Page.ScreenshotOptions()
+                            .setPath(TafJournal.testDir().resolve("screenshot.png")));
+                        java.nio.file.Files.writeString(
+                            TafJournal.testDir().resolve("dom.html"), page.content());
+                    } catch (Exception ignored) { }
+                }
+                TafJournal.event("fail", "\"test\": \""
+                    + info.getDisplayName().replace("\"", "'") + "\"");
+                if (System.getenv("TAF_DEBUG") != null && page != null)
+                    page.pause();  // TAF_DEBUG: stop at the failure, browser stays open
+            }
+        } finally {
+            try {
+                if (context != null) context.close();
+            } finally {
+                TafJournal.end(failed ? "failed" : "passed");
+            }
         }
-        context.close();
-        // @concept CONCEPT-testing-v1-002-01-the-failure-funnel
-        soft.flush();  // collect-and-flush: one fail shows every failed check
-        TafJournal.end(failed ? "failed" : "passed");
     }
 
 

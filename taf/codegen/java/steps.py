@@ -37,14 +37,15 @@ def _emit_step(step, endpoints, pad):
     form, arg = next(iter(step.items()))
     if form != "maybe":
         # every step captions itself — narration rides the .srt
-        return ([f'{pad}try {{ TafJournal.note("{_caption(form, arg)}"); }}'
+        return ([f'{pad}try {{ TafJournal.note({_q(_caption(form, arg))}); }}'
                  f' catch (java.io.IOException ignored) {{}}'] +
                 _emit_step_body(step, endpoints, pad))
     return _emit_step_body(step, endpoints, pad)
 
 
 def _emit_step_body(step, endpoints, pad):
-    """One model step → Java lines, spelled by dsl/forms.dsl.json."""
+    """One model step → Java lines, spelled by
+    taf/dsl/framework-spec.dsl."""
     form, arg = next(iter(step.items()))
     e = _forms()[form]
     darg = arg if isinstance(arg, dict) else {}
@@ -57,21 +58,21 @@ def _emit_step_body(step, endpoints, pad):
         return [pad + _sp(e, **{"j:name": _j(name)})]
     if form == "select":
         name = arg.get("element") if isinstance(arg, dict) else arg
-        val = f'"{arg["value"]}"' if isinstance(arg, dict) and "value" in arg else ""
+        val = _q(arg["value"]) if isinstance(arg, dict) and "value" in arg else ""
         return [pad + _sp(e, **{"j:name": _j(name), "val_quoted": val})]
     if form == "fill":
         v = arg.get("value", "")
         if isinstance(v, str) and v.startswith("env-pool:"):
             # env-pool:NAME — a list in the env; one value spent per call.
-            val = 'TafJournal.envPool("%s")' % v[9:]
+            val = 'TafJournal.envPool(%s)' % _q(v[9:])
         elif isinstance(v, str) and v.startswith("env:"):
             # env:NAME — the model names the need; the run reads the
             # variable. The secret is never in emitted code.
-            nm = v[4:]
+            nm = _esc(v[4:])
             val = ('java.util.Objects.requireNonNull('
                    'System.getenv("%s"), "%s is not set")' % (nm, nm))
         else:
-            val = '"%s"' % v
+            val = _q(v)
         return [pad + _sp(e, **{"j:name": _j(arg["element"]),
                                 "value_expr": val})]
     if form == "wait-for":
@@ -84,8 +85,9 @@ def _emit_step_body(step, endpoints, pad):
         args = {} if isinstance(arg, str) else arg.get("args") or {}
         ep = endpoints[name]
         path, status = ep["path"], (ep.get("expect") or {}).get("status", 200)
-        pexpr = f'"{path}"' + "".join(
-            f'.replace("{{{k}}}", "{v}")' for k, v in args.items())
+        pexpr = _q(path) + "".join(
+            '.replace("{%s}", %s)' % (_esc(k), _q(v))
+            for k, v in args.items())
         kw = {"method_lower": ep["method"].lower(),
               "pexpr": pexpr, "status": status}
         tpl = e["spell"]["java"]
@@ -93,7 +95,7 @@ def _emit_step_body(step, endpoints, pad):
         if isinstance(arg, dict) and arg.get("save"):
             for k, jpath in arg["save"].items():
                 lines.append(pad + _sub(tpl[2],
-                {"save_key": k, "jsonpath": _jsonpath(jpath)}))
+                {"save_key": _esc(k), "jsonpath": _jsonpath(jpath)}))
         return lines
     if form == "dwell":
         # A pause for a watching human — observation, not synchronization.
@@ -103,7 +105,7 @@ def _emit_step_body(step, endpoints, pad):
             f".or(Elements.{_j(n)}(page))" for n in arg[1:])
         return [pad + _sp(e, loc_chain=locs)]
     if form == "compare-screen":
-        return [pad + _sp(e, arg=arg)]
+        return [pad + _sp(e, arg=_esc(arg))]
     if form == "maybe":
         # An ifPresent step: try it, never fail.
         inner = _emit_step(arg, endpoints, pad + "    ")
@@ -122,7 +124,7 @@ def _emit_step_body(step, endpoints, pad):
                 stmt = inner[-1].strip()
                 return [
                     f"{pad}if (soft != null) {{",
-                    f'{pad}    soft.check("{arg["element"]}", () -> {stmt[:-1]});',
+                    f'{pad}    soft.check({_q(arg["element"])}, () -> {stmt[:-1]});',
                     f"{pad}}} else {{",
                     f"{pad}    try {{ {stmt}",
                     f'{pad}    }} catch (AssertionError e) {{ System.out.println("soft expect failed: " + e.getMessage()); }}',

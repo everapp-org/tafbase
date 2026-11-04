@@ -2,7 +2,8 @@
 # edit the model and regenerate.
 """One function per declared action — the edges of the graph."""
 
-from pages import ROUTES
+from pages import ROUTES, BoardPage
+from playwright.sync_api import expect
 import os
 import elements
 import taf_journal
@@ -57,9 +58,9 @@ def file_a_fault_report(page, base_url, soft=None):
     taf_journal.note("click report-choice-feat")
     elements.report_choice_feat(page).click()
     taf_journal.note("fill report-text")
-    elements.report_text(page).fill("taf: the suite exercising fault reporting — safe to delete")
+    elements.report_text(page).fill("taf: the suite exercising fault reporting \u2014 safe to delete")
     taf_journal.note("fill report-details")
-    elements.report_details(page).fill("filed by a taf run of ikc3-tracker — the UI half of fail -> file")
+    elements.report_details(page).fill("filed by a taf run of ikc3-tracker \u2014 the UI half of fail -> file")
     taf_journal.note("click report-choice-todo")
     elements.report_choice_todo(page).click()
     taf_journal.note("click report-file")

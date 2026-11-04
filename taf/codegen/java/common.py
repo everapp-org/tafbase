@@ -27,10 +27,8 @@ def _state_class(name):
 
 def _spec():
     if "spec" not in _DSL:
-        from taf import dsl_parse
-        path = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                            "dsl", "framework-spec.dsl")
-        _DSL["spec"] = dsl_parse.parse(open(path).read())
+        from taf import spec as _s
+        _DSL["spec"] = _s.spec()
     return _DSL["spec"]
 
 
@@ -43,7 +41,16 @@ def _forms():
 
 
 def _esc(v):
-    return str(v).replace("\\", "\\\\").replace('"', '\\"')
+    """A value spliced inside a Java double-quoted literal — escaped so
+    the generated line is still one literal."""
+    return (str(v).replace("\\", "\\\\").replace('"', '\\"')
+            .replace("\n", "\\n").replace("\r", "\\r")
+            .replace("\t", "\\t"))
+
+
+def _q(v):
+    """_esc + the quotes around it — a whole Java string literal."""
+    return '"%s"' % _esc(v)
 
 
 def _sub(t, kw):
@@ -69,7 +76,7 @@ def _sp(entry, **kw):
 
 def _loc(loc):
     """The Playwright-Java locator call for one rung of the ladder —
-    spelled by dsl/locators.dsl.json."""
+    spelled by taf/dsl/framework-spec.dsl."""
     rung, l = ops.locator_rung(loc)
     entry = _rungs()[rung]
     v = _variant_entry(entry, [k for k in loc if k != entry["key"]])
@@ -84,4 +91,4 @@ def _jsonpath(p):
 
 __all__ = ["json", "os", "ops", "_PKG", "_PKG_DIR", "_DSL", "_HEADER",
            "_j", "_state_class", "_spec", "_rungs", "_forms", "_esc",
-           "_sub", "_variant_entry", "_sp", "_loc", "_jsonpath"]
+           "_q", "_sub", "_variant_entry", "_sp", "_loc", "_jsonpath"]

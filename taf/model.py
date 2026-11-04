@@ -15,7 +15,7 @@ import json
 # THE LOCATOR LADDER (CONCEPT-playwright-v1-001-01): a locator dict is valid when it
 # carries at least one of these keys. Order is the preference; `css`/`xpath`
 # are the last-resort rung and flag the element `fragile` in the manifest.
-# Derived from dsl/framework-spec.dsl — the validator is a spec
+# Derived from taf/dsl/framework-spec.dsl — the validator is a spec
 # consumer like the emitters (SPEC-taf-v1-002-02).
 def _derive():
     from taf import spec as _s

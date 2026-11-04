@@ -1,5 +1,5 @@
 """The contract section — env vars and refusal names declared in
-dsl/framework-spec.dsl must cover what the code actually uses."""
+taf/dsl/framework-spec.dsl must cover what the code actually uses."""
 
 import re
 from taf import spec

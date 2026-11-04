@@ -23,7 +23,7 @@ Each item is testable: a command, a test name, or a diff.
 
 ## The model
 
-- [ ] AC-1 `dsl/framework-spec.dsl` parses via `FrameworkSpec.g4` with
+- [ ] AC-1 `taf/dsl/framework-spec.dsl` parses via `FrameworkSpec.g4` with
       zero syntax errors — proven by any consumer load
 - [x] AC-2 Every `form` and `rung` carries a `description` — the model
       reads as documentation
