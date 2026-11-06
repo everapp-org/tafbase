@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Failure Diagnostics via TakesScreenshot and BiDi Logs · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / selenium / concepts</div><h1 class="page-title" id="failure-diagnostics-via-takesscreenshot-and-bidi-logs">Failure Diagnostics via TakesScreenshot and BiDi Logs <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-selenium-v1-006-01-takes-screenshot-and-logs</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>selenium</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>Selenium 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/selenium/concepts/CONCEPT-selenium-v1-006-01-takes-screenshot-and-logs.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts</td></tr><tr><th>contrasts-with</th><td>CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>In Selenium WebDriver, diagnosing test failures relies on extracting point-in-time runtime artifacts upon test failure:</p>
+<ul>
+<li><strong>Screenshots</strong>: Cast the <code>WebDriver</code> instance to <code>TakesScreenshot</code> and call <code>getScreenshotAs(OutputType.FILE)</code> to capture a PNG image of the current viewport.</li>
+<li><strong>DOM Snapshot</strong>: Call <code>driver.getPageSource()</code> to extract the raw HTML string as rendered at the instant of failure.</li>
+<li><strong>BiDi / CDP Console Logs</strong>: In Selenium 4, register listeners via <code>driver.manage().logs()</code> or BiDi log listeners (<code>LogInspector.onConsoleEntry(...)</code>) to capture JavaScript console warnings and uncaught exceptions.</li>
+</ul>
+<pre><code class="language-java">import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+
+public class DiagnosticArtifactsDemo {
+    public static void captureFailureState(WebDriver driver, String testName) {
+        try {
+            // 1. Capture viewport screenshot as PNG
+            File screenshotFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+            Files.copy(screenshotFile.toPath(), Paths.get(&quot;target/artifacts/&quot; + testName + &quot;.png&quot;));
+
+            // 2. Dump raw DOM source
+            String domHtml = driver.getPageSource();
+            Files.writeString(Paths.get(&quot;target/artifacts/&quot; + testName + &quot;.html&quot;), domHtml);
+        } catch (Exception e) {
+            System.err.println(&quot;Failed to capture diagnostics: &quot; + e.getMessage());
+        }
+    }
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts</code>. When automated tests fail on unattended CI runners, static stack traces alone are often insufficient to discern whether a failure stemmed from an unexpected modal dialog, a 500 server error page, or an unrendered UI component.</p>
+<p>Contrasts with <code>CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts</code>. Selenium artifacts are strictly post-mortem and disjointed: a static screenshot and text HTML dump captured after the failure already occurred. They do not retain the temporal history of interactions, DOM mutations, or network requests leading up to the failure. In contrast, Playwright&#39;s Trace Viewer records a comprehensive step-by-step interactive timeline with full DOM states before and after each action, complete network waterfalls, and console outputs in a single trace package.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts.html">The Failure Funnel: Diagnostic Artifacts</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts</span></li></ul><h3>Across languages &amp; tools <span class="count">6</span></h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-004-01-testwatcher-failure-extension.html">TestWatcher Extension for Failure Artifacts</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-004-01-testwatcher-failure-extension</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts.html">Trace Viewer and Execution Artifacts</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-004-01-automatic-trace-and-screenshot-config.html">Automatic Trace and Artifact Configuration</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-004-01-automatic-trace-and-screenshot-config</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-004-01-makereport-failure-hook.html">Failure Reporting Hook via makereport</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-004-01-makereport-failure-hook</span></li><li><span class="badge">taf</span> <a href="../../../concepts/CONCEPT-taf-v1-002-01-the-result-sink.html">The result sink</a> <span class="muted">CONCEPT-taf-v1-002-01-the-result-sink</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-002-01-the-failure-funnel.html">The failure funnel</a> <span class="muted">CONCEPT-testing-v1-002-01-the-failure-funnel</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts.html">Trace Viewer and Execution Artifacts</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

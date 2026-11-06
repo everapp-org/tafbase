@@ -91,7 +91,7 @@ class _Walk:
                 out["caption"] = _str(mem.STRING())
             elif kw == "key":
                 out["key"] = _text(mem.NAME())
-            elif kw in ("python", "java"):
+            elif kw in ("python", "java", "ts", "js"):
                 out.setdefault("spell", {})[kw] = _str(mem.STRING())
             elif kw == "variants":
                 out["variants"] = [self._variant(v)

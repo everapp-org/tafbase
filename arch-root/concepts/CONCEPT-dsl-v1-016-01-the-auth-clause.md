@@ -6,6 +6,10 @@ authored: 2026-10-27
 authors:
   - George Petrov
   - Devin
+layer: L2-dsl
+realizes:
+  - CONCEPT-qa-v1-004-01-session-and-context-isolation
+  - CONCEPT-playwright-v1-008-01-storage-state-reuse
 ---
 
 # The auth clause
@@ -50,6 +54,6 @@ taf run suts/ikc3-tracker.sut.model.json --slowmo 500 --video
 
 ## Neighbors
 
-[[CONCEPT-playwright-v1-004-01-the-storage-state]] — the mechanism
+[[CONCEPT-playwright-v1-008-01-storage-state-reuse]] — the mechanism
 the clause rides on. [[CONCEPT-dsl-v1-015-01-the-env-value]] — the
 credential the action reads.

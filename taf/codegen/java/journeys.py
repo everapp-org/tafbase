@@ -7,7 +7,9 @@ from .steps import _emit_step
 
 def _journeys_class(m):
     lines = [_HEADER, f"package {_PKG};\n\n",
-             "// @concept CONCEPT-testing-v1-001-01-arrange-act-assert\n\n",
+             "// @concept CONCEPT-testing-v1-001-01-arrange-act-assert\n",
+             "// @concept CONCEPT-qa-v1-001-01-arrange-act-assert\n",
+             "// @concept CONCEPT-istqb-v1-010-01-state-transition-testing\n\n",
              "import org.junit.jupiter.api.Test;\n", _EXTRA_IMPORTS,
              "/** One @Test per declared journey — arrange, act, assert. */\n",
              "public class JourneysTest extends BaseTest {\n\n"]

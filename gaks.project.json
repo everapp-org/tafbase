@@ -1,23 +1,19 @@
 {
   "name": "tafbase",
-  "subprojects": [
-    "dsl",
+  "subprojects": ["dsl", "pom", "taf", "testing"],
+  "catalogs": [
+    "istqb",
     "java",
+    "js",
+    "junit",
     "playwright",
-    "pom",
+    "prog",
+    "pwtest",
     "pytest",
     "python",
-    "taf",
-    "testing"
-  ],
-  "kinds": [
-    "ADR",
-    "CONCEPT",
-    "PLAN",
-    "F",
-    "RESEARCH",
-    "SPEC",
-    "PRINCIPLE"
+    "qa",
+    "selenium",
+    "ts"
   ],
   "ratchets": {}
 }

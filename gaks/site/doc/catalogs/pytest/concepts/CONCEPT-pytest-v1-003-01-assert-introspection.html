@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assert Statement AST Introspection · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / pytest / concepts</div><h1 class="page-title" id="assert-statement-ast-introspection">Assert Statement AST Introspection <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-pytest-v1-003-01-assert-introspection</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>pytest</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>pytest 8.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/pytest/concepts/CONCEPT-pytest-v1-003-01-assert-introspection.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-qa-v1-007-01-hard-vs-soft-assertions</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Pytest intercepts and rewrites Python&#39;s native <code>assert</code> statements at module import time using Abstract Syntax Tree (AST) rewriting. </p>
+<p>Instead of requiring test authors to learn specialized assertion helper methods (such as <code>self.assertEqual</code>, <code>self.assertIn</code>, or <code>self.assertDictEqual</code> from standard <code>unittest</code>), tests write standard Python expressions with plain <code>assert</code>. When an assertion evaluates to false, pytest inspects the rewritten AST to compute intermediate values, perform granular structural diffs on complex dictionaries, lists, and dataclasses, and generate detailed human-readable error reports.</p>
+<pre><code class="language-python">from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class UserProfile:
+    id: int
+    name: str
+    roles: list[str]
+
+def test_user_profile_payload():
+    actual = UserProfile(id=101, name=&quot;Jordan Lee&quot;, roles=[&quot;viewer&quot;, &quot;editor&quot;])
+    expected = UserProfile(id=101, name=&quot;Jordan Lee&quot;, roles=[&quot;viewer&quot;, &quot;admin&quot;])
+
+    # Pytest AST rewriting intercepts failure and renders precise diff:
+    # Differing items: roles: [&#39;viewer&#39;, &#39;editor&#39;] != [&#39;viewer&#39;, &#39;admin&#39;]
+    # Use -v to see full diff
+    assert actual == expected
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-qa-v1-007-01-hard-vs-soft-assertions</code>. Clear, actionable assertion diagnostics are necessary for diagnosing test failures quickly. Helper method assertions add mental friction, while plain Python <code>assert</code> without rewriting produces an uninformative <code>AssertionError</code> with no contextual comparison values.</p>
+<p>AST introspection brings the best of both worlds: tests are authored using clean, unadorned native language syntax, while test runners deliver rich, contextual diff diagnostics upon failure.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-007-01-hard-vs-soft-assertions.html">Hard Assertions, Soft Assertions, and Auto-Retrying Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-007-01-hard-vs-soft-assertions</span></li></ul><h3>Across languages &amp; tools <span class="count">5</span></h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-003-01-assertall-grouped-assertions.html">Grouped Soft Assertions via assertAll</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-003-01-assertall-grouped-assertions</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-004-01-web-first-assertions.html">Auto-Retrying Web-First Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-004-01-web-first-assertions</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-003-01-expect-soft-and-poll.html">Soft and Polling Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-003-01-expect-soft-and-poll</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-004-01-one-shot-dom-assertions.html">One-Shot DOM Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-004-01-one-shot-dom-assertions</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-002-01-the-failure-funnel.html">The failure funnel</a> <span class="muted">CONCEPT-testing-v1-002-01-the-failure-funnel</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

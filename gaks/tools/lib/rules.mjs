@@ -38,6 +38,10 @@ export function validateRules(rules) {
     problems.push('"kinds" is not a list of {prefix, ...}');
   }
   if (!Array.isArray(rules.subprojects)) problems.push('"subprojects" is not a list');
+  if (rules.catalogs !== undefined
+      && (!Array.isArray(rules.catalogs) || rules.catalogs.some((c) => typeof c !== 'string'))) {
+    problems.push('"catalogs" is not a list of strings');
+  }
   const ps = rules['page-states'];
   if (!ps || typeof ps !== 'object' || typeof ps.words !== 'object') {
     problems.push('"page-states" has no "words"');

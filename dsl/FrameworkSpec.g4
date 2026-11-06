@@ -37,6 +37,8 @@ member
     | 'key' NAME
     | 'python' STRING
     | 'java' STRING
+    | 'ts' STRING
+    | 'js' STRING
     | 'variants' '{' variant* '}'
     | 'lines' '{' langLine* '}'
     | 'wrap' '{' wrapLine* '}'
@@ -52,11 +54,11 @@ variant
     ;
 
 langLine
-    : ('python' | 'java') STRING
+    : ('python' | 'java' | 'ts' | 'js') STRING
     ;
 
 wrapLine
-    : ('python' | 'java') ('pre' | 'post') STRING
+    : ('python' | 'java' | 'ts' | 'js') ('pre' | 'post') STRING
     ;
 
 // ============================================================

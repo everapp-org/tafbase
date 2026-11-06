@@ -22,7 +22,7 @@ import socket
 import urllib.request
 import urllib.parse
 
-from taf import model, ops
+from taf import model, ops, spec
 
 # The TAF_* contract, in display order. Each row names what the
 # variable means when the run reads it — unset rows show the default
@@ -36,6 +36,8 @@ def _env_table(m, env):
          "headed is the default; =1 for CI"),
         ("TAF_SLOWMO", (env.get("TAF_SLOWMO") or "0") + " ms",
          "slows each action"),
+        ("TAF_ARRIVE_MS", (env.get("TAF_ARRIVE_MS") or "15000") + " ms",
+         "marker arrival timeout"),
         ("TAF_VIDEO", "on" if env.get("TAF_VIDEO") else "off",
          "records .webm into the test's results dir"),
         ("TAF_DEBUG", "on" if env.get("TAF_DEBUG") else "off",
@@ -47,6 +49,9 @@ def _env_table(m, env):
         ("TAF_IKC3_WS", env.get("TAF_IKC3_WS") or "off",
          "a red test files a fault report"),
     ]
+    declared = set(spec.spec()["contract"]["env"])
+    assert {v for v, _, _ in rows} == declared, (
+        "env table out of sync with contract: %s" % ({v for v, _, _ in rows} ^ declared))
     return [{"var": v, "set": v in env, "effective": eff, "note": note}
             for v, eff, note in rows]
 
@@ -199,6 +204,10 @@ def _suite_findings(m, suite):
                                 "regenerate"))
     customs = (glob.glob(os.path.join(suite, "custom", "test_*.py")) +
                glob.glob(os.path.join(suite, "custom", "**", "*.java"),
+                         recursive=True) +
+               glob.glob(os.path.join(suite, "custom", "**", "*.spec.ts"),
+                         recursive=True) +
+               glob.glob(os.path.join(suite, "custom", "**", "*.spec.mjs"),
                          recursive=True))
     customs = [c for c in customs if not c.endswith("README.md")]
     if customs:
@@ -220,13 +229,20 @@ def _toolchain_findings(lang):
         else:
             out.append(_finding("ok", "python toolchain",
                                 "pytest and playwright importable"))
-    else:
+    elif lang == "java":
         if shutil.which("mvn"):
             out.append(_finding("ok", "java toolchain", "mvn on PATH"))
         else:
             out.append(_finding("missing", "java toolchain",
                                 "mvn not on PATH — the emitted suite "
                                 "cannot build"))
+    else:
+        if shutil.which("node") and shutil.which("npx"):
+            out.append(_finding("ok", "%s toolchain" % lang, "node and npx on PATH"))
+        else:
+            out.append(_finding("missing", "%s toolchain" % lang,
+                                "node/npx not on PATH — the emitted suite "
+                                "cannot run"))
     return out
 
 
@@ -260,8 +276,21 @@ def _probe_findings(m, env):
             out.append(f)
     try:
         from playwright.sync_api import sync_playwright
-        with sync_playwright() as p:
-            exe = p.chromium.executable_path
+        # probe against the env the run will see — a --set override
+        # shapes the child's browser lookup too
+        bp = env.get("PLAYWRIGHT_BROWSERS_PATH")
+        old = os.environ.get("PLAYWRIGHT_BROWSERS_PATH")
+        try:
+            if bp:
+                os.environ["PLAYWRIGHT_BROWSERS_PATH"] = bp
+            with sync_playwright() as p:
+                exe = p.chromium.executable_path
+        finally:
+            if bp:
+                if old is None:
+                    os.environ.pop("PLAYWRIGHT_BROWSERS_PATH", None)
+                else:
+                    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = old
         present = os.path.exists(exe)
     except Exception as e:
         exe, present = str(e), False
@@ -310,8 +339,8 @@ def _bus_url(base_url):
 
 
 def env_lines(m, env=None, shell=None, base_url=None, results=None,
-              headless=False, slowmo=None, video=False, debug=False,
-              rerun=False, sink=None, unset=False):
+              headless=False, slowmo=None, arrive_ms=None, video=False,
+              debug=False, rerun=False, sink=None, unset=False):
     """Shell lines for `eval "$(taf env ...)"` — the TAF_* contract as
     exports. Base variables always export; opt-ins export when their
     flag passed (or are already set); the rest print as comments — the
@@ -336,6 +365,8 @@ def env_lines(m, env=None, shell=None, base_url=None, results=None,
          else None, "headless, for CI"),
         ("TAF_SLOWMO", str(slowmo) if slowmo is not None
          else env.get("TAF_SLOWMO") or None, "ms between actions"),
+        ("TAF_ARRIVE_MS", str(arrive_ms) if arrive_ms is not None
+         else env.get("TAF_ARRIVE_MS") or None, "marker arrival timeout in ms"),
         ("TAF_VIDEO", "1" if (video or env.get("TAF_VIDEO")) else None,
          "records .webm into the test's results dir"),
         ("TAF_DEBUG", "1" if (debug or env.get("TAF_DEBUG")) else None,

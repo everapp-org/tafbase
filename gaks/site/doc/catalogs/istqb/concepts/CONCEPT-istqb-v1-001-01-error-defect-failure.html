@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Error, Defect, and Failure Causal Chain · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / istqb / concepts</div><h1 class="page-title" id="error-defect-and-failure-causal-chain">Error, Defect, and Failure Causal Chain <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-istqb-v1-001-01-error-defect-failure</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>istqb</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L0-theory</td></tr><tr><th>since</th><td>CTFL 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/istqb/concepts/CONCEPT-istqb-v1-001-01-error-defect-failure.md</code></td></tr></table><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>The causal chain of software flaws distinguishes between human actions, flaws in artifacts, and runtime discrepancies as defined in CTFL v4.0 §1.2.3:</p>
+<ol>
+<li><strong>Error (Mistake)</strong>: A human action that produces an incorrect result (e.g., a software developer misinterpreting a requirement or typing a wrong comparison operator).</li>
+<li><strong>Defect (Fault / Bug)</strong>: An imperfection or deficiency in a work product where it does not meet its requirements or specifications (e.g., an off-by-one boundary in code or an omitted case in a design document).</li>
+<li><strong>Failure</strong>: An event in which a component or system does not perform a required function within specified limits during runtime execution (e.g., an unhandled exception thrown or an incorrect calculation displayed to a user).</li>
+</ol>
+<p>A human makes an error, introducing a defect into the codebase. When the affected code path is executed with triggering inputs, that defect causes a runtime failure. Environmental conditions (such as hardware faults or network timeouts) can also cause failures without a code defect.</p>
+<pre><code class="language-text">+----------------+       introduces       +-----------------+       triggers       +-----------------+
+|  Human Error   | ---------------------&gt; | Defect (Fault)  | -------------------&gt; | Runtime Failure |
+| (Mental lapse) |                        | (Static artifact)                      | (Dynamic event) |
++----------------+                        +-----------------+                      +-----------------+
+  e.g. Logic error                          e.g. if (x &gt; 10)                         e.g. Crash at x=10
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Understanding the error-defect-failure chain is foundational for quality engineering:</p>
+<ol>
+<li><strong>Defects Can Remain Dormant</strong>: A defect in static code only produces a runtime failure when execution reaches that path under specific input conditions. Automated testing systematically forces execution through dormant paths to trigger failures before production.</li>
+<li><strong>Failures Are Symptoms, Not Causes</strong>: Automated test suites report failures (assertion errors, crashes). Effective debugging requires tracing backwards from the dynamic failure to the static defect, and root-cause analysis investigates the human or procedural error that introduced it.</li>
+<li><strong>Guiding Static vs. Dynamic Testing</strong>: Static analysis and code reviews detect defects directly in work products without execution, preventing defects from ever manifesting as runtime failures. Dynamic automated tests detect failures during execution, proving whether defect fixes were successful.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realized by <span class="count">1</span></h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts.html">The Failure Funnel: Diagnostic Artifacts</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts</span></li></ul><h3>Unlocks <span class="count">3</span></h3><ul><li><span class="badge">istqb</span> <a href="CONCEPT-istqb-v1-015-01-defect-lifecycle.html">Defect Management and Defect Report Lifecycle</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-015-01-defect-lifecycle</span></li><li><span class="badge">istqb</span> <a href="CONCEPT-istqb-v1-006-01-static-vs-dynamic-testing.html">Static Testing vs. Dynamic Testing</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-006-01-static-vs-dynamic-testing</span></li><li><span class="badge">istqb</span> <a href="CONCEPT-istqb-v1-003-01-seven-testing-principles.html">The Seven Testing Principles</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-003-01-seven-testing-principles</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../../../concepts/CONCEPT-taf-v1-001-01-the-learning-path.html">The learning path</a> <span class="muted">CONCEPT-taf-v1-001-01-the-learning-path</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deterministic Browser Clock Control · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / playwright / concepts</div><h1 class="page-title" id="deterministic-browser-clock-control">Deterministic Browser Clock Control <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-playwright-v1-010-01-clock-and-deterministic-time</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>playwright</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>Playwright 1.40</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/playwright/concepts/CONCEPT-playwright-v1-010-01-clock-and-deterministic-time.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Playwright&#39;s <code>Clock</code> API enables complete programmatic control over time inside the browser page. By virtualizing the browser&#39;s internal timer subsystem, tests can manipulate <code>Date.now()</code>, <code>setTimeout</code>, <code>setInterval</code>, <code>requestAnimationFrame</code>, and <code>performance.now()</code> deterministically.</p>
+<p>Key operations include:</p>
+<ul>
+<li><code>page.clock.install({ time: new Date(...) })</code>: Initializes mock clock mode with an optional fixed timestamp.</li>
+<li><code>page.clock.fastForward(millis)</code>: Advances time instantaneously, firing all registered timer callbacks in chronological order without real-world waiting.</li>
+<li><code>page.clock.pauseAt(date)</code>: Freezes execution time at an exact date or moment.</li>
+<li><code>page.clock.resume()</code>: Resumes standard wall-clock progression.</li>
+</ul>
+<pre><code class="language-typescript">import { Page, expect } from &#39;@playwright/test&#39;;
+
+export async function testDebouncedSearch(page: Page) {
+  // Install deterministic clock before navigating
+  await page.clock.install();
+
+  await page.goto(&#39;https://app.example.com/search&#39;);
+  const searchInput = page.getByRole(&#39;searchbox&#39;, { name: &#39;Search&#39; });
+  await searchInput.fill(&#39;playwright&#39;);
+
+  // Input uses a 500ms debounce; verify no network query dispatched yet
+  await expect(page.getByTestId(&#39;search-spinner&#39;)).not.toBeVisible();
+
+  // Instantly fast-forward 600ms without sleeping or wall-clock delay
+  await page.clock.fastForward(600);
+
+  // Debounced callback has fired instantaneously
+  await expect(page.getByTestId(&#39;search-results&#39;)).toBeVisible();
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness</code>. Real-world time is one of the most persistent sources of flakiness and performance degradation in test suites. Verifying time-dependent behaviors—such as input debouncing, countdown timers, session timeouts, toast auto-dismissal, or polling intervals—traditionally required sleep delays (<code>Thread.sleep</code>, <code>setTimeout</code>).</p>
+<p>Sleeping inflates suite runtime and still causes race conditions under varying CI system load. Deterministic clock control eliminates sleep calls, enabling instantaneous validation of complex temporal flows while guaranteeing byte-for-byte reproducibility across runs.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness.html">Deterministic Execution, Flakiness Quarantine, and Retry Discipline</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness</span></li></ul><h3>Across languages &amp; tools <span class="count">3</span></h3><ul><li><span class="badge">playwright</span> <a href="CONCEPT-playwright-v1-007-01-network-interception-route.html">Network Interception and Route Mocking</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-007-01-network-interception-route</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-007-01-bidi-network-interception.html">W3C WebDriver BiDi Network Interception</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-007-01-bidi-network-interception</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-004-01-the-rerun.html">The rerun</a> <span class="muted">CONCEPT-testing-v1-004-01-the-rerun</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

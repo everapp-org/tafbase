@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compile-Time Null Safety with JSpecify and NullAway · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / java / concepts</div><h1 class="page-title" id="compile-time-null-safety-with-jspecify-and-nullaway">Compile-Time Null Safety with JSpecify and NullAway <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-java-v1-019-01-jspecify-and-nullaway</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>java</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L3-tooling</td></tr><tr><th>since</th><td>JSpecify 1.0.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/java/concepts/CONCEPT-java-v1-019-01-jspecify-and-nullaway.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-004-01-null-safe-optionality</td></tr><tr><th>contrasts-with</th><td>CONCEPT-python-v1-004-01-none-aware-typing, CONCEPT-ts-v1-004-01-strict-null-checks</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>JSpecify (<code>org.jspecify.annotations</code>) standardizes nullability annotations (<code>@NullMarked</code>, <code>@Nullable</code>, <code>@NonNull</code>) across the Java ecosystem. When paired with compiler plugins such as Uber NullAway via Error Prone, it enforces compile-time null safety with zero runtime performance cost.</p>
+<pre><code class="language-java">package com.example.service;
+
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
+@NullMarked
+public class UserService {
+
+    public UserAccount getActiveUser(String id, @Nullable String fallbackGroup) {
+        // Compile error under NullAway if id is passed as null,
+        // or if fallbackGroup is dereferenced without a null check:
+        int groupLen = fallbackGroup != null ? fallbackGroup.length() : 0;
+        return new UserAccount(id, groupLen);
+    }
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Java historically suffered from annotation fragmentation: <code>@Nullable</code> and <code>@NotNull</code> existed across multiple competing libraries, each with subtle semantic differences and uneven tooling support. JSpecify delivers a unified, cross-tool standard backed by major industry vendors. Tools like Uber NullAway analyze bytecode and abstract syntax trees during compilation, catching potential <code>NullPointerException</code> bugs before tests run while maintaining fast compilation speeds.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-004-01-null-safe-optionality.html">Null-Safe Optionality</a> <span class="muted">CONCEPT-prog-v1-004-01-null-safe-optionality</span></li></ul><h3>Across languages &amp; tools <span class="count">4</span></h3><ul><li><span class="badge">java</span> <a href="CONCEPT-java-v1-013-01-optional-discipline.html">Optional Return Discipline</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-013-01-optional-discipline</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-004-01-nullish-coalescing-and-optional-chaining.html">Nullish Coalescing and Optional Chaining</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-004-01-nullish-coalescing-and-optional-chaining</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-004-01-none-aware-typing.html">None-Aware Strict Typing</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-004-01-none-aware-typing</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-004-01-strict-null-checks.html">Strict Null Checks</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-004-01-strict-null-checks</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-004-01-none-aware-typing.html">None-Aware Strict Typing</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-004-01-none-aware-typing</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-004-01-strict-null-checks.html">Strict Null Checks</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-004-01-strict-null-checks</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../../../concepts/CONCEPT-taf-v1-001-01-the-learning-path.html">The learning path</a> <span class="muted">CONCEPT-taf-v1-001-01-the-learning-path</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

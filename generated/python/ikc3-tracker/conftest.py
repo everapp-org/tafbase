@@ -2,8 +2,10 @@
 # edit the model and regenerate.
 """Fixtures for the generated suite.
 
-@concept CONCEPT-pytest-v1-001-01-the-pytest-fixture
-@concept CONCEPT-playwright-v1-002-01-the-browser-context
+@concept CONCEPT-pytest-v1-001-01-dependency-injected-fixtures
+@concept CONCEPT-python-v1-006-01-pytest-yield-fixture
+@concept CONCEPT-python-v1-010-01-os-environ-get
+@concept CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy
 """
 
 import os
@@ -13,6 +15,12 @@ from playwright.sync_api import sync_playwright
 import taf_journal
 
 _MODEL_BASE_URL = "http://127.0.0.1:4856"
+
+# Failures the journal cannot carry: a teardown-phase failure lands
+# after journal.end() already wrote the outcome, and a setup failure
+# before begin() leaves no journal at all. sessionfinish unions these
+# into failed.txt so TAF_RERUN still finds them.
+_LATE_FAILURES = []
 
 
 # @concept CONCEPT-taf-v1-004-01-the-artifacts
@@ -96,9 +104,11 @@ def pytest_runtest_makereport(item, call):
     """A red test files a fault report into the tracker — when a sink is
     configured (TAF_IKC3_WS=ws://host:port/bus-ws). A sink that cannot
     file warns; it never fails the suite a second time."""
-    if call.when != "call" or call.excinfo is None:
-        return
+    if call.excinfo is None or isinstance(call.excinfo.value,
+                                          pytest.skip.Exception):
+        return  # green, or a skip — neither is a failure
     taf_journal.mark("failed")
+    _LATE_FAILURES.append(item.name)
     ws_url = os.environ.get("TAF_IKC3_WS")
     if not ws_url:
         return
@@ -158,9 +168,10 @@ def pytest_sessionfinish(session, exitstatus):
     run = taf_journal.RUN_DIR
     if not run:
         return
-    names = [os.path.basename(os.path.dirname(jf))
+    names = {os.path.basename(os.path.dirname(jf))
              for jf in glob.glob(os.path.join(run, "*", "journal.jsonl"))
-             if '"outcome": "failed"' in open(jf, encoding="utf-8").read()]
+             if '"outcome": "failed"' in open(jf, encoding="utf-8").read()}
+    names.update(_LATE_FAILURES)
     with open(os.path.join(run, "failed.txt"), "w",
               encoding="utf-8") as f:
         f.write("\n".join(sorted(names)))
@@ -188,7 +199,7 @@ def pytest_collection_modifyitems(items, config):
     items[:] = [i for i in items if i.name in keep]
 
 # @concept CONCEPT-dsl-v1-016-01-the-auth-clause
-# @concept CONCEPT-playwright-v1-004-01-the-storage-state
+# @concept CONCEPT-playwright-v1-008-01-storage-state-reuse
 @pytest.fixture(scope="session")
 def auth_state(browser, base_url, run_dir):
     """One sign-in per run — the session kept as storage state; every

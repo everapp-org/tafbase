@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parameterized Tests and Value Sources · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / junit / concepts</div><h1 class="page-title" id="parameterized-tests-and-value-sources">Parameterized Tests and Value Sources <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-junit-v1-002-01-parameterized-test-and-sources</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>junit</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>JUnit 5.10</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/junit/concepts/CONCEPT-junit-v1-002-01-parameterized-test-and-sources.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-istqb-v1-007-01-equivalence-partitioning, CONCEPT-istqb-v1-008-01-boundary-value-analysis</td></tr><tr><th>contrasts-with</th><td>CONCEPT-pytest-v1-002-01-mark-parametrize, CONCEPT-pwtest-v1-002-01-data-driven-test-loop</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>JUnit Jupiter&#39;s <code>@ParameterizedTest</code> executes a single test method multiple times with different arguments. It pairs with various argument source annotations:</p>
+<ul>
+<li><code>@ValueSource</code>: Supplies arrays of literal primitives, strings, or classes.</li>
+<li><code>@CsvSource</code>: Supplies comma-delimited strings parsed into method parameters with automatic type conversion.</li>
+<li><code>@CsvFileSource</code>: Loads tabular test vectors from external CSV classpath resources.</li>
+<li><code>@MethodSource</code>: References a static factory method that returns a <code>Stream&lt;Arguments&gt;</code>, <code>Collection</code>, or <code>Iterable</code>.</li>
+</ul>
+<p>Each parameter set is executed as an independent test invocation in test reports with configurable display names (<code>name = &quot;[{index}] {arguments}&quot;</code>).</p>
+<pre><code class="language-java">import java.util.stream.Stream;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class DiscountCalculatorTest {
+
+    @ParameterizedTest(name = &quot;Tier {0} with quantity {1} gives discount {2}&quot;)
+    @CsvSource({
+            &quot;STANDARD, 1, 0.00&quot;,
+            &quot;STANDARD, 10, 0.05&quot;,
+            &quot;VIP,      1, 0.10&quot;,
+            &quot;VIP,      5, 0.15&quot;
+    })
+    void computesDiscount(String tier, int quantity, double expectedDiscount) {
+        DiscountCalculator calc = new DiscountCalculator();
+        assertEquals(expectedDiscount, calc.calculate(tier, quantity), 0.001);
+    }
+
+    @ParameterizedTest
+    @MethodSource(&quot;boundaryScenarios&quot;)
+    void checksBoundaries(int inputAge, boolean expectedEligibility) {
+        EligibilityService service = new EligibilityService();
+        assertEquals(expectedEligibility, service.isEligible(inputAge));
+    }
+
+    static Stream&lt;Arguments&gt; boundaryScenarios() {
+        return Stream.of(
+                Arguments.of(17, false), // Boundary: just below minimum
+                Arguments.of(18, true),  // Boundary: minimum eligible age
+                Arguments.of(65, true),  // Boundary: maximum working age
+                Arguments.of(66, false)  // Boundary: above maximum
+        );
+    }
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-istqb-v1-007-01-equivalence-partitioning</code> and <code>CONCEPT-istqb-v1-008-01-boundary-value-analysis</code>. Testing equivalence classes and boundary values by duplicating identical <code>@Test</code> methods creates maintenance overhead and visual clutter. Using parameterized tests ensures comprehensive coverage of input partitions while retaining distinct reporting per input vector.</p>
+<p>Contrasts with <code>CONCEPT-pytest-v1-002-01-mark-parametrize</code> and <code>CONCEPT-pwtest-v1-002-01-data-driven-test-loop</code>. JUnit provides strongly typed argument conversion and rich annotation-driven sources integrated directly into the Java type system. In pytest, parameterization is achieved via decorators on functions, while in Playwright Test, parameterization is achieved through native JavaScript iteration loops.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-007-01-equivalence-partitioning.html">Equivalence Partitioning</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-007-01-equivalence-partitioning</span></li><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-008-01-boundary-value-analysis.html">Boundary Value Analysis</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-008-01-boundary-value-analysis</span></li></ul><h3>Across languages &amp; tools <span class="count">2</span></h3><ul><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-002-01-data-driven-test-loop.html">Data-Driven Parameterized Test Loops</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-002-01-data-driven-test-loop</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-002-01-mark-parametrize.html">Parameterized Test Matrix via mark.parametrize</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-002-01-mark-parametrize</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-002-01-mark-parametrize.html">Parameterized Test Matrix via mark.parametrize</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-002-01-mark-parametrize</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-002-01-data-driven-test-loop.html">Data-Driven Parameterized Test Loops</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-002-01-data-driven-test-loop</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

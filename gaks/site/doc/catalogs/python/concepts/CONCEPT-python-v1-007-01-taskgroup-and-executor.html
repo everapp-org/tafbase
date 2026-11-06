@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TaskGroup and Executor Concurrency · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / python / concepts</div><h1 class="page-title" id="taskgroup-and-executor-concurrency">TaskGroup and Executor Concurrency <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-python-v1-007-01-taskgroup-and-executor</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>python</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>Python 3.11</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/python/concepts/CONCEPT-python-v1-007-01-taskgroup-and-executor.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-007-01-parallel-fan-out</td></tr><tr><th>contrasts-with</th><td>CONCEPT-java-v1-009-01-virtual-threads</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>In Python, structured concurrency is realized asynchronously via <code>asyncio.TaskGroup</code> (introduced in Python 3.11) and synchronously via <code>concurrent.futures.ThreadPoolExecutor</code> (or <code>ProcessPoolExecutor</code>). An <code>asyncio.TaskGroup</code> used as an asynchronous context manager spawns multiple coroutines, awaits their collective completion upon exiting the context, and cancels all remaining sibling tasks immediately if any child task raises an exception, grouping unhandled exceptions into an <code>ExceptionGroup</code>.</p>
+<pre><code class="language-python">import asyncio
+
+async def fetch_data(source_id: int) -&gt; str:
+    await asyncio.sleep(0.01)
+    return f&quot;data-{source_id}&quot;
+
+async def main() -&gt; list[str]:
+    results: list[str] = []
+    async with asyncio.TaskGroup() as tg:
+        t1 = tg.create_task(fetch_data(1))
+        t2 = tg.create_task(fetch_data(2))
+    # Context exits only after all tasks complete or an exception occurs
+    return [t1.result(), t2.result()]
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Before Python 3.11, asynchronous fan-out relied primarily on <code>asyncio.gather()</code> or <code>asyncio.wait()</code>. These functions did not cancel other tasks when one failed, frequently leaving orphaned coroutines running in the background. Furthermore, handling multiple exceptions required cumbersome custom filtering, often masking critical bugs.</p>
+<p><code>asyncio.TaskGroup</code> realizes <code>CONCEPT-prog-v1-007-01-parallel-fan-out</code>:</p>
+<ol>
+<li><strong>Guaranteed task termination:</strong> The enclosing scope cannot terminate while background coroutines remain active.</li>
+<li><strong>Proactive cancellation:</strong> If one task fails, remaining tasks are promptly cancelled, conserving I/O and CPU resources.</li>
+<li><strong>Contrast with Java:</strong> While Java leverages lightweight virtual threads (<code>CONCEPT-java-v1-009-01-virtual-threads</code>) with <code>StructuredTaskScope</code> across blocking APIs, Python utilizes <code>TaskGroup</code> on top of an explicit cooperative event loop for I/O-bound concurrency, delegating CPU-bound work to <code>ProcessPoolExecutor</code>.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-007-01-parallel-fan-out.html">Structured Parallel Fan-Out</a> <span class="muted">CONCEPT-prog-v1-007-01-parallel-fan-out</span></li></ul><h3>Across languages &amp; tools <span class="count">7</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-018-01-scoped-values-and-structured-concurrency.html">Scoped Values and Structured Concurrency</a> <span class="muted">(preview)</span> <span class="muted">CONCEPT-java-v1-018-01-scoped-values-and-structured-concurrency</span></li><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-009-01-virtual-threads.html">Virtual Threads</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-009-01-virtual-threads</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-007-01-promise-all-and-allsettled.html">Concurrent Promise Fan-Out</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-007-01-promise-all-and-allsettled</span></li><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-005-01-tag-filtering-and-parallel-execution.html">Tag Filtering and Parallel Execution</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-005-01-tag-filtering-and-parallel-execution</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-005-01-projects-matrix-and-sharding.html">Multi-Project Matrix and Worker Sharding</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-005-01-projects-matrix-and-sharding</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-005-01-markers-and-xdist-parallelism.html">Markers and xdist Worker Parallelism</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-005-01-markers-and-xdist-parallelism</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-007-01-typed-promise-concurrency.html">Typed Promise Concurrency</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-007-01-typed-promise-concurrency</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-009-01-virtual-threads.html">Virtual Threads</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-009-01-virtual-threads</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

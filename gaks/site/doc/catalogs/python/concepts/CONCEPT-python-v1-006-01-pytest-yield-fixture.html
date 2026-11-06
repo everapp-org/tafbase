@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pytest Yield Fixture · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / python / concepts</div><h1 class="page-title" id="pytest-yield-fixture">Pytest Yield Fixture <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-python-v1-006-01-pytest-yield-fixture</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>python</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>pytest 3.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/python/concepts/CONCEPT-python-v1-006-01-pytest-yield-fixture.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-006-01-scoped-test-fixture</td></tr><tr><th>requires</th><td>CONCEPT-python-v1-005-01-context-manager</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>A pytest yield fixture is a testing fixture function decorated with <code>@pytest.fixture</code> that yields a value or resource to the test. Code preceding the <code>yield</code> statement executes during test setup, while code following <code>yield</code> executes during test teardown. The teardown phase is guaranteed to run after the test function finishes, even if the test fails an assertion or raises an unexpected exception.</p>
+<pre><code class="language-python">import pytest
+from pathlib import Path
+import tempfile
+import shutil
+from typing import Generator
+
+@pytest.fixture
+def temp_workspace() -&gt; Generator[Path, None, None]:
+    path = Path(tempfile.mkdtemp(prefix=&quot;test_ws_&quot;))
+    try:
+        yield path
+    finally:
+        shutil.rmtree(path, ignore_errors=True)
+
+def test_file_creation(temp_workspace: Path) -&gt; None:
+    target = temp_workspace / &quot;demo.txt&quot;
+    target.write_text(&quot;sample content&quot;)
+    assert target.exists()
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Traditional <code>unittest.TestCase</code> test suites decoupled setup (<code>setUp</code>) and teardown (<code>tearDown</code>) into disconnected class methods. This separation made it hard to track resource allocation, encouraged sharing mutable state across instance variables (<code>self.ws</code>), and caused teardown bugs if setup partially failed before initializing an instance attribute.</p>
+<p>The yield fixture realizes <code>CONCEPT-prog-v1-006-01-scoped-test-fixture</code> using Python&#39;s context management protocol (<code>CONCEPT-python-v1-005-01-context-manager</code>):</p>
+<ol>
+<li><strong>Colocated lifecycle:</strong> Setup and teardown for a given resource reside within a single coherent generator function.</li>
+<li><strong>Explicit parameter injection:</strong> Tests declare dependencies as function parameters, eliminating hidden coupling and global variables.</li>
+<li><strong>Flexible scoping:</strong> Fixtures can be configured with scopes (<code>function</code>, <code>class</code>, <code>module</code>, <code>package</code>, <code>session</code>) and composed hierarchically.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-006-01-scoped-test-fixture.html">Scoped Test Fixture Lifecycle</a> <span class="muted">CONCEPT-prog-v1-006-01-scoped-test-fixture</span></li></ul><h3>Across languages &amp; tools <span class="count">7</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-001-01-junit-lifecycle-annotations.html">JUnit 5 Lifecycle Annotations</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-001-01-junit-lifecycle-annotations</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-006-01-async-fixture-callback.html">Async Fixture Callback Lifecycle</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-006-01-async-fixture-callback</span></li><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle.html">Per-Method Test Instance Lifecycle and Fixtures</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-001-01-test-extend-fixtures.html">Typed Fixtures via test.extend</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-001-01-test-extend-fixtures</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-001-01-dependency-injected-fixtures.html">Dependency-Injected Fixtures and Scoped Lifecycles</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-001-01-dependency-injected-fixtures</span></li><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-004-01-session-and-context-isolation.html">Session and Context Isolation</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-004-01-session-and-context-isolation</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-006-01-typed-test-fixture-extension.html">Typed Test Fixture Extension</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-006-01-typed-test-fixture-extension</span></li></ul><h3>Prerequisites</h3><ul><li><span class="badge">python</span> <a href="CONCEPT-python-v1-005-01-context-manager.html">Python Context Manager</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-005-01-context-manager</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

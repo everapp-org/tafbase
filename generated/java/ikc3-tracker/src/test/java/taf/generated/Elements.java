@@ -2,14 +2,16 @@
 // edit the model and regenerate.
 package taf.generated;
 
-// @concept CONCEPT-playwright-v1-001-01-the-locator-ladder
+// @concept CONCEPT-qa-v1-002-01-the-locator-ladder
+// @concept CONCEPT-playwright-v1-002-01-semantic-locators
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 
 /** Named locators, one method each — the locator ladder. */
-public class Elements {
+public final class Elements {
+    private Elements() {}
     public static Locator handle(Page page) {
         return page.getByLabel("Handle");
     }

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nullish Coalescing and Optional Chaining · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / js / concepts</div><h1 class="page-title" id="nullish-coalescing-and-optional-chaining">Nullish Coalescing and Optional Chaining <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-js-v1-004-01-nullish-coalescing-and-optional-chaining</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>js</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>ES2020</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/js/concepts/CONCEPT-js-v1-004-01-nullish-coalescing-and-optional-chaining.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-004-01-null-safe-optionality</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Introduced in ES2020, optional chaining (<code>?.</code>) and nullish coalescing (<code>??</code>) provide syntax for safely navigating and providing fallbacks for potentially absent values (<code>null</code> or <code>undefined</code>). Optional chaining short-circuits property access, method calls, or array indexing to <code>undefined</code> if the target is nullish. The nullish coalescing operator returns the right-hand operand only if the left-hand operand evaluates to <code>null</code> or <code>undefined</code> (unlike the logical OR operator <code>||</code> which coalesces all falsy values).</p>
+<pre><code class="language-js">export function resolvePort(config) {
+  // config?.server?.port short-circuits to undefined if config or server is null/undefined
+  // ?? 8080 assigns 8080 only if the resolved port is null or undefined (allowing port 0)
+  return config?.server?.port ?? 8080;
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Before ES2020, inspecting deeply nested structures required repetitive guard expressions (<code>if (config &amp;&amp; config.server &amp;&amp; config.server.port)</code>) or utility libraries like Lodash <code>get</code>. Furthermore, relying on the logical OR operator <code>||</code> for defaults introduced bugs by unintentionally replacing valid falsy values (such as <code>0</code>, <code>&quot;&quot;</code>, or <code>false</code>) with defaults.</p>
+<p>These operators realize <code>CONCEPT-prog-v1-004-01-null-safe-optionality</code>:</p>
+<ol>
+<li><strong>Falsy distinction:</strong> Clearly differentiates intentional empty states (<code>0</code>, <code>&quot;&quot;</code>, <code>false</code>) from uninitialized absence (<code>null</code>, <code>undefined</code>).</li>
+<li><strong>Short-circuiting ergonomics:</strong> Eliminates deeply nested ternary operators or verbose conditional checks.</li>
+<li><strong>Safe function invocation:</strong> Supports <code>callback?.(data)</code> to safely invoke optional hooks without manual <code>typeof callback === &#39;function&#39;</code> checks.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-004-01-null-safe-optionality.html">Null-Safe Optionality</a> <span class="muted">CONCEPT-prog-v1-004-01-null-safe-optionality</span></li></ul><h3>Across languages &amp; tools <span class="count">4</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-019-01-jspecify-and-nullaway.html">Compile-Time Null Safety with JSpecify and NullAway</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-019-01-jspecify-and-nullaway</span></li><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-013-01-optional-discipline.html">Optional Return Discipline</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-013-01-optional-discipline</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-004-01-none-aware-typing.html">None-Aware Strict Typing</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-004-01-none-aware-typing</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-004-01-strict-null-checks.html">Strict Null Checks</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-004-01-strict-null-checks</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

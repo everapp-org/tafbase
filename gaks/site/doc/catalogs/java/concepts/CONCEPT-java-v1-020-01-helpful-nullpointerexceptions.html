@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Helpful NullPointerException Diagnostics · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / java / concepts</div><h1 class="page-title" id="helpful-nullpointerexception-diagnostics">Helpful NullPointerException Diagnostics <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-java-v1-020-01-helpful-nullpointerexceptions</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>java</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>Java 14</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/java/concepts/CONCEPT-java-v1-020-01-helpful-nullpointerexceptions.md</code></td></tr></table><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Helpful <code>NullPointerException</code> diagnostics enable the JVM to analyze bytecode at the point of a <code>NullPointerException</code> and describe exactly which variable, method invocation, or array indexing evaluated to <code>null</code>.</p>
+<pre><code class="language-java">// In a chained expression:
+user.getAddress().getCity().toLowerCase();
+
+// If getAddress() returned null, the JVM exception message displays:
+// Cannot invoke &quot;Address.getCity()&quot; because the return value of
+// &quot;User.getAddress()&quot; is null
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Historically, a <code>NullPointerException</code> on a line with chained calls (e.g. <code>a.b().c().d()</code>) or multiple array indexing operations only reported the line number. Developers were forced to inspect bytecode or split single expressions into multiple lines with temporary variables to identify the null dereference. Helpful NPE diagnostics pinpoint the precise expression that yielded null, dramatically speeding up root-cause analysis in production logs without bytecode instrumentation or performance overhead. Enabled by default since Java 15.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

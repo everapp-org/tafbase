@@ -12,7 +12,7 @@ authors:
 
 A project-specific, grammar-hosted DSL (DSL-First §2.4 — ANTLR — the family
 member Kernel/Behavior/Verification/Catalog cannot express: spellings
-as data). The model `dsl/framework-spec.dsl.json` declares what the
+as data). The model `taf/dsl/framework-spec.dsl` declares what the
 framework is; emitters derive framework code from it.
 
 ## Metamodel

@@ -39,6 +39,6 @@ locator when it arrives.
 
 ## Neighbors
 
-[[CONCEPT-playwright-v1-001-01-the-locator-ladder]],
+[[CONCEPT-qa-v1-002-01-the-locator-ladder]],
 [[CONCEPT-testing-v1-003-01-the-golden-file]] (image comparison done
 right).

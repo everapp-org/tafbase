@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deterministic try-with-resources, AutoCloseable, and Cleaner · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / java / concepts</div><h1 class="page-title" id="deterministic-try-with-resources-autocloseable-and-cleaner">Deterministic try-with-resources, AutoCloseable, and Cleaner <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-java-v1-012-01-try-with-resources-and-cleaner</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>java</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>Java 9</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/java/concepts/CONCEPT-java-v1-012-01-try-with-resources-and-cleaner.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-005-01-scoped-resource-cleanup</td></tr><tr><th>contrasts-with</th><td>CONCEPT-python-v1-005-01-context-manager, CONCEPT-ts-v1-005-01-using-disposable</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p><code>try-with-resources</code> guarantees deterministic release of external resources managed by <code>AutoCloseable</code> types upon block exit, properly suppressing secondary exceptions. For low-level off-heap resources where explicit cleanup might be omitted, <code>java.lang.ref.Cleaner</code> provides a garbage-collection-triggered fallback without resurrection hazards.</p>
+<pre><code class="language-java">public void transferData(Path source, Path target) throws IOException {
+    try (var in = Files.newInputStream(source);
+         var out = Files.newOutputStream(target)) {
+        in.transferTo(out);
+    } // in and out closed deterministically in reverse acquisition order
+}
+
+public class NativeBufferHandle implements AutoCloseable {
+    private static final Cleaner CLEANER = Cleaner.create();
+    private final Cleaner.Cleanable cleanable;
+
+    public NativeBufferHandle(long address) {
+        this.cleanable = CLEANER.register(this, new Releaser(address));
+    }
+
+    @Override
+    public void close() {
+        cleanable.clean();
+    }
+
+    private static record Releaser(long address) implements Runnable {
+        @Override
+        public void run() {
+            // Free off-heap buffer at address
+        }
+    }
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Replaces brittle <code>finally { if (res != null) res.close(); }</code> blocks where an exception thrown during <code>close()</code> would mask the primary exception that caused the block failure. <code>try-with-resources</code> suppresses secondary exceptions and attaches them via <code>Throwable.getSuppressed()</code>. Furthermore, it supersedes <code>Object.finalize()</code>, which was unpredictable, stalled GC sweeps, allowed object resurrection, and was deprecated for removal. Use <code>try-with-resources</code> for all deterministic scoping and <code>Cleaner</code> solely as a defensive safeguard for off-heap allocations.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-005-01-scoped-resource-cleanup.html">Scoped Deterministic Resource Cleanup</a> <span class="muted">CONCEPT-prog-v1-005-01-scoped-resource-cleanup</span></li></ul><h3>Across languages &amp; tools <span class="count">3</span></h3><ul><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-005-01-try-finally-and-explicit-resource-management.html">Try-Finally and Explicit Resource Management</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-005-01-try-finally-and-explicit-resource-management</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-005-01-context-manager.html">Python Context Manager</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-005-01-context-manager</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-005-01-using-disposable.html">Explicit Resource Management with Using and Disposable</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-005-01-using-disposable</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-005-01-context-manager.html">Python Context Manager</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-005-01-context-manager</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-005-01-using-disposable.html">Explicit Resource Management with Using and Disposable</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-005-01-using-disposable</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

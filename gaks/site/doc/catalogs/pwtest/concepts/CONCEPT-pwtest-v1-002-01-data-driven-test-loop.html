@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data-Driven Parameterized Test Loops · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / pwtest / concepts</div><h1 class="page-title" id="data-driven-parameterized-test-loops">Data-Driven Parameterized Test Loops <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-pwtest-v1-002-01-data-driven-test-loop</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>pwtest</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>Playwright 1.40</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/pwtest/concepts/CONCEPT-pwtest-v1-002-01-data-driven-test-loop.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-istqb-v1-007-01-equivalence-partitioning, CONCEPT-istqb-v1-008-01-boundary-value-analysis</td></tr><tr><th>contrasts-with</th><td>CONCEPT-junit-v1-002-01-parameterized-test-and-sources, CONCEPT-pytest-v1-002-01-mark-parametrize</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>In Playwright Test Runner (<code>@playwright/test</code>), parameterized or data-driven tests are defined using standard JavaScript iteration constructs (<code>for...of</code>, <code>.forEach()</code>) at top-level module evaluation time. </p>
+<p>Rather than relying on proprietary annotations or runner decorators, each iteration dynamically registers a distinct <code>test(title, testFn)</code> invocation with interpolated test case names. Each iteration runs as an independent test with isolated fixture allocations, individual retry policies, and granular reporting entries.</p>
+<pre><code class="language-typescript">import { test, expect } from &#39;@playwright/test&#39;;
+
+interface TestCase {
+  tier: string;
+  quantity: number;
+  expectedDiscount: number;
+}
+
+const discountTestCases: TestCase[] = [
+  { tier: &#39;STANDARD&#39;, quantity: 1, expectedDiscount: 0.00 },
+  { tier: &#39;STANDARD&#39;, quantity: 10, expectedDiscount: 0.05 },
+  { tier: &#39;VIP&#39;,      quantity: 1, expectedDiscount: 0.10 },
+  { tier: &#39;VIP&#39;,      quantity: 5, expectedDiscount: 0.15 },
+];
+
+for (const { tier, quantity, expectedDiscount } of discountTestCases) {
+  test(`calculates discount for ${tier} with quantity ${quantity}`, async ({ page }) =&gt; {
+    await page.goto(&#39;https://app.example.com/pricing&#39;);
+    await page.getByLabel(&#39;Customer Tier&#39;).selectOption(tier);
+    await page.getByLabel(&#39;Item Quantity&#39;).fill(String(quantity));
+    await page.getByRole(&#39;button&#39;, { name: &#39;Calculate&#39; }).click();
+
+    const result = page.getByTestId(&#39;discount-display&#39;);
+    await expect(result).toHaveText(`${(expectedDiscount * 100).toFixed(0)}%`);
+  });
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-istqb-v1-007-01-equivalence-partitioning</code> and <code>CONCEPT-istqb-v1-008-01-boundary-value-analysis</code>. Testing equivalence classes and boundary values requires executing the same test logic across multiple input vectors while generating distinct, identifiable test results for each vector.</p>
+<p>Contrasts with <code>CONCEPT-junit-v1-002-01-parameterized-test-and-sources</code> and <code>CONCEPT-pytest-v1-002-01-mark-parametrize</code>. In JUnit 5 and pytest, test runners require specialized framework annotations (<code>@ParameterizedTest</code>, <code>@pytest.mark.parametrize</code>) and reflection to supply data matrices to functions. Playwright Test treats test registration as standard JavaScript runtime execution: because <code>test()</code> is a regular function call, standard loops, arrays, JSON imports, and generator functions naturally generate test suites without framework-specific DSLs.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-007-01-equivalence-partitioning.html">Equivalence Partitioning</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-007-01-equivalence-partitioning</span></li><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-008-01-boundary-value-analysis.html">Boundary Value Analysis</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-008-01-boundary-value-analysis</span></li></ul><h3>Across languages &amp; tools <span class="count">2</span></h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-002-01-parameterized-test-and-sources.html">Parameterized Tests and Value Sources</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-002-01-parameterized-test-and-sources</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-002-01-mark-parametrize.html">Parameterized Test Matrix via mark.parametrize</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-002-01-mark-parametrize</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-002-01-parameterized-test-and-sources.html">Parameterized Tests and Value Sources</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-002-01-parameterized-test-and-sources</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-002-01-mark-parametrize.html">Parameterized Test Matrix via mark.parametrize</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-002-01-mark-parametrize</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

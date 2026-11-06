@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structural Pattern Matching · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / python / concepts</div><h1 class="page-title" id="structural-pattern-matching">Structural Pattern Matching <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-python-v1-003-01-structural-pattern-matching</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>python</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>Python 3.10</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/python/concepts/CONCEPT-python-v1-003-01-structural-pattern-matching.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-003-01-exhaustive-branching</td></tr><tr><th>requires</th><td>CONCEPT-python-v1-002-01-union-type</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Structural pattern matching in Python (introduced in PEP 634 / Python 3.10) provides <code>match</code> and <code>case</code> statements capable of inspecting the shape, type, and contents of objects. When combined with typing utilities like <code>typing.assert_never</code>, static type checkers (<code>mypy</code>, <code>pyright</code>) verify that all possible variants of a union type are covered, achieving compile-time exhaustiveness guarantees in Python.</p>
+<pre><code class="language-python">from typing import assert_never
+
+def handle_result(res: CommandResult) -&gt; str:
+    match res:
+        case Success(payload=text):
+            return f&quot;Processed: {text}&quot;
+        case Failure(error_code=code, message=msg):
+            return f&quot;Failed ({code}): {msg}&quot;
+        case _ as unreachable:
+            assert_never(unreachable)
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Before Python 3.10, multi-way branch logic relied on chained <code>if isinstance(x, A): ... elif isinstance(x, B): ... else: ...</code> ladders. This approach lacked structural extraction and had no mechanism to verify whether all cases were handled. Adding a new variant to a data model would often pass silently into a default branch or fall through to <code>None</code>.</p>
+<p>Structural pattern matching realizes <code>CONCEPT-prog-v1-003-01-exhaustive-branching</code>:</p>
+<ol>
+<li><strong>Simultaneous check and extraction:</strong> A single <code>case Success(payload=text)</code> statement asserts the instance type and binds its internal fields into local variables.</li>
+<li><strong>Static exhaustiveness via <code>assert_never</code>:</strong> If a developer adds a third variant to <code>CommandResult</code> without adding a corresponding <code>case</code>, static type checkers flag the <code>assert_never</code> call as a type error because the unreachable branch received an unhandled variant.</li>
+<li><strong>Guard clauses:</strong> Allows fine-grained pattern guards (<code>case Point(x=x, y=y) if x == y:</code>) without messy nested conditionals.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-003-01-exhaustive-branching.html">Exhaustive Pattern Branching</a> <span class="muted">CONCEPT-prog-v1-003-01-exhaustive-branching</span></li></ul><h3>Across languages &amp; tools <span class="count">5</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-006-01-pattern-matching-instanceof-and-switch.html">Pattern Matching for instanceof and switch</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-006-01-pattern-matching-instanceof-and-switch</span></li><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-007-01-record-patterns.html">Record Patterns and Nested Destructuring</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-007-01-record-patterns</span></li><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-005-01-switch-expressions.html">Switch Expressions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-005-01-switch-expressions</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-003-01-switch-with-default-throw.html">Switch on Discriminant with Default Guard</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-003-01-switch-with-default-throw</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-003-01-exhaustive-switch-never.html">Exhaustive Switch Narrowing with Never Check</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-003-01-exhaustive-switch-never</span></li></ul><h3>Prerequisites</h3><ul><li><span class="badge">python</span> <a href="CONCEPT-python-v1-002-01-union-type.html">Python Type Union</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-002-01-union-type</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

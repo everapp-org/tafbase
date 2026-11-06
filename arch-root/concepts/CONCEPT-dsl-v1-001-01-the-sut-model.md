@@ -6,6 +6,9 @@ authored: 2026-10-14
 authors:
   - George Petrov
   - Devin
+layer: L2-dsl
+realizes:
+  - CONCEPT-istqb-v1-010-01-state-transition-testing
 ---
 
 # The SUT model

@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluation of project clarity, missing information, and implementation deficiencies · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / research</div><h1 class="page-title" id="evaluation-of-project-clarity-missing-information-and-implementation-deficiencies">Evaluation of project clarity, missing information, and implementation deficiencies <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>RESEARCH-taf-v1-004-01-evaluation-and-implementation-deficiencies</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-11-05</td></tr><tr><th>authors</th><td>George Petrov, Antigravity</td></tr><tr><th>kind</th><td><a href="../../reports/RESEARCH.html">Research</a></td></tr><tr><th>source</th><td><code>research/RESEARCH-taf-v1-004-01-evaluation-and-implementation-deficiencies.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-11-05</td></tr></table></details><article class="doc"><h2 id="why-this-exists">Why this exists<a class="anchor" href="#why-this-exists" aria-label="Link to this section">#</a></h2>
+<p>A comprehensive architectural and technical evaluation of <code>tafbase</code> as of
+November 2026 (branch <code>fix/pr1-review</code>). The project&#39;s contract demands
+DSL-First test generation, byte-for-byte manifest parity between Python and
+Java suites, honest refusals, and deep learning surfaces. This document records
+an audit of whether the repository is self-explanatory to newcomers, what
+information is missing, and what defects exist in the current implementation phase.</p>
+<p>Related:</p>
+<ul>
+<li><a class="wikilink" href="../plans/PLAN-taf-v1-001-01-tafbase.html" title="PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework">PLAN-taf-v1-001-01-tafbase</a></li>
+<li><a class="wikilink" href="../specs/SPEC-taf-v1-001-04-tafbase.html" title="SPEC-taf-v1-001-04 — tafbase">SPEC-taf-v1-001-04-tafbase</a></li>
+<li><a class="wikilink" href="../specs/SPEC-taf-v1-002-02-the-framework-spec-dsl.html" title="The framework-spec DSL">SPEC-taf-v1-002-02-the-framework-spec-dsl</a></li>
+<li><a class="wikilink" href="../features/F-taf-v1-002-02-framework-model-acceptance.html" title="F-taf-v1-002-02 — the framework model: acceptance">F-taf-v1-002-02-framework-model-acceptance</a></li>
+</ul>
+<h2 id="how-it-was-measured">How it was measured<a class="anchor" href="#how-it-was-measured" aria-label="Link to this section">#</a></h2>
+<ol>
+<li><strong>Corpus &amp; layout inspection</strong>: Checked <code>arch-root/</code> documents against
+GAKS rules (<code>gaks/tools/py/gaks_check.py</code>), reviewed READMEs, and mapped
+the directory structure.</li>
+<li><strong>Execution gates</strong>: Executed unit tests (<code>pytest</code>), Java suite compilation
+(<code>mvn test-compile</code>), manifest diff checks, and CLI commands (<code>check</code>,
+<code>dry-run</code>, <code>env</code>, <code>walk</code>).</li>
+<li><strong>Bytecode and API contract verification</strong>: Inspected Microsoft Playwright
+Java 1.49.0 bytecode via <code>javap</code> to verify interface methods referenced by
+the Java code emitter.</li>
+<li><strong>Boundary and negative fuzzing</strong>: Evaluated <code>taf.model.validate</code> with
+edge-case model definitions (inline steps, unchained final states,
+reserved keyword identifiers).</li>
+</ol>
+<h2 id="the-summary">The summary<a class="anchor" href="#the-summary" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><strong>Self-explanatoriness</strong>: High architectural rigor in <code>arch-root/</code>, but
+obscured by &quot;Dual DSL&quot; ambiguity (SUT JSON model vs. Framework Spec ANTLR
+DSL), layout discrepancies, and an undocumented Java execution story.</li>
+<li><strong>Missing information</strong>: Lack of a formal JSON Schema for IDE validation,
+sparse documentation on complex step arguments (<code>api</code>, <code>save</code>, <code>expect</code>),
+missing workflow guidance for <code>taf record</code>, and no generic result-sink SPI.</li>
+<li><strong>Problems &amp; deficiencies</strong>:<ol>
+<li>A broken import in <code>tests/test_live.py</code> (<code>from taf import emit_java</code>).</li>
+<li>A flawed contract test in <code>tests/test_spec_contract.py</code> that concealed
+three missing refusals in <code>framework-spec.dsl</code>.</li>
+<li>Uncompilable Java code generated for <code>compare-screen</code> (no <code>hasScreenshot()</code>
+in Playwright Java) and <code>api.save</code> (no <code>resp.json()</code> in Playwright Java
+and no JSON parser dependency).</li>
+<li>Parity gaps in Java: <code>TAF_RERUN</code> is printed but never implemented; fault
+reporting via <code>ikc3_sink</code> is absent in Java.</li>
+<li>Unfulfilled acceptance criteria (AC-7, AC-8) from <code>F-taf-v1-002-02</code>,
+leaving <code>dryrun.py</code> hardcoded and omitting <code>TAF_ARRIVE_MS</code>.</li>
+<li>Model validation gaps in <code>taf.model.validate</code>: unvalidated final states,
+false-positive reachability rejections for inline navigation, and
+unvalidated identifier names producing syntax errors in emitted code.</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h2 id="in-detail-self-explanatory-evaluation">In detail: self-explanatory evaluation<a class="anchor" href="#in-detail-self-explanatory-evaluation" aria-label="Link to this section">#</a></h2>
+<h3 id="strengths">Strengths<a class="anchor" href="#strengths" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Exemplary Corpus Rigor</strong>: The documentation in <code>arch-root/</code> sets a high
+bar. Plans define draft release notes as acceptance criteria, ADRs provide
+clear context for architectural boundaries, and over 35 concept documents
+explain every primitive following a strict 5-question depth bar.</li>
+<li><strong>Cohesive CLI Lifecycle</strong>: The framework implements a clean lifecycle:
+<code>taf check</code> validates, <code>taf emit</code> generates, and <code>taf run</code> executes.
+Invoking <code>taf &lt;model&gt;</code> intelligently defaults to <code>dry-run</code>, printing a
+preflight report before any browser is opened.</li>
+<li><strong>Committed Generation</strong>: Emitted suites under <code>generated/</code> are committed
+artifacts, making code generator modifications visible in diffs.</li>
+</ul>
+<h3 id="gaps-in-self-explanatoriness">Gaps in Self-Explanatoriness<a class="anchor" href="#gaps-in-self-explanatoriness" aria-label="Link to this section">#</a></h3>
+<ol>
+<li><p><strong>The &quot;Dual DSL&quot; Ambiguity</strong>:
+The README introduces <code>tafbase</code> as &quot;DSL First&quot;, where a system under test
+is declared once as data. A newcomer immediately encounters two distinct DSLs:</p>
+<ul>
+<li>The <strong>SUT Model DSL</strong> (<code>*.sut.model.json</code>): Authored in JSON by QA and test
+engineers.</li>
+<li>The <strong>Framework-Spec DSL</strong> (<code>taf/dsl/framework-spec.dsl</code>): An ANTLR4-based
+meta-DSL (<code>dsl/FrameworkSpec.g4</code>) that defines the framework vocabulary
+and code templates for Python and Java.
+Without an explicit distinction in <code>README.md</code>, readers may confuse whether
+they are meant to author <code>.dsl</code> files or <code>.json</code> files.</li>
+</ul>
+</li>
+<li><p><strong>File Layout Discrepancies</strong>:</p>
+<ul>
+<li><code>dsl/FrameworkSpec.g4</code> remains at the root under <code>dsl/</code>, whereas
+<code>framework-spec.dsl</code> was moved into <code>taf/dsl/</code> so it could be distributed
+as Python package data (<code>pyproject.toml</code>).</li>
+<li>An untracked <code>codegen-java/target/</code> directory remains on disk from an
+earlier branch (<code>feature/codegen-java</code>), confusing developers inspecting
+the filesystem.</li>
+<li>An empty <code>tools/</code> directory exists at root with no README or purpose.</li>
+</ul>
+</li>
+<li><p><strong>Missing Java Toolchain Guidance</strong>:
+<code>CONTRIBUTING.md</code> and <code>README.md</code> focus entirely on Python setup
+(<code>.venv</code>, <code>pip install -e .</code>, <code>playwright install</code>). Even though Java
+generation is a primary parity pillar, Java prerequisites (JDK 17+, Maven,
+Playwright driver cache) and commands to compile or run the Java suite
+(<code>mvn test</code>) are absent from the developer guide.</p>
+</li>
+</ol>
+<hr>
+<h2 id="in-detail-missing-information">In detail: missing information<a class="anchor" href="#in-detail-missing-information" aria-label="Link to this section">#</a></h2>
+<ol>
+<li><p><strong>Formal JSON Schema (<code>schema.json</code>)</strong>:
+Model files (<code>suts/*.sut.model.json</code>) lack a JSON Schema (Draft-07 or
+2020-12). Providing <code>$schema</code> in model files would allow IDEs (VS Code,
+IntelliJ) to provide instant autocomplete, field descriptions, and
+diagnostics for model authors.</p>
+</li>
+<li><p><strong>Comprehensive Step Language Reference</strong>:
+While <code>SPEC-taf-v1-001-04-tafbase</code> lists step names, exact parameter
+specifications are scattered across <code>taf/model.py</code> and
+<code>taf/dsl/framework-spec.dsl</code>. Missing explicit details include:</p>
+<ul>
+<li><code>api</code>: Supported endpoint parameter interpolation (<code>{id}</code>), HTTP method
+handling, and status code assertions.</li>
+<li><code>save</code>: Dotted key JSONPath grammar (<code>$.field.subfield</code>) and its
+limitations.</li>
+<li><code>expect</code>: The full matrix of assertion properties (<code>hidden</code>, <code>text</code>,
+<code>count</code>, <code>equals</code>, <code>value</code>) and how <code>soft: true</code> affects execution flow.</li>
+</ul>
+</li>
+<li><p><strong>The <code>taf record</code> Guide</strong>:
+<code>taf record</code> starts an interactive browser session and intercepts DOM
+interactions, drafting locator ladder mappings into JSON. This capability
+is completely omitted from <code>README.md</code> and <code>suts/README.md</code>. No guide
+explains how to review and merge recorded steps into a <code>.sut.model.json</code>.</p>
+</li>
+<li><p><strong>Pluggable Sink Interface Contract</strong>:
+<code>PLAN-taf-v1-001-01</code> describes fault-reporting sinks as a pluggable kind.
+Currently, only <code>sink_ikc3.py</code> exists, hardcoded to IKC3&#39;s WebSocket protocol.
+There is no documented abstract sink interface or guidance for writing
+adapters for Jira, GitHub Issues, or standard JUnit XML / Allure reporting.</p>
+</li>
+</ol>
+<hr>
+<h2 id="in-detail-problems-and-deficiencies-in-current-implementation">In detail: problems and deficiencies in current implementation<a class="anchor" href="#in-detail-problems-and-deficiencies-in-current-implementation" aria-label="Link to this section">#</a></h2>
+<h3 id="1-broken-import-in-opt-in-live-tests">1. Broken Import in Opt-In Live Tests<a class="anchor" href="#1-broken-import-in-opt-in-live-tests" aria-label="Link to this section">#</a></h3>
+<p>In <code>tests/test_live.py:74</code>:</p>
+<pre><code class="language-python">from taf import emit_java
+</code></pre>
+<p><code>taf/__init__.py</code> does not export <code>emit_java</code>. During codegen modularization,
+the implementation moved to <code>taf.codegen.java.emitter</code>. Running
+<code>TAF_LIVE=1 pytest tests/test_live.py</code> fails immediately with:</p>
+<pre><code>ImportError: cannot import name &#39;emit_java&#39; from &#39;taf&#39;
+</code></pre>
+<p>The test passed during standard runs only because <code>test_live.py</code> is guarded by
+<code>@pytest.mark.skipif(not os.environ.get(&quot;TAF_LIVE&quot;))</code>.</p>
+<h3 id="2-flawed-contract-test-in-testspeccontractpy">2. Flawed Contract Test in <code>test_spec_contract.py</code><a class="anchor" href="#2-flawed-contract-test-in-testspeccontractpy" aria-label="Link to this section">#</a></h3>
+<p>In <code>tests/test_spec_contract.py</code>:</p>
+<pre><code class="language-python">used = set(re.findall(r&#39;_refusal\(\s*\w+,\s*&quot;([a-z-]+)&quot;&#39;, open(&quot;taf/model.py&quot;).read()))
+</code></pre>
+<p>The regex expects the first argument to be a bare identifier (<code>\w+</code>). When the
+first argument is a literal string (e.g. <code>_refusal(&quot;document&quot;, &quot;not-json&quot;, ...)</code>)
+or an expression (e.g. <code>_refusal(&quot;states.%s&quot; % name, &quot;unreachable&quot;, ...)</code>), the
+regex silently ignores the call.</p>
+<p>Consequently, three refusal reasons used in <code>taf/model.py</code> are completely
+missing from the <code>contract { refusal ... }</code> block in <code>taf/dsl/framework-spec.dsl</code>:</p>
+<ul>
+<li><code>not-json</code></li>
+<li><code>empty-model</code></li>
+<li><code>unreachable</code></li>
+</ul>
+<p>Fixing the regex immediately exposes this defect.</p>
+<h3 id="3-java-codegen-generates-uncompilable-code">3. Java Codegen Generates Uncompilable Code<a class="anchor" href="#3-java-codegen-generates-uncompilable-code" aria-label="Link to this section">#</a></h3>
+<ol>
+<li><p><strong><code>compare-screen</code> fails compilation in Java</strong>:
+In <code>taf/dsl/framework-spec.dsl</code>:</p>
+<pre><code class="language-java">assertThat(page).hasScreenshot();  // baseline: ${arg}.png
+</code></pre>
+<p>Bytecode analysis of <code>com.microsoft.playwright.assertions.PageAssertions</code>
+proves that <code>hasScreenshot()</code> <strong>does not exist</strong> in Playwright Java.
+In Playwright, <code>hasScreenshot()</code> is an exclusive feature of the
+TypeScript and Python test runners. Generating Java code for any model
+containing a <code>compare-screen</code> step causes <code>javac</code> to fail with:
+<code>cannot find symbol: method hasScreenshot()</code>.</p>
+</li>
+<li><p><strong><code>api</code> with <code>save</code> fails compilation in Java</strong>:
+In <code>taf/dsl/framework-spec.dsl</code>:</p>
+<pre><code class="language-java">saved.put(&quot;${save_key}&quot;, resp.json()${jsonpath});
+</code></pre>
+<p>In Playwright Java, <code>APIResponse</code> provides <code>text()</code> and <code>body()</code>, but
+<strong>no <code>json()</code> method</strong>. Furthermore, the emitted <code>pom.xml</code> includes no JSON
+library (such as Jackson or Gson). Any model with an API step that saves a
+response property fails Java compilation.</p>
+</li>
+</ol>
+<h3 id="4-python-vs-java-parity-gaps">4. Python vs. Java Parity Gaps<a class="anchor" href="#4-python-vs-java-parity-gaps" aria-label="Link to this section">#</a></h3>
+<ol>
+<li><p><strong><code>TAF_RERUN</code> is a no-op in Java</strong>:
+In Python, <code>conftest.py</code> implements <code>pytest_collection_modifyitems</code> to
+filter tests according to <code>failed.txt</code>. In Java, <code>BaseTest.java</code> prints a
+message stating <code>(rerun: TAF_RERUN=1 mvn test)</code>, but does not implement a
+JUnit 5 <code>ExecutionCondition</code> or test filter. All tests are executed
+regardless of <code>TAF_RERUN</code>.</p>
+</li>
+<li><p><strong>No Fault-Reporting Sink in Java</strong>:
+Python emits <code>ikc3_sink.py</code> and hooks into test failures to file fault
+reports over WebSocket. The Java generator emits no sink client or
+reporting hook in <code>BaseTest.java</code>.</p>
+</li>
+</ol>
+<h3 id="5-spec-contract-drift-in-dryrunpy">5. Spec Contract Drift in <code>dryrun.py</code><a class="anchor" href="#5-spec-contract-drift-in-dryrunpy" aria-label="Link to this section">#</a></h3>
+<p>In <code>F-taf-v1-002-02-framework-model-acceptance.md</code>:</p>
+<ul>
+<li><strong>AC-7</strong> requires <code>dryrun.py</code> to derive its environment table from
+<code>contract.env</code> in <code>framework-spec.dsl</code>. Instead, <code>_env_table()</code> hardcodes its
+row definitions.</li>
+<li>When <code>TAF_ARRIVE_MS</code> was added to <code>framework-spec.dsl</code> under <code>contract</code>, it
+was not added to <code>dryrun.py</code>. As a result, <code>taf dry-run</code> and <code>taf env</code> omit
+<code>TAF_ARRIVE_MS</code> entirely, and <code>taf run</code> lacks an <code>--arrive-ms</code> CLI option.</li>
+<li><strong>AC-8</strong> requires <code>model.py</code> refusal names to import from the spec contract
+rather than using string literals.</li>
+</ul>
+<h3 id="6-validation-deficiencies-in-tafmodelvalidate">6. Validation Deficiencies in <code>taf.model.validate</code><a class="anchor" href="#6-validation-deficiencies-in-tafmodelvalidate" aria-label="Link to this section">#</a></h3>
+<ol>
+<li><strong>Unchecked Journey Final State</strong>:
+If a journey executes actions ending at state $S_1$, but declares
+<code>expect-final: {&quot;state&quot;: &quot;S_2&quot;}</code>, <code>validate()</code> accepts the model without
+refusal. The emitted test fails at runtime when asserting the unexpected marker.</li>
+<li><strong>Contradictory Zero-Step Journeys</strong>:
+A journey with <code>start: &quot;A&quot;</code>, <code>steps: []</code>, and <code>expect-final: {&quot;state&quot;: &quot;B&quot;}</code>
+is accepted as valid despite lacking any transition between $A$ and $B$.</li>
+<li><strong>Reachability False Positives on Inline Navigation</strong>:
+State reachability checks (<code>visited</code> set) only account for <code>start</code>,
+<code>expect-final</code>, and named action transitions (<code>from</code>/<code>to</code>). Inline steps
+such as <code>{&quot;navigate&quot;: &quot;target&quot;}</code> are ignored, causing valid target states
+to be rejected as <code>:unreachable</code>.</li>
+<li><strong>Lack of Identifier Sanitization</strong>:
+Model elements named after programming keywords (e.g., <code>&quot;class&quot;</code>, <code>&quot;def&quot;</code>)
+or numeric strings (e.g., <code>&quot;123&quot;</code>) pass validation. When emitted, they
+generate syntax errors in both Python (<code>def class(page):</code>) and Java
+(<code>public static Locator class(Page page)</code>).</li>
+</ol>
+<hr>
+<h2 id="the-decisions-that-are-georges">The decisions that are George&#39;s<a class="anchor" href="#the-decisions-that-are-georges" aria-label="Link to this section">#</a></h2>
+<p>The following prioritized roadmap outlines the corrective actions:</p>
+<ol>
+<li><strong>Immediate Bug Fixes</strong>:<ul>
+<li>Fix the import in <code>tests/test_live.py</code> (<code>taf.codegen.java.emitter</code>).</li>
+<li>Fix the regex in <code>tests/test_spec_contract.py</code> and declare <code>not-json</code>,
+<code>empty-model</code>, and <code>unreachable</code> under <code>contract</code> in <code>taf/dsl/framework-spec.dsl</code>.</li>
+</ul>
+</li>
+<li><strong>Java Codegen Corrections</strong>:<ul>
+<li>Replace <code>resp.json()</code> in Java API emission with an explicit JSON parser
+(add Jackson to <code>pom.xml</code> template), or adjust the specification.</li>
+<li>Replace <code>assertThat(page).hasScreenshot()</code> in Java with a supported
+visual comparison pattern or document the limitation in <code>SPEC-04</code>.</li>
+<li>Implement JUnit 5 test filtering for <code>TAF_RERUN</code> in <code>BaseTest.java</code>.</li>
+</ul>
+</li>
+<li><strong>Spec Alignment (AC-7 &amp; AC-8)</strong>:<ul>
+<li>Refactor <code>dryrun.py</code> to derive environment variable rows from
+<code>spec()[&quot;contract&quot;][&quot;env&quot;]</code>, bringing <code>TAF_ARRIVE_MS</code> into dry-run reports
+and <code>taf env</code>.</li>
+<li>Bind <code>_refusal</code> calls in <code>taf/model.py</code> to declared contract symbols.</li>
+</ul>
+</li>
+<li><strong>Validation Hardening</strong>:<ul>
+<li>Enforce that the end state of a journey&#39;s step sequence matches its
+<code>expect-final</code> declaration.</li>
+<li>Include inline <code>navigate</code> and <code>wait-for</code> states in reachability traversal.</li>
+<li>Add identifier validation/sanitization to prevent invalid symbol generation.</li>
+</ul>
+</li>
+<li><strong>Documentation &amp; Developer Ergonomics</strong>:<ul>
+<li>Clarify the dual-DSL architecture in <code>README.md</code>.</li>
+<li>Document Java prerequisites and test execution in <code>CONTRIBUTING.md</code>.</li>
+<li>Generate and publish a JSON Schema for <code>*.sut.model.json</code>.</li>
+</ul>
+</li>
+</ol>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

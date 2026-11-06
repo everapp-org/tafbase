@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Readonly Interface and Const Assertion Carrier · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / ts / concepts</div><h1 class="page-title" id="readonly-interface-and-const-assertion-carrier">Readonly Interface and Const Assertion Carrier <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-ts-v1-001-01-readonly-interface-and-type</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>ts</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>TypeScript 3.4</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/ts/concepts/CONCEPT-ts-v1-001-01-readonly-interface-and-type.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-001-01-immutable-data-carrier</td></tr><tr><th>contrasts-with</th><td>CONCEPT-java-v1-002-01-records, CONCEPT-python-v1-001-01-frozen-dataclass</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>In TypeScript, immutable data carriers are declared using the <code>readonly</code> property modifier, the <code>Readonly&lt;T&gt;</code> utility type, and <code>as const</code> type assertions (introduced in TypeScript 3.4). Marked properties cannot be reassigned after initialization. When applied to object literals, <code>as const</code> recursively marks all properties as <code>readonly</code> and narrows primitive types to literal types.</p>
+<pre><code class="language-ts">export interface UserProfile {
+  readonly id: string;
+  readonly email: string;
+  readonly loginCount: number;
+}
+
+export function createOrigin() {
+  return { x: 0, y: 0 } as const; // Type: { readonly x: 0; readonly y: 0 }
+}
+
+const user: UserProfile = { id: &quot;u-101&quot;, email: &quot;dev@example.com&quot;, loginCount: 3 };
+// user.loginCount = 4; // Compile error: Cannot assign to &#39;loginCount&#39; because it is a read-only property.
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>In JavaScript and unannotated TypeScript, object properties are mutable by default. Mutating object instances across asynchronous tasks or function pipelines introduces race conditions and aliasing bugs that are difficult to locate.</p>
+<p>Readonly interfaces and <code>as const</code> realize <code>CONCEPT-prog-v1-001-01-immutable-data-carrier</code>:</p>
+<ol>
+<li><strong>Compile-time enforcement with zero runtime cost:</strong> Immutability is verified statically by the TypeScript compiler; no runtime wrapper code or performance overhead is emitted into the JavaScript output.</li>
+<li><strong>Deep const assertions:</strong> Appending <code>as const</code> automatically applies deep readonly constraints and preserves exact literal types without declaring explicit types for every nested field.</li>
+<li><strong>Contrast with Java and Python:</strong> Unlike Java records (<code>CONCEPT-java-v1-002-01-records</code>) which enforce final fields in JVM bytecode, or Python frozen dataclasses (<code>CONCEPT-python-v1-001-01-frozen-dataclass</code>) which raise <code>FrozenInstanceError</code> at runtime, TypeScript&#39;s readonly checks are erased at compile time, providing compile-time type safety while emitting lightweight JavaScript objects.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-001-01-immutable-data-carrier.html">Immutable Data Carrier</a> <span class="muted">CONCEPT-prog-v1-001-01-immutable-data-carrier</span></li></ul><h3>Across languages &amp; tools <span class="count">4</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-002-01-records.html">Java Records</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-002-01-records</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-001-01-object-freeze-and-destructuring.html">Frozen Plain Object and Destructuring</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-001-01-object-freeze-and-destructuring</span></li><li><span class="badge">pom</span> <a href="../../../concepts/CONCEPT-pom-v1-001-01-the-page-object.html">The page object</a> <span class="muted">CONCEPT-pom-v1-001-01-the-page-object</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-001-01-frozen-dataclass.html">Frozen Dataclass</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-001-01-frozen-dataclass</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-002-01-records.html">Java Records</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-002-01-records</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-001-01-frozen-dataclass.html">Frozen Dataclass</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-001-01-frozen-dataclass</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

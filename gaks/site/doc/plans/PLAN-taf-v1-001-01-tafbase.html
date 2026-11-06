@@ -104,6 +104,17 @@ against a live probe bus — <code>the-board-is-up</code> and <code>board-to-tot
 in ~4 s (T-taf-004, opt-in <code>TAF_LIVE=1</code>; <code>TAF_BASE_URL</code> retargets the
 emitted suites without regenerating). The <code>.ikc-dock-theme</code> markers and
 <code>?island=</code> routes verified as real. The filing half is lane C-3&#39;s.</p>
+<p><strong>Progress (2026-10-27).</strong> The deployed tracker signs in: the model
+grew a <code>login</code> state and a <code>log-in</code> edge, and journeys start there.
+Credentials drove the <code>env:</code> value (CONCEPT-dsl-v1-015-01) — a <code>fill</code>
+of <code>env:NAME</code> reads the variable at run time, so the model names the
+need and never holds the secret. Needs are derived from use:
+<code>taf dry-run</code> reports an unset one <code>missing</code>, <code>taf run</code> refuses on it,
+<code>taf env</code> prints it as a fill-in line. SPEC gains the clause and the
+<code>:bad-env</code> refusal. One-time codes added <code>env-pool:</code> (a list spent in
+order) and <code>sut.auth</code> (CONCEPT-dsl-v1-016-01): sign in once per run,
+keep the session as storage state, every test&#39;s fresh context
+inherits it — isolation kept, one code per run.</p>
 <h3 id="lane-tafplan-taf-v1-001-01f-6--the-sut-graph-mbt">▶ Lane TAF/PLAN-taf-v1-001-01/F-6 — the SUT graph (MBT)<a class="anchor" href="#lane-tafplan-taf-v1-001-01f-6--the-sut-graph-mbt" aria-label="Link to this section">#</a></h3>
 <p>The model grows from journeys to a graph: states and transitions as data,
 black-box first, then white-box — a DSL First SUT carries its own model,
@@ -176,6 +187,19 @@ Accepted by: T-taf-011</li>
 <p><code>taf run --last-failed</code> replays a rerun manifest; <code>--debug</code> keeps the
 browser and breaks on failure; <code>requires:</code> declares suite preflight
 (mail server, service up) that fails fast.</p>
+<p><strong>Progress (2026-10-27).</strong> <code>taf run</code> is the cycle in one command —
+check (the loader refuses), emit (a temp suite, or <code>--suite</code> for a
+committed one), execute (pytest; <code>mvn test</code> for <code>--lang java</code>); the
+exit code is the runner&#39;s and args after <code>--</code> reach it. The gate is
+on by default: a missing finding refuses before a browser opens —
+a dead SUT, an unset <code>env:</code> need (<code>--no-probe</code> skips the gate; needs
+warn, they do not refuse). The run profile is also inline —
+<code>--slowmo</code>, <code>--video</code>, <code>--headless</code>, <code>--sink</code>, <code>--debug</code>, <code>--rerun</code>,
+<code>--base-url</code>, <code>--results</code> set the <code>TAF_*</code> contract for the child, no
+shell exports needed. Around it: <code>taf dry-run</code> reports what a run
+would do and lacks (CONCEPT-taf-v1-008-01); <code>taf env</code> prints the
+<code>TAF_*</code> contract as export lines a console evals. Still open:
+<code>requires:</code> in the model, <code>--last-failed</code> as a <code>run</code> spelling.</p>
 <p><strong>Release note (draft)</strong></p>
 <ul>
 <li>New: a failed run replays only its failures; a debug run pauses at the
@@ -246,10 +270,10 @@ the corpus check. A page may precede its code — the index says which
 lane embodies it.
 Accepted by: T-taf-007 (code-link-unresolved refuses a dead citation)</li>
 </ul>
-</article><section class="backlinks"><h2>Mentioned in <span class="count">4</span></h2><ul><li><a href="../specs/SPEC-taf-v1-001-01-the-sut-model.html">SPEC-taf-v1-001-01 — the SUT model</a> <span class="muted">SPEC-taf-v1-001-01-the-sut-model</span></li><li><a href="../specs/SPEC-taf-v1-001-02-the-sut-model.html">SPEC-taf-v1-001-02 — the SUT model</a> <span class="muted">SPEC-taf-v1-001-02-the-sut-model</span></li><li><a href="../specs/SPEC-taf-v1-001-03-the-sut-language.html">SPEC-taf-v1-001-03 — the SUT language</a> <span class="muted">SPEC-taf-v1-001-03-the-sut-language</span></li><li><a href="../specs/SPEC-taf-v1-001-04-tafbase.html">SPEC-taf-v1-001-04 — tafbase</a> <span class="muted">SPEC-taf-v1-001-04-tafbase</span></li></ul></section>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">5</span></h2><ul><li><a href="../research/RESEARCH-taf-v1-004-01-evaluation-and-implementation-deficiencies.html">Evaluation of project clarity, missing information, and implementation deficiencies</a> <span class="muted">RESEARCH-taf-v1-004-01-evaluation-and-implementation-deficiencies</span></li><li><a href="../specs/SPEC-taf-v1-001-01-the-sut-model.html">SPEC-taf-v1-001-01 — the SUT model</a> <span class="muted">SPEC-taf-v1-001-01-the-sut-model</span></li><li><a href="../specs/SPEC-taf-v1-001-02-the-sut-model.html">SPEC-taf-v1-001-02 — the SUT model</a> <span class="muted">SPEC-taf-v1-001-02-the-sut-model</span></li><li><a href="../specs/SPEC-taf-v1-001-03-the-sut-language.html">SPEC-taf-v1-001-03 — the SUT language</a> <span class="muted">SPEC-taf-v1-001-03-the-sut-language</span></li><li><a href="../specs/SPEC-taf-v1-001-04-tafbase.html">SPEC-taf-v1-001-04 — tafbase</a> <span class="muted">SPEC-taf-v1-001-04-tafbase</span></li></ul></section>
 </main>
-<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">35</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-18 05:04 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

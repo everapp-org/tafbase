@@ -104,6 +104,10 @@ def project_rules(base, project):
     if not (isinstance(subs, list) and subs
             and all(isinstance(s, str) and SUBPROJECT.match(s) for s in subs)):
         raise RefusedError('"subprojects" is not a list of lower case words: %s' % _compact(subs))
+    cats = project.get('catalogs')
+    if 'catalogs' in project and not (isinstance(cats, list)
+                                      and all(isinstance(c, str) and SUBPROJECT.match(c) for c in cats)):
+        raise RefusedError('"catalogs" is not a list of lower case words: %s' % _compact(cats))
     kinds = project.get('kinds')
     if 'kinds' in project and not (isinstance(kinds, list) and kinds):
         raise RefusedError('"kinds" is not a list. Omit it to get the core kinds')
@@ -118,7 +122,10 @@ def project_rules(base, project):
         raise RefusedError('a ratchet names no rule: %s. The rules: %s'
                            % (', '.join(unknown), ', '.join(rules)))
     by_prefix = dict((k['prefix'], k) for k in base['kinds'])
+    sorted_cats = sorted(set(cats or []))
     chosen = [_kind(by_prefix, e) for e in kinds] if 'kinds' in project else list(base['kinds'])
+    if sorted_cats and 'CONCEPT' in by_prefix and not any(k['prefix'] == 'CONCEPT' for k in chosen):
+        chosen.append(dict(by_prefix['CONCEPT']))
     seen, dupes = set(), set()
     for k in chosen:
         (dupes if k['prefix'] in seen else seen).add(k['prefix'])
@@ -131,7 +138,9 @@ def project_rules(base, project):
         out[key] = base[key]
     out['collisions'] = []
     out['kinds'] = chosen
-    out['subprojects'] = sorted(set(subs))
+    out['subprojects'] = sorted(set(subs) | set(sorted_cats))
+    if sorted_cats:
+        out['catalogs'] = sorted_cats
     for key in ('statuses', 'page-states', 'decision', 'code'):
         out[key] = base[key]
     out['ratchets'] = dict((k, ceilings[k]) for k in sorted(ceilings))

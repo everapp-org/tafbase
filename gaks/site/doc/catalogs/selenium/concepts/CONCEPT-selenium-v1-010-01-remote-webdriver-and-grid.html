@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RemoteWebDriver and Distributed Selenium Grid · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / selenium / concepts</div><h1 class="page-title" id="remotewebdriver-and-distributed-selenium-grid">RemoteWebDriver and Distributed Selenium Grid <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-selenium-v1-010-01-remote-webdriver-and-grid</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>selenium</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>Selenium 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/selenium/concepts/CONCEPT-selenium-v1-010-01-remote-webdriver-and-grid.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-qa-v1-004-01-session-and-context-isolation</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Selenium&#39;s <code>RemoteWebDriver</code> decouples the test runner executing the automation code from the physical machine or container hosting the browser binary. </p>
+<p>By passing the URL of a Selenium Grid Hub (or cloud provider endpoint) alongside <code>Capabilities</code> or <code>ChromeOptions</code>, <code>RemoteWebDriver</code> serializes all W3C commands over HTTP to the grid router. Selenium Grid 4 distributes incoming session requests across registered worker nodes based on requested browser types, platform architectures, and version constraints.</p>
+<pre><code class="language-java">import java.net.URI;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+public class RemoteGridDemo {
+    public static void executeOnGrid() throws Exception {
+        ChromeOptions options = new ChromeOptions();
+        options.setBrowserVersion(&quot;120&quot;);
+        options.setPlatformName(&quot;Linux&quot;);
+
+        // Connect to distributed Selenium Grid router endpoint
+        WebDriver driver = new RemoteWebDriver(
+                URI.create(&quot;http://selenium-grid.internal:4444&quot;).toURL(),
+                options
+        );
+
+        try {
+            driver.get(&quot;https://app.example.com&quot;);
+            System.out.println(&quot;Title: &quot; + driver.getTitle());
+        } finally {
+            driver.quit();
+        }
+    }
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-qa-v1-004-01-session-and-context-isolation</code>. Enterprise test suites often require execution against heterogeneous environments—different operating systems (Windows, macOS, Linux), specific browser versions, or scaled ephemeral Docker clusters—that cannot all run locally on a developer workstation or single CI agent.</p>
+<p><code>RemoteWebDriver</code> establishes an open network protocol layer, allowing test suites to scale out horizontally across massive distributed server farms while maintaining identical client-side test code.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-004-01-session-and-context-isolation.html">Session and Context Isolation</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-004-01-session-and-context-isolation</span></li></ul><h3>Across languages &amp; tools <span class="count">7</span></h3><ul><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-016-01-the-auth-clause.html">The auth clause</a> <span class="muted">CONCEPT-dsl-v1-016-01-the-auth-clause</span></li><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle.html">Per-Method Test Instance Lifecycle and Fixtures</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-008-01-storage-state-reuse.html">Authenticated Storage State Snapshot and Reuse</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-008-01-storage-state-reuse</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy.html">Browser, BrowserContext, and Page Isolation Hierarchy</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-001-01-test-extend-fixtures.html">Typed Fixtures via test.extend</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-001-01-test-extend-fixtures</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-001-01-dependency-injected-fixtures.html">Dependency-Injected Fixtures and Scoped Lifecycles</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-001-01-dependency-injected-fixtures</span></li><li><span class="badge">selenium</span> <a href="CONCEPT-selenium-v1-001-01-webdriver-session-lifecycle.html">WebDriver Session Lifecycle and Selenium Manager</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-001-01-webdriver-session-lifecycle</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

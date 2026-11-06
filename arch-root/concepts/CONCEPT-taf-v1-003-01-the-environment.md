@@ -6,6 +6,9 @@ authored: 2026-10-15
 authors:
   - George Petrov
   - Devin
+layer: L2-taf
+realizes:
+  - CONCEPT-prog-v1-010-01-external-environment-binding
 ---
 
 # The environment contract
@@ -32,8 +35,11 @@ reads it. A variable set for one command applies to that run only:
 TAF_SLOWMO=800 .venv/bin/python -m pytest generated/python/ikc3-tracker -q
 ```
 
-*(Not this word's other meaning: the **virtual environment** is a
-different thing — [[CONCEPT-python-v1-002-01-the-virtual-environment]].)*
+*(Each target language binds this contract through its own environment
+idiom — [[CONCEPT-python-v1-010-01-os-environ-get]],
+[[CONCEPT-java-v1-031-01-system-getenv-binding]],
+[[CONCEPT-ts-v1-010-01-typed-env-config]], and
+[[CONCEPT-js-v1-010-01-process-env-binding]].)*
 
 ## Why it exists
 

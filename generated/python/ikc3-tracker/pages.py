@@ -3,7 +3,8 @@
 """One page object per declared state.
 
 @concept CONCEPT-pom-v1-001-01-the-page-object
-@concept CONCEPT-playwright-v1-003-01-auto-waiting
+@concept CONCEPT-qa-v1-005-01-page-object-model
+@concept CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability
 """
 
 from playwright.sync_api import expect

@@ -1,18 +1,18 @@
-"""The framework-spec model, loaded once — dsl/framework-spec.dsl
-parsed via the ANTLR grammar. Every consumer (validator, ops,
-emitters) reads the same artifact."""
-
-import os
+"""The framework-spec model, loaded once — taf/dsl/framework-spec.dsl
+parsed via the ANTLR grammar. The file is package data: an installed
+taf reads it the same way a checkout does. Every consumer (validator,
+ops, emitters) reads the same artifact."""
 
 _cache = {}
 
 
 def spec():
     if "m" not in _cache:
+        from importlib.resources import files
         from taf import dsl_parse
-        path = os.path.join(os.path.dirname(__file__), "..",
-                            "dsl", "framework-spec.dsl")
-        _cache["m"] = dsl_parse.parse(open(path).read())
+        text = (files("taf") / "dsl" / "framework-spec.dsl") \
+            .read_text(encoding="utf-8")
+        _cache["m"] = dsl_parse.parse(text)
     return _cache["m"]
 
 

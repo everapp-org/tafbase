@@ -11,6 +11,8 @@ def _journeys(m):
     lines = [_HEADER,
              '"""One test per declared journey — arrange, act, assert.\n\n'
              "@concept CONCEPT-testing-v1-001-01-arrange-act-assert\n"
+             "@concept CONCEPT-qa-v1-001-01-arrange-act-assert\n"
+             "@concept CONCEPT-istqb-v1-010-01-state-transition-testing\n"
              '"""\n\n']
     imports = ["import actions"]
     inline = [s for j in m["journeys"].values() for s in j.get("steps", [])]

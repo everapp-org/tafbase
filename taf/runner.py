@@ -24,14 +24,28 @@ from taf.codegen.python import emitter as emit_python
 from taf.codegen.java import emitter as emit_java
 
 
+def _emitter_for(lang):
+    if lang == "python":
+        return emit_python
+    if lang == "java":
+        return emit_java
+    if lang == "ts":
+        from taf.codegen.ts import emitter as emit_ts
+        return emit_ts
+    if lang == "js":
+        from taf.codegen.js import emitter as emit_js
+        return emit_js
+    raise ValueError("unknown lang: %r" % lang)
+
+
 def _exec(cmd, cwd=None, env=None):
     """The runner subprocess — patched out in tests."""
     return subprocess.run(cmd, cwd=cwd, env=env)
 
 
 def _child_env(env, base_url=None, results=None, headless=False,
-               slowmo=None, video=False, debug=False, rerun=False,
-               sink=None):
+               slowmo=None, arrive_ms=None, video=False, debug=False,
+               rerun=False):
     """Run-profile flags become the TAF_* contract of the child's
     environment — an explicit flag wins over the shell's setting."""
     child = dict(env)
@@ -43,17 +57,14 @@ def _child_env(env, base_url=None, results=None, headless=False,
         child["TAF_HEADLESS"] = "1"
     if slowmo is not None:
         child["TAF_SLOWMO"] = str(slowmo)
+    if arrive_ms is not None:
+        child["TAF_ARRIVE_MS"] = str(arrive_ms)
     if video:
         child["TAF_VIDEO"] = "1"
     if debug:
         child["TAF_DEBUG"] = "1"
     if rerun:
         child["TAF_RERUN"] = "1"
-    if sink is True:
-        base = child.get("TAF_BASE_URL") or "http://x"
-        child["TAF_IKC3_WS"] = dryrun._bus_url(base)
-    elif sink:
-        child["TAF_IKC3_WS"] = sink
     return child
 
 
@@ -80,14 +91,22 @@ def run(m, suite=None, lang="python", extra=(), probe=False, keep=False,
     `profile` is the run-profile flags (see _child_env); `setenv` is
     --set NAME=VALUE pairs, arbitrary vars for the child."""
     env = os.environ if env is None else env
-    child = _child_env(env, **(profile or {}))
+    profile = dict(profile or {})
+    sink = profile.pop("sink", None)
+    child = _child_env(env, **profile)
     child.update(setenv or {})
     base = child.get("TAF_BASE_URL") or m["sut"]["base-url"]
+    if sink is True:
+        # bare --sink — the bus lives on the SUT's own host, resolved
+        # only now that the effective base_url is known
+        child["TAF_IKC3_WS"] = dryrun._bus_url(base)
+    elif sink:
+        child["TAF_IKC3_WS"] = sink
     tmp = None
     if suite is None:
         tmp = tempfile.mkdtemp(prefix="taf-run-")
         suite = tmp
-        (emit_python if lang == "python" else emit_java).emit(m, suite)
+        _emitter_for(lang).emit(m, suite)
         origin = "emitted (%s)" % ("kept" if keep else "temp")
     else:
         origin = "committed"
@@ -120,9 +139,12 @@ def run(m, suite=None, lang="python", extra=(), probe=False, keep=False,
         if lang == "java":
             cmd = (["mvn", "-q", "-f", os.path.join(suite, "pom.xml"),
                     "test"] + list(extra))
-        else:
-            cmd = ([sys.executable, "-m", "pytest", "-q"] + list(extra)
-                   + [suite])
+            return _exec(cmd, env=child).returncode
+        if lang in ("ts", "js"):
+            cmd = ["npx", "playwright", "test"] + list(extra)
+            return _exec(cmd, cwd=suite, env=child).returncode
+        cmd = ([sys.executable, "-m", "pytest", "-q"] + list(extra)
+               + [suite])
         return _exec(cmd, env=child).returncode
     finally:
         if tmp and not keep:

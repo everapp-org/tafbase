@@ -6,6 +6,11 @@ authored: 2026-10-16
 authors:
   - George Petrov
   - Devin
+layer: L2-dsl
+realizes:
+  - CONCEPT-qa-v1-003-01-synchronization-and-actionability
+contrasts-with:
+  - CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability
 ---
 
 # The dwell
@@ -21,7 +26,7 @@ step where a watching human needs the screen to hold still.
 Automation that nobody can watch cannot teach. The old framework's
 `visibilitySleep` answered two needs with one sleep: letting the page
 settle *and* letting the eye follow. tafbase separates them —
-correctness belongs to markers and [[CONCEPT-playwright-v1-003-01-auto-waiting]];
+correctness belongs to markers and [[CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability]];
 observation belongs to dwell. Keeping them apart is the whole point:
 a sleep that papers over a timing bug is a lie the suite tells later.
 

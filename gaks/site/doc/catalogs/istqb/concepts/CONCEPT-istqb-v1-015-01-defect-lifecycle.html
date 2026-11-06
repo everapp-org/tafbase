@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Defect Management and Defect Report Lifecycle · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / istqb / concepts</div><h1 class="page-title" id="defect-management-and-defect-report-lifecycle">Defect Management and Defect Report Lifecycle <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-istqb-v1-015-01-defect-lifecycle</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>istqb</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L0-theory</td></tr><tr><th>since</th><td>CTFL 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/istqb/concepts/CONCEPT-istqb-v1-015-01-defect-lifecycle.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>requires</th><td>CONCEPT-istqb-v1-001-01-error-defect-failure</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Defect Management is the systematic process of identifying, logging, assessing, prioritizing, resolving, and closing defects as defined in CTFL v4.0 §5.5.</p>
+<p>A complete <strong>Defect Report</strong> must capture unambiguous technical evidence:</p>
+<ul>
+<li><strong>Identification &amp; Title</strong>: Unique ID and concise descriptive summary.</li>
+<li><strong>Environment</strong>: OS version, browser build, runtime environment, backend commit hash.</li>
+<li><strong>Steps to Reproduce</strong>: Minimal, deterministic sequence of actions required to trigger the failure.</li>
+<li><strong>Observed (Actual) Result</strong>: Exact failure state, error message, stack trace, or unexpected behavior.</li>
+<li><strong>Expected Result</strong>: The behavior required by the specification or test oracle.</li>
+<li><strong>Severity vs. Priority</strong>:<ul>
+<li><em>Severity</em>: The degree of technical or operational impact the defect has on the system (e.g., Critical/Blocker, Major, Minor).</li>
+<li><em>Priority</em>: The business urgency of fixing the defect (e.g., P0-Immediate, P1-High, P2-Normal). A cosmetic typo on a company landing page has Low Severity but High Priority; a memory leak in an internal nightly batch job has High Severity but Normal Priority.</li>
+</ul>
+</li>
+<li><strong>Diagnostic Artifacts</strong>: Screenshots, network HAR logs, execution traces, DOM snapshots, and console outputs.</li>
+</ul>
+<p><strong>The Defect Lifecycle State Transitions</strong>:</p>
+<pre><code class="language-text">           +-------+       assign()       +------+       resolve()      +-------+
+---------&gt; |  NEW  | -------------------&gt; | OPEN | -------------------&gt; | FIXED |
+           +-------+                      +------+                      +-------+
+               |                             |                              |
+               | reject()                    | defer()                      | verify()
+               v                             v                              v
+           +----------+                  +----------+                  +--------+
+           | REJECTED |                  | DEFERRED |                  | CLOSED |
+           +----------+                  +----------+                  +--------+
+                                                                            |
+                                                                            | re-fail()
+                                                                            v
+                                                                       +----------+
+                                                                       | REOPENED |
+                                                                       +----------+
+</code></pre>
+<pre><code class="language-text">Defect Report Example:
+ID: DEF-2026-0891
+Title: Double-click on &quot;Checkout&quot; button creates duplicate order records
+Environment: Linux x86_64, Chromium 128.0, Backend commit 4f9b8a2
+Severity: Critical (Data corruption) | Priority: P0 (Immediate release blocker)
+Steps to Reproduce:
+  1. Authenticate with seeded user &#39;test-shopper&#39;.
+  2. Add item SKU-99 to cart.
+  3. Navigate to /checkout.
+  4. Rapidly double-click &quot;Submit Order&quot; button within 150ms.
+Expected Result: Exactly one order is created; second click is ignored or button disabled.
+Actual Result: Two identical orders generated with IDs #1041 and #1042; credit card billed twice.
+Artifacts Attached: failure_trace.zip, network_har.json, screenshot_error.png
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Defect management provides transparency, accountability, and traceability across engineering workflows:</p>
+<ol>
+<li><strong>Root-Cause Remediation</strong>: Logging standardized defect reports allows quality teams to conduct defect cluster analysis and identify systemic engineering weaknesses.</li>
+<li><strong>Preventing Information Loss</strong>: Vague bug reports (&quot;it doesn&#39;t work&quot;) cause friction and prolonged resolution times; requiring steps to reproduce and diagnostic artifacts enables rapid developer triage.</li>
+<li><strong>Closing the Feedback Loop</strong>: Automated test failures feed directly into defect management systems as reproducible artifacts, connecting automated test executions directly to resolution tracking.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realized by <span class="count">2</span></h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts.html">The Failure Funnel: Diagnostic Artifacts</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts</span></li><li><span class="badge">taf</span> <a href="../../../concepts/CONCEPT-taf-v1-002-01-the-result-sink.html">The result sink</a> <span class="muted">CONCEPT-taf-v1-002-01-the-result-sink</span></li></ul><h3>Prerequisites</h3><ul><li><span class="badge">istqb</span> <a href="CONCEPT-istqb-v1-001-01-error-defect-failure.html">Error, Defect, and Failure Causal Chain</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-001-01-error-defect-failure</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

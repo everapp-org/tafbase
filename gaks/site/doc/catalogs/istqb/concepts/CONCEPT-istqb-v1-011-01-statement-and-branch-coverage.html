@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>White-Box Statement and Branch Coverage · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / istqb / concepts</div><h1 class="page-title" id="white-box-statement-and-branch-coverage">White-Box Statement and Branch Coverage <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-istqb-v1-011-01-statement-and-branch-coverage</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>istqb</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L0-theory</td></tr><tr><th>since</th><td>CTFL 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/istqb/concepts/CONCEPT-istqb-v1-011-01-statement-and-branch-coverage.md</code></td></tr></table><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Statement coverage and branch coverage are structural (white-box) test metrics defined in CTFL v4.0 §4.3 that evaluate the thoroughness of test suites by measuring which parts of the source code are exercised during dynamic execution:</p>
+<ul>
+<li><strong>Statement Coverage</strong>: The percentage of executable statements in the code that have been exercised by the test suite:
+$$\text{Statement Coverage} = \frac{\text{Number of executed statements}}{\text{Total number of executable statements}} \times 100%$$</li>
+<li><strong>Branch Coverage</strong>: The percentage of control-flow branches (decision outcomes, such as the <code>True</code> and <code>False</code> branches of an <code>if</code> statement or cases in a <code>switch</code> block) that have been exercised by the test suite:
+$$\text{Branch Coverage} = \frac{\text{Number of executed decision outcomes}}{\text{Total number of decision outcomes}} \times 100%$$</li>
+</ul>
+<p><strong>Subsumption Relationship</strong>: 100% branch coverage strictly subsumes 100% statement coverage. Traversing every branch outcome guarantees that every statement on those branches is executed. However, 100% statement coverage does <strong>not</strong> guarantee 100% branch coverage. If an <code>if</code> block has no explicit <code>else</code> clause, executing the <code>True</code> branch executes 100% of statements while leaving the <code>False</code> branch outcome completely unexercised (50% branch coverage).</p>
+<pre><code class="language-python">def process_refund(amount: float, is_vip: bool) -&gt; float:
+    fee = 5.0
+    if is_vip:             # Decision: True or False
+        fee = 0.0          # Statement executed only on True branch
+    return amount - fee
+
+# A single test with is_vip=True achieves 100% Statement Coverage:
+def test_vip_refund():
+    assert process_refund(100.0, is_vip=True) == 100.0
+    # Every statement in process_refund was reached!
+    # But the False branch (is_vip=False) was NEVER tested.
+    # Branch coverage is only 50%.
+
+# To achieve 100% Branch Coverage, we must also exercise the False branch:
+def test_standard_refund():
+    assert process_refund(100.0, is_vip=False) == 95.0
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Statement and branch coverage provide objective, quantified insights into automated test suite thoroughness:</p>
+<ol>
+<li><strong>Exposing Blind Spots</strong>: Relying solely on passing tests creates a false sense of security; code coverage tools pinpoint unexecuted error handlers, missed fallback conditions, and unexercised branches.</li>
+<li><strong>Subsumption Rigor</strong>: Because 100% statement coverage misses entire control paths where no code was written (the implicit <code>else</code>), engineering standards require branch coverage as the stronger quality baseline.</li>
+<li><strong>Refactoring Safety</strong>: High branch coverage ensures that legacy code refactorings are guarded by tests that exercise all decision logic, preventing regression defects when control flow is reorganized.</li>
+</ol>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

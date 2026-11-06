@@ -7,7 +7,8 @@ def _pages(m):
     lines = [_HEADER,
              '"""One page object per declared state.\n\n'
              "@concept CONCEPT-pom-v1-001-01-the-page-object\n"
-             "@concept CONCEPT-playwright-v1-003-01-auto-waiting\n"
+             "@concept CONCEPT-qa-v1-005-01-page-object-model\n"
+             "@concept CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability\n"
              '"""\n\nfrom playwright.sync_api import expect\nimport os\n\n',
              "ROUTES = {%s}\n\n" % ", ".join(f'"{n}": "{s.get("route", "")}"'
                                              for n, s in m["states"].items())]
@@ -31,7 +32,8 @@ def _elements(m):
         return None
     lines = [_HEADER,
              '"""Named locators, one function each — the locator ladder.\n\n'
-             "@concept CONCEPT-playwright-v1-001-01-the-locator-ladder\n"
+             "@concept CONCEPT-qa-v1-002-01-the-locator-ladder\n"
+             "@concept CONCEPT-playwright-v1-002-01-semantic-locators\n"
              '"""\n\n']
     for name, loc in m["elements"].items():
         lines.append(f"def {_py(name)}(page):\n    return {_loc(loc)}\n\n")

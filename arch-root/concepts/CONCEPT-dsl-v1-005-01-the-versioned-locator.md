@@ -6,6 +6,9 @@ authored: 2026-10-16
 authors:
   - George Petrov
   - Devin
+layer: L2-dsl
+realizes:
+  - CONCEPT-qa-v1-002-01-the-locator-ladder
 ---
 
 # The versioned locator
@@ -28,7 +31,8 @@ run QA build 480 and UAT build 515 from one declaration.
 ## In this project
 
 Planned — lane I-9. Today's `elements` map one name to one rung of
-[[CONCEPT-playwright-v1-001-01-the-locator-ladder]]; the versioned form
+[[CONCEPT-qa-v1-002-01-the-locator-ladder]] (realized in Playwright by
+[[CONCEPT-playwright-v1-002-01-semantic-locators]]); the versioned form
 adds variants (`v515+`, `es`) that the emitter resolves at codegen —
 the lookup table becomes generated data, or per-version generated
 suites, not a runtime map.

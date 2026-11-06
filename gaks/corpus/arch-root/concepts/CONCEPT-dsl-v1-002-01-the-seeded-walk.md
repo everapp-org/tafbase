@@ -6,6 +6,10 @@ authored: 2026-10-15
 authors:
   - George Petrov
   - Devin
+layer: L2-dsl
+realizes:
+  - CONCEPT-qa-v1-010-01-model-based-seeded-walk
+  - CONCEPT-istqb-v1-010-01-state-transition-testing
 ---
 
 # The seeded walk

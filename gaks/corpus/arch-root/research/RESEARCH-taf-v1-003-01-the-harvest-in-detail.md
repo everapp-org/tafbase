@@ -121,7 +121,7 @@ item 14). `→` marks the tafbase landing: a CONCEPT page, a lane of
 - **Translation:** DSL kinds `button "…"`, `input labeled "…"` —
   generator emits the XPath.
 - **Cost:** small. **→** folded into
-  [[CONCEPT-playwright-v1-001-01-the-locator-ladder]] ("the rung above
+  [[CONCEPT-qa-v1-002-01-the-locator-ladder]] ("the rung above
   the rungs").
 
 ## Reporting & debugging

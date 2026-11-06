@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>State Transition Testing · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / istqb / concepts</div><h1 class="page-title" id="state-transition-testing">State Transition Testing <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-istqb-v1-010-01-state-transition-testing</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>istqb</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L0-theory</td></tr><tr><th>since</th><td>CTFL 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/istqb/concepts/CONCEPT-istqb-v1-010-01-state-transition-testing.md</code></td></tr></table><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>State Transition Testing is a black-box test design technique defined in CTFL v4.0 §4.2.4 used when the behavior of a system is stateful—where the outcome of an event depends not only on current inputs but on past history and current system state.</p>
+<p>The system is modeled as a Finite State Machine (FSM) comprising:</p>
+<ul>
+<li><strong>States</strong>: Observable conditions or modes of existence of the system (e.g., <code>Draft</code>, <code>Submitted</code>, <code>Approved</code>, <code>Archived</code>).</li>
+<li><strong>Events (Triggers)</strong>: Inputs or occurrences that stimulate the system (e.g., <code>click_submit</code>, <code>timeout_fired</code>).</li>
+<li><strong>Guard Conditions</strong>: Boolean expressions that must evaluate to True for a transition to fire.</li>
+<li><strong>Actions</strong>: Output effects or operations triggered by the transition.</li>
+<li><strong>Transitions</strong>: State shifts from a source state to a target state.</li>
+</ul>
+<p>Testing covers:</p>
+<ol>
+<li><strong>Valid Transitions</strong>: Verifying expected state changes when valid events fire. Standard coverage criteria include 0-switch coverage (all states and all individual transitions visited) and 1-switch coverage (all sequences of two consecutive transitions).</li>
+<li><strong>Invalid Transitions</strong>: Verifying that attempting an illegal event from a given state is rejected (e.g., trying to <code>pay</code> an order that is in <code>Cancelled</code> state) and does not corrupt the system state.</li>
+</ol>
+<pre><code class="language-text">       +-------+      submit()      +-----------+     approve()     +----------+
+-----&gt; | DRAFT | -----------------&gt; | SUBMITTED | ----------------&gt; | APPROVED |
+       +-------+                    +-----------+                   +----------+
+           |                              |                               |
+           | cancel()                     | cancel()                      | refund()
+           v                              v                               v
+       +-----------------------------------------------------------------------+
+       |                               CANCELLED                               |
+       +-----------------------------------------------------------------------+
+</code></pre>
+<pre><code class="language-python">def test_order_valid_state_progression(order_fsm):
+    assert order_fsm.state == &quot;DRAFT&quot;
+    order_fsm.submit()
+    assert order_fsm.state == &quot;SUBMITTED&quot;
+    order_fsm.approve()
+    assert order_fsm.state == &quot;APPROVED&quot;
+
+def test_order_invalid_transition_rejected(order_fsm):
+    order_fsm.submit()
+    order_fsm.cancel()
+    assert order_fsm.state == &quot;CANCELLED&quot;
+    # Attempting to approve a cancelled order must raise an exception without altering state
+    import pytest
+    with pytest.raises(IllegalStateTransitionError):
+        order_fsm.approve()
+    assert order_fsm.state == &quot;CANCELLED&quot;
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>State transition testing is essential for testing event-driven, workflow-oriented, and interactive systems:</p>
+<ol>
+<li><strong>State-Dependent Defects</strong>: Many critical defects only surface when specific operations are performed in a specific chronological order (e.g., clicking &#39;Back&#39; after payment authorization).</li>
+<li><strong>Robustness Against Illegal Actions</strong>: Systems frequently crash or corrupt database state when users or clients execute out-of-order API calls; testing invalid transitions guarantees system resilience.</li>
+<li><strong>Foundation for Model-Based Testing</strong>: Formalizing the state graph allows test generators to walk the graph and automatically synthesize deterministic test suites covering paths and edge transitions.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realized by <span class="count">3</span></h3><ul><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-002-01-the-seeded-walk.html">The seeded walk</a> <span class="muted">CONCEPT-dsl-v1-002-01-the-seeded-walk</span></li><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-001-01-the-sut-model.html">The SUT model</a> <span class="muted">CONCEPT-dsl-v1-001-01-the-sut-model</span></li><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-010-01-model-based-seeded-walk.html">Model-Based Testing and Seeded Random State-Machine Walk</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-010-01-model-based-seeded-walk</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../../../concepts/CONCEPT-taf-v1-001-01-the-learning-path.html">The learning path</a> <span class="muted">CONCEPT-taf-v1-001-01-the-learning-path</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

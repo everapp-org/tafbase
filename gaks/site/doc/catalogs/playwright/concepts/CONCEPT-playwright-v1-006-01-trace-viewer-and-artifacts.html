@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trace Viewer and Execution Artifacts · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / playwright / concepts</div><h1 class="page-title" id="trace-viewer-and-execution-artifacts">Trace Viewer and Execution Artifacts <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>playwright</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>Playwright 1.40</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/playwright/concepts/CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts</td></tr><tr><th>contrasts-with</th><td>CONCEPT-selenium-v1-006-01-takes-screenshot-and-logs</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Playwright&#39;s tracing subsystem records an exhaustive, holistic log of a test execution into a single portable zip archive. Rather than recording just a video stream or post-mortem screenshot, a Playwright Trace captures:</p>
+<ul>
+<li>Full DOM snapshots recorded before and after every action.</li>
+<li>Complete network activity, including HTTP request/response payloads, timing waterfalls, and headers.</li>
+<li>Browser console output (<code>console.log</code>, <code>console.error</code>) and uncaught page exceptions.</li>
+<li>Action timeline metadata indicating exact locator resolution times, auto-wait duration, and call parameters.</li>
+</ul>
+<p>The generated trace file can be inspected locally or in a web browser using the Playwright Trace Viewer GUI.</p>
+<pre><code class="language-typescript">import { BrowserContext, Page } from &#39;playwright&#39;;
+
+export async function runTracedScenario(context: BrowserContext, page: Page) {
+  // Start recording trace with screenshots, DOM snapshots, and network
+  await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
+
+  try {
+    await page.goto(&#39;https://app.example.com/checkout&#39;);
+    await page.getByRole(&#39;button&#39;, { name: &#39;Submit&#39; }).click();
+  } finally {
+    // Stop tracing and export bundle to disk for diagnosis
+    await context.tracing.stop({ path: &#39;artifacts/trace-checkout-failure.zip&#39; });
+  }
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts</code>. When automated tests fail in headless continuous integration runners, reproducing and root-causing failures without comprehensive temporal telemetry is costly and frustrating.</p>
+<p>Contrasts with <code>CONCEPT-selenium-v1-006-01-takes-screenshot-and-logs</code>. In traditional Selenium environments, diagnosing failures relies on <code>TakesScreenshot</code> and static <code>driver.getPageSource()</code>. These artifacts provide only a static post-failure snapshot: by the time the failure handler runs, toast messages may have vanished, error banners may have closed, and underlying network failures are lost. Playwright&#39;s trace provides an interactive time-travel timeline where engineers can inspect live DOM snapshots, network payloads, and console output at every discrete step of the test.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts.html">The Failure Funnel: Diagnostic Artifacts</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts</span></li></ul><h3>Across languages &amp; tools <span class="count">6</span></h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-004-01-testwatcher-failure-extension.html">TestWatcher Extension for Failure Artifacts</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-004-01-testwatcher-failure-extension</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-004-01-automatic-trace-and-screenshot-config.html">Automatic Trace and Artifact Configuration</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-004-01-automatic-trace-and-screenshot-config</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-004-01-makereport-failure-hook.html">Failure Reporting Hook via makereport</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-004-01-makereport-failure-hook</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-006-01-takes-screenshot-and-logs.html">Failure Diagnostics via TakesScreenshot and BiDi Logs</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-006-01-takes-screenshot-and-logs</span></li><li><span class="badge">taf</span> <a href="../../../concepts/CONCEPT-taf-v1-002-01-the-result-sink.html">The result sink</a> <span class="muted">CONCEPT-taf-v1-002-01-the-result-sink</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-002-01-the-failure-funnel.html">The failure funnel</a> <span class="muted">CONCEPT-testing-v1-002-01-the-failure-funnel</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-006-01-takes-screenshot-and-logs.html">Failure Diagnostics via TakesScreenshot and BiDi Logs</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-006-01-takes-screenshot-and-logs</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../../../research/RESEARCH-taf-v1-001-01-the-interview-surface.html">The interview surface</a> <span class="muted">RESEARCH-taf-v1-001-01-the-interview-surface</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

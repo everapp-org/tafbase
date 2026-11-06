@@ -66,7 +66,7 @@ def main(argv=None):
 
     e = sub.add_parser("emit", help="generate a test suite from a model")
     e.add_argument("model")
-    e.add_argument("--lang", choices=["python", "java"], required=True)
+    e.add_argument("--lang", choices=["python", "java", "ts", "js"], required=True)
     e.add_argument("-o", "--outdir", required=True)
     e.add_argument("--journeys",
                    help="JSON of extra journeys to merge in (e.g. `taf walk` output)")
@@ -78,7 +78,7 @@ def main(argv=None):
                    help="an emitted suite dir — checks goldens and freshness")
     d.add_argument("--journeys",
                    help="JSON of extra journeys to merge in (e.g. `taf walk` output)")
-    d.add_argument("--lang", choices=["python", "java"], default="python",
+    d.add_argument("--lang", choices=["python", "java", "ts", "js"], default="python",
                    help="which toolchain to check (default: python)")
     d.add_argument("--probe", action="store_true",
                    help="also touch the network: SUT, ikc3 bus, browsers")
@@ -92,6 +92,7 @@ def main(argv=None):
     v.add_argument("--results", help="artifacts root (default: results)")
     v.add_argument("--headless", action="store_true")
     v.add_argument("--slowmo", type=int, metavar="MS")
+    v.add_argument("--arrive-ms", type=int, metavar="MS")
     v.add_argument("--video", action="store_true",
                    help="record .webm into each test's results dir")
     v.add_argument("--debug", action="store_true",
@@ -113,9 +114,9 @@ def main(argv=None):
                    help="run a committed emitted suite instead of a fresh emit")
     r.add_argument("--journeys",
                    help="JSON of extra journeys to merge in (e.g. `taf walk` output)")
-    r.add_argument("--lang", choices=["python", "java"], default="python",
+    r.add_argument("--lang", choices=["python", "java", "ts", "js"], default="python",
                    help="which suite to emit and runner to call "
-                        "(default: python → pytest; java → mvn test)")
+                        "(default: python → pytest; java → mvn test; ts/js → npx playwright test)")
     r.add_argument("--probe", dest="probe", action="store_true",
                    default=True,
                    help="preflight before running (default: on)")
@@ -131,6 +132,8 @@ def main(argv=None):
                    help="headless browser (headed is the default)")
     r.add_argument("--slowmo", type=int, metavar="MS",
                    help="ms between Playwright actions — watchable runs")
+    r.add_argument("--arrive-ms", type=int, metavar="MS",
+                   help="marker arrival timeout in ms (default: 15000)")
     r.add_argument("--video", action="store_true",
                    help="record .webm into each test's results dir")
     r.add_argument("--debug", action="store_true",
@@ -184,7 +187,8 @@ def main(argv=None):
             print(dryrun.env_lines(
                 m, shell=args.shell, base_url=args.base_url,
                 results=args.results, headless=args.headless,
-                slowmo=args.slowmo, video=args.video, debug=args.debug,
+                slowmo=args.slowmo, arrive_ms=args.arrive_ms,
+                video=args.video, debug=args.debug,
                 rerun=args.rerun, sink=args.sink, unset=args.unset))
             return 0
 
@@ -200,14 +204,14 @@ def main(argv=None):
         if args.cmd == "run":
             profile = {k: getattr(args, k) for k in
                        ("base_url", "results", "headless", "slowmo",
-                        "video", "debug", "rerun", "sink")}
+                        "arrive_ms", "video", "debug", "rerun", "sink")}
             return runner.run(m, suite=args.suite, lang=args.lang,
                               extra=extra, probe=args.probe,
                               setenv=dict(s.split("=", 1)
                                           for s in args.setenv),
                               keep=args.keep, profile=profile)
 
-        written = (emit_python if args.lang == "python" else emit_java).emit(m, args.outdir)
+        written = runner._emitter_for(args.lang).emit(m, args.outdir)
         for p in written:
             print("wrote %s" % p)
         return 0

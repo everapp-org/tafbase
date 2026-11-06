@@ -17,10 +17,8 @@ _HEADER_DSL = _HEADER  # keep the generated-file header name honest
 
 def _spec():
     if "spec" not in _DSL:
-        from taf import dsl_parse
-        path = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                            "dsl", "framework-spec.dsl")
-        _DSL["spec"] = dsl_parse.parse(open(path).read())
+        from taf import spec as _s
+        _DSL["spec"] = _s.spec()
     return _DSL["spec"]
 
 
@@ -61,7 +59,7 @@ def _sp(entry, **kw):
 
 def _loc(loc, page="page"):
     """The Playwright call for one rung of the locator ladder —
-    spelled by dsl/framework-spec.dsl."""
+    spelled by taf/dsl/framework-spec.dsl."""
     rung, l = ops.locator_rung(loc)
     entry = _rungs()[rung]
     v = _variant_entry(entry, [k for k in loc if k != entry["key"]])
