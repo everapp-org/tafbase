@@ -4,7 +4,7 @@
 import { expect } from "@playwright/test";
 import { ROUTES, LoginPage, BoardPage, TotPage } from "./pages.mjs";
 import * as elements from "./elements.mjs";
-import { tafJournal } from "./taf_journal.mjs";
+import { tafJournal } from "./taf-runtime/taf_journal.mjs";
 
 /**
  * @param {import("@playwright/test").Page} page
@@ -14,9 +14,9 @@ import { tafJournal } from "./taf_journal.mjs";
 export async function logIn(page, baseUrl, soft) {
   tafJournal.note("→ sign in with handle and secret");
   tafJournal.note("fill handle");
-  await elements.handle(page).fill(process.env["TAF_SUT_HANDLE"]);
+  await elements.handle(page).fill(process.env["TAF_SUT_HANDLE"]!);
   tafJournal.note("fill secret");
-  await elements.secret(page).fill(process.env["TAF_SUT_SECRET"]);
+  await elements.secret(page).fill(process.env["TAF_SUT_SECRET"]!);
   tafJournal.note("click sign-in");
   await elements.signIn(page).click();
   tafJournal.note("wait-for board");

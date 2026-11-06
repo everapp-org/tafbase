@@ -1,34 +1,40 @@
 """taf — the tafbase command line.
 
-    python -m taf emit --lang python <sut.model.json> -o <outdir>
+    python -m taf emit-tests --lang python <sut.model.json> -o <suite-dir>
+    python -m taf emit-framework --lang python -o <framework-dir>
+    python -m taf run <suite-dir>
     python -m taf check <sut.model.json>
     python -m taf dry-run <sut.model.json>
+    python -m taf promote --results <run> --goldens <dir>
 """
 
 import argparse
+import glob
 import json
 import os
+import shutil
 import sys
+import urllib.parse
 
 from taf import dryrun, graph, model, runner
-from taf.codegen.python import emitter as emit_python
-from taf.codegen.java import emitter as emit_java
 
 
-_CMDS = ("check", "walk", "emit", "dry-run", "env", "run", "record")
+_CMDS = ("check", "walk", "emit", "emit-tests", "emit-framework",
+         "dry-run", "env", "run", "record", "promote")
 
 _EPILOG = """\
-the cycle: check → emit → execute
-  `taf run <model>` does it in one command; `taf <model>` alone is the
-  dry-run report; the phases below run singly when you want them.
+the cycle: emit-tests → run → promote
+  the vendor ships the framework once; the user emits a suite per SUT
+  against it; `taf run` executes the emitted suite — it never emits.
 
 examples:
-  taf <model>                          what would run, what it lacks
-  taf run <model>                      emit + execute the suite
-  taf run <model> --probe              refuse to start if the SUT is down
-  taf run <model> -- -k board -v       after -- : args for the runner
+  taf emit-framework --lang python -o taf-runtime
+  taf emit-tests <model> --lang python -o generated/<sut>
+  taf run generated/<sut>                execute the emitted suite
+  taf run generated/<sut> -- -m smoke    after -- : args for the runner
+  taf promote --results results/<run> --goldens generated/<sut>/goldens
+  taf emit <model> --lang ts -o out/     compat: suite + framework nested
   eval "$(taf env <model> --video --sink)"
-  taf emit --lang java <model> -o generated/java/<sut>
   taf walk <model> --from <state> --seed 7
 """
 
@@ -64,12 +70,31 @@ def main(argv=None):
     w.add_argument("--cover", action="store_true",
                    help="prefer edges this walk has not taken yet")
 
-    e = sub.add_parser("emit", help="generate a test suite from a model")
+    e = sub.add_parser("emit", help="generate suite + framework into one "
+                                    "dir (the compat single shot)")
     e.add_argument("model")
     e.add_argument("--lang", choices=["python", "java", "ts", "js"], required=True)
     e.add_argument("-o", "--outdir", required=True)
     e.add_argument("--journeys",
                    help="JSON of extra journeys to merge in (e.g. `taf walk` output)")
+
+    et = sub.add_parser("emit-tests",
+                        help="generate the SUT test suite against an "
+                             "emitted framework (the user command)")
+    et.add_argument("model")
+    et.add_argument("--lang", choices=["python", "java", "ts", "js"], required=True)
+    et.add_argument("-o", "--outdir", required=True)
+    et.add_argument("--framework", default="../taf-runtime",
+                    help="the emitted framework dir this suite binds to "
+                         "(default: ../taf-runtime)")
+    et.add_argument("--journeys",
+                    help="JSON of extra journeys to merge in (e.g. `taf walk` output)")
+
+    ef = sub.add_parser("emit-framework",
+                        help="generate the vendor framework — no model "
+                             "(the vendor command)")
+    ef.add_argument("--lang", choices=["python", "java", "ts", "js"], required=True)
+    ef.add_argument("-o", "--outdir", required=True)
 
     d = sub.add_parser("dry-run",
                        help="report what a run would do and what it lacks")
@@ -108,25 +133,20 @@ def main(argv=None):
                    help="print lines that clear the TAF_* contract")
 
     r = sub.add_parser("run",
-                       help="emit and execute the suite — the full cycle")
-    r.add_argument("model")
-    r.add_argument("--suite",
-                   help="run a committed emitted suite instead of a fresh emit")
-    r.add_argument("--journeys",
-                   help="JSON of extra journeys to merge in (e.g. `taf walk` output)")
-    r.add_argument("--lang", choices=["python", "java", "ts", "js"], default="python",
-                   help="which suite to emit and runner to call "
-                        "(default: python → pytest; java → mvn test; ts/js → npx playwright test)")
+                       help="execute an emitted suite — the run never emits")
+    r.add_argument("suite",
+                   help="the emitted suite dir (taf emit-tests output)")
+    r.add_argument("--lang", choices=["python", "java", "ts", "js"],
+                   help="which runner to call (default: taf.suite.json's "
+                        "recorded lang, else inferred)")
     r.add_argument("--probe", dest="probe", action="store_true",
                    default=True,
                    help="preflight before running (default: on)")
     r.add_argument("--no-probe", dest="probe", action="store_false",
                    help="skip the gate: probes never run, env needs "
                         "warn instead of refusing")
-    r.add_argument("--keep", action="store_true",
-                   help="keep the emitted temp suite")
     # the run profile — inline TAF_* contract, no shell exports needed
-    r.add_argument("--base-url", help="override the model's base-url")
+    r.add_argument("--base-url", help="override the suite's base-url")
     r.add_argument("--results", help="artifacts root (default: results)")
     r.add_argument("--headless", action="store_true",
                    help="headless browser (headed is the default)")
@@ -158,8 +178,40 @@ def main(argv=None):
                     help="the draft's title — the journey name to merge as")
     rc.add_argument("--base-url", help="override the model's base-url")
 
+    p = sub.add_parser("promote",
+                       help="approve *_Actual.png shots as the new "
+                            "*_Expected.png baselines")
+    p.add_argument("--results",
+                   help="a run dir or results root to scan "
+                        "(default: latest under TAF_RESULTS/results)")
+    p.add_argument("--goldens",
+                   help="the baselines dir (default: TAF_GOLDENS or "
+                        "<results>/../goldens or ./goldens)")
+
     args = ap.parse_args(argv)
     try:
+        if args.cmd == "promote":
+            return _promote(args)
+
+        if args.cmd == "emit-framework":
+            written = runner._emitter_for(args.lang).emit_framework(
+                args.outdir)
+            for f in written:
+                print("wrote %s" % f)
+            return 0
+
+        if args.cmd == "run":
+            if os.path.isfile(args.suite) or args.suite.endswith(".json"):
+                print("refuse: `taf run` executes an emitted suite dir, "
+                      "not a model — emit first:\n"
+                      "  taf emit-tests %s --lang %s -o %s"
+                      % (args.suite, args.lang or "python",
+                         os.path.splitext(args.suite)[0] + "-suite"))
+                return 2
+            return runner.run(
+                args.suite, lang=args.lang, extra=extra,
+                probe=args.probe, setenv=_run_env(args))
+
         m = model.load(args.model)
 
         if args.cmd == "check":
@@ -201,24 +253,87 @@ def main(argv=None):
                               needs=model.env_needs(m), m=m)
             return 0
 
-        if args.cmd == "run":
-            profile = {k: getattr(args, k) for k in
-                       ("base_url", "results", "headless", "slowmo",
-                        "arrive_ms", "video", "debug", "rerun", "sink")}
-            return runner.run(m, suite=args.suite, lang=args.lang,
-                              extra=extra, probe=args.probe,
-                              setenv=dict(s.split("=", 1)
-                                          for s in args.setenv),
-                              keep=args.keep, profile=profile)
+        if args.cmd == "emit-tests":
+            written = runner._emitter_for(args.lang).emit_tests(
+                m, args.outdir, framework=args.framework)
+            for f in written:
+                print("wrote %s" % f)
+            return 0
 
+        # emit — the compat single dir
         written = runner._emitter_for(args.lang).emit(m, args.outdir)
-        for p in written:
-            print("wrote %s" % p)
+        for f in written:
+            print("wrote %s" % f)
         return 0
     except model.ModelRefusal as err:
         for r in getattr(err, "refusals", []):
             print("%-40s %-16s %s" % (r["clause"], r["reason"], r["message"]))
         return 1
+
+
+def _run_env(args):
+    """The run profile flags → TAF_* variables for the suite's env."""
+    setenv = {}
+    if args.base_url:
+        setenv["TAF_BASE_URL"] = args.base_url
+    if args.results:
+        setenv["TAF_RESULTS"] = args.results
+    if args.headless:
+        setenv["TAF_HEADLESS"] = "1"
+    if args.slowmo is not None:
+        setenv["TAF_SLOWMO"] = str(args.slowmo)
+    if args.arrive_ms is not None:
+        setenv["TAF_ARRIVE_MS"] = str(args.arrive_ms)
+    if args.video:
+        setenv["TAF_VIDEO"] = "1"
+    if args.debug:
+        setenv["TAF_DEBUG"] = "1"
+    if args.rerun:
+        setenv["TAF_RERUN"] = "1"
+    if args.sink:
+        if args.sink is True:
+            meta = runner.suite_meta(args.suite) or {}
+            base = meta.get("base-url", "")
+            u = urllib.parse.urlparse(base)
+            host = u.hostname or "localhost"
+            port = ":%s" % u.port if u.port else ""
+            args.sink = "ws://%s%s/bus-ws" % (host, port)
+        setenv["TAF_IKC3_WS"] = args.sink
+    setenv.update(dict(s.split("=", 1) for s in args.setenv))
+    return setenv
+
+
+def _promote(args):
+    """Copy every <name>_Actual.png found under the results dir to
+    <goldens>/<name>_Expected.png — the human approval step."""
+    results = args.results or _latest_run()
+    if not results or not os.path.isdir(results):
+        print("refuse: no results dir — pass --results <run-dir or root>")
+        return 2
+    goldens = (args.goldens or os.environ.get("TAF_GOLDENS")
+               or os.path.join(os.path.dirname(results.rstrip("/")),
+                               "goldens"))
+    os.makedirs(goldens, exist_ok=True)
+    moved = []
+    for actual in sorted(glob.glob(
+            os.path.join(results, "**", "*_Actual.png"), recursive=True)):
+        name = os.path.basename(actual)[:-len("_Actual.png")]
+        dst = os.path.join(goldens, name + "_Expected.png")
+        shutil.copyfile(actual, dst)
+        moved.append(dst)
+    if not moved:
+        print("no *_Actual.png under %s — nothing to promote" % results)
+        return 0
+    for dst in moved:
+        print("promoted → %s" % dst)
+    return 0
+
+
+def _latest_run():
+    """The newest results dir under TAF_RESULTS (or ./results)."""
+    root = os.environ.get("TAF_RESULTS", "results")
+    dirs = sorted(glob.glob(os.path.join(root, "*")))
+    return dirs[-1] if dirs else None
 
 
 if __name__ == "__main__":

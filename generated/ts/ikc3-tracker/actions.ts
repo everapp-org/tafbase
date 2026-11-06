@@ -3,8 +3,8 @@
 import { Page, expect } from "@playwright/test";
 import { ROUTES, LoginPage, BoardPage, TotPage } from "./pages";
 import * as elements from "./elements";
-import { tafJournal } from "./taf_journal";
-import type { SoftChecks } from "./fixtures";
+import { tafJournal } from "./taf-runtime/taf_journal";
+import type { SoftChecks } from "./taf-runtime/soft-checks";
 
 export async function logIn(page: Page, baseUrl: string, soft?: SoftChecks): Promise<void> {
   tafJournal.note("→ sign in with handle and secret");

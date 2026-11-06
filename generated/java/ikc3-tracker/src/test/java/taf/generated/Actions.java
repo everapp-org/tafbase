@@ -7,6 +7,7 @@ package taf.generated;
 
 import com.microsoft.playwright.*;
 import org.jspecify.annotations.Nullable;
+import taf.runtime.*;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

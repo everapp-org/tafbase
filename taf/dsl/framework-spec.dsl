@@ -299,6 +299,8 @@ contract {
   env TAF_DEBUG      "1 -> pause the browser on failure"
   env TAF_RERUN      "1 -> run only the last failed.txt"
   env TAF_IKC3_WS    "ws:// URL of the IKC3 fault-report bus"
+  env TAF_FRAMEWORK  "emitted framework dir the suite binds to"
+  env TAF_GOLDENS    "golden baselines dir (default: <suite>/goldens)"
 
   refusal not-json
   refusal empty-model
@@ -318,6 +320,8 @@ contract {
   refusal bad-maybe
   refusal bad-env
   refusal bad-auth
+  refusal bad-journey-type
+  refusal bad-examples
   refusal edge-gap
   refusal mixed-steps
   refusal unreachable
@@ -333,4 +337,5 @@ artifacts {
   artifact dom         "dom.html"
   artifact auth-state  "auth-state.json"
   artifact failed      "failed.txt"
+  artifact golden      "goldens"
 }

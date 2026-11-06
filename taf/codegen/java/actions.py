@@ -6,6 +6,7 @@ from .steps import _emit_step
 
 _EXTRA_IMPORTS = ("import com.microsoft.playwright.*;\n"
                   "import org.jspecify.annotations.Nullable;\n"
+                  "import taf.runtime.*;\n"
                   "import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;\n"
                   "import static org.junit.jupiter.api.Assertions.assertEquals;\n\n")
 

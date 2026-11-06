@@ -7,10 +7,12 @@
 @concept CONCEPT-istqb-v1-010-01-state-transition-testing
 """
 
+import pytest
 import actions
 import elements
-from pages import LoginPage, BoardPage, TotPage
+from pages import ROUTES, BoardPage, TotPage
 
+@pytest.mark.ui
 def test_the_board_is_up(page, base_url, soft):
     # arrange
     sut = BoardPage(page)
@@ -20,6 +22,9 @@ def test_the_board_is_up(page, base_url, soft):
     # assert
     BoardPage(page).expect_arrived()
 
+
+@pytest.mark.smoke
+@pytest.mark.ui
 def test_board_to_tot(page, base_url, soft):
     # arrange
     sut = BoardPage(page)
@@ -31,6 +36,8 @@ def test_board_to_tot(page, base_url, soft):
     # assert
     TotPage(page).expect_arrived()
 
+
+@pytest.mark.ui
 def test_files_a_fault_report(page, base_url, soft):
     # arrange
     sut = BoardPage(page)
@@ -41,4 +48,5 @@ def test_files_a_fault_report(page, base_url, soft):
     BoardPage(page).expect_arrived()
     # assert
     BoardPage(page).expect_arrived()
+
 

@@ -76,6 +76,8 @@ def test_same_assertion_sequence_per_journey(tmp_path):
     py, jv, ts, js = emit_all(tmp_path)
     m = model.load(TRACKER_MODEL)
     for name in m["journeys"]:
+        if not m["journeys"][name].get("start"):
+            continue  # api journeys assert on saved values, not states
         asserts = [arg for op, arg in ops.journey_ops(m, name)
                    if op in ("assert-marker", "assert-final")]
         py_t = read(py, "test_journeys.py")
@@ -149,17 +151,28 @@ def test_all_four_refuse_identically(tmp_path):
 def test_java_21pp_and_ts_js_suites_are_reviewable(tmp_path):
     _, jv, ts, js = emit_all(tmp_path)
     t = read(jv, "src/test/java/taf/generated/JourneysTest.java")
-    assert "@Test" in t and "extends BaseTest" in t
+    assert "@Test" in t and "extends taf.runtime.BaseTest" in t
+    assert "@Tag(\"ui\")" in t
     assert "// @concept CONCEPT-testing-v1-001-01-arrange-act-assert" in t
     pkg = read(jv, "src/test/java/taf/generated/package-info.java")
     assert "@org.jspecify.annotations.NullMarked" in pkg
-    assert "// @concept CONCEPT-java-v1-019-01-jspecify-and-nullaway" in pkg
-    bt = read(jv, "src/test/java/taf/generated/BaseTest.java")
-    assert 'getOrDefault("TAF_BASE_URL", "http://127.0.0.1:4856")' in bt
-    assert "ExecutionCondition rerunFilter" in bt
+    sc = read(jv, "src/test/java/taf/generated/SutConfig.java")
+    assert '"http://127.0.0.1:4856"' in sc
+    assert "implements SutProfile" in sc
+    svc = read(jv, "src/test/resources/META-INF/services/taf.runtime.SutProfile")
+    assert "taf.generated.SutConfig" in svc
+    # the vendor project: BaseTest + RerunCondition live under taf-runtime
+    bt = read(jv, "taf-runtime/src/main/java/taf/runtime/BaseTest.java")
+    assert 'getOrDefault("TAF_BASE_URL"' in bt
+    assert "ExecutionCondition" in read(
+        jv, "taf-runtime/src/main/java/taf/runtime/RerunCondition.java")
     ts_f = read(ts, "fixtures.ts")
-    assert "base.extend<TafFixtures>" in ts_f
-    assert "// @concept CONCEPT-pwtest-v1-001-01-test-extend-fixtures" in ts_f
+    assert "makeTafTest" in ts_f
+    ts_fw = read(ts, "taf-runtime/fixtures.ts")
+    assert "base.extend<TafFixtures>" in ts_fw
+    assert "// @concept CONCEPT-pwtest-v1-001-01-test-extend-fixtures" in ts_fw
     js_f = read(js, "fixtures.mjs")
-    assert "// @ts-check" in js_f
-    assert "// @concept CONCEPT-js-v1-006-01-async-fixture-callback" in js_f
+    assert "makeTafTest" in js_f
+    js_fw = read(js, "taf-runtime/fixtures.mjs")
+    assert "// @ts-check" in js_fw
+    assert "// @concept CONCEPT-js-v1-006-01-async-fixture-callback" in js_fw

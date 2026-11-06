@@ -1,0 +1,10 @@
+{
+  "name": "@tafbase/runtime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Generated tafbase framework runtime — Playwright fixtures, journal, visual comparator, api client",
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}

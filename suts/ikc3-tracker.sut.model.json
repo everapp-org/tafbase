@@ -210,6 +210,7 @@
     },
     "board-to-tot": {
       "start": "board",
+      "tags": ["smoke"],
       "steps": [
         "open-tot"
       ],
@@ -225,7 +226,75 @@
       "expect-final": {
         "state": "board"
       }
+    },
+    "make-a-tot-over-the-api": {
+      "type": "api",
+      "tags": ["smoke"],
+      "steps": [
+        {
+          "api": {
+            "endpoint": "make-tot",
+            "args": {
+              "id": "${tot_id}"
+            }
+          }
+        },
+        {
+          "api": {
+            "endpoint": "list-tots",
+            "save": {
+              "list": "$.items"
+            }
+          }
+        },
+        {
+          "expect": {
+            "value": "list",
+            "equals": "${tot_id}"
+          }
+        }
+      ],
+      "examples": [
+        {
+          "id": "tot-a",
+          "tot_id": "tot-a"
+        },
+        {
+          "id": "tot-b",
+          "tot_id": "tot-b"
+        }
+      ]
+    },
+    "the-board-looks-right": {
+      "type": "visual",
+      "start": "board",
+      "steps": [
+        {
+          "compare-screen": {
+            "name": "board-top",
+            "mask": ["report-fault"]
+          }
+        }
+      ],
+      "expect-final": {
+        "state": "board"
+      }
     }
   },
-  "endpoints": {}
+  "endpoints": {
+    "list-tots": {
+      "method": "GET",
+      "path": "/api/tots",
+      "expect": {
+        "status": 200
+      }
+    },
+    "make-tot": {
+      "method": "POST",
+      "path": "/api/tots/{id}",
+      "expect": {
+        "status": 200
+      }
+    }
+  }
 }
