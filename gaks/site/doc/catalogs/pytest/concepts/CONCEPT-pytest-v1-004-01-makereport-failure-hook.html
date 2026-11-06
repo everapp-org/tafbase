@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Failure Reporting Hook via makereport · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / pytest / concepts</div><h1 class="page-title" id="failure-reporting-hook-via-makereport">Failure Reporting Hook via makereport <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-pytest-v1-004-01-makereport-failure-hook</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>pytest</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>pytest 8.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/pytest/concepts/CONCEPT-pytest-v1-004-01-makereport-failure-hook.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Pytest&#39;s plugin architecture exposes <code>pytest_runtest_makereport</code>, a generator hook called during each phase of test execution: <code>setup</code>, <code>call</code>, and <code>teardown</code>.</p>
+<p>By wrapping the hook execution with <code>outcome = yield</code>, an implementation receives the generated <code>TestReport</code> object. If <code>report.when == &quot;call&quot;</code> and <code>report.failed</code> evaluates to true, the hook can inspect the failed test item, extract active browser driver or page fixtures, capture screenshots, trace files, or DOM dumps, and attach them directly to HTML reports or test artifact stores.</p>
+<pre><code class="language-python">&quot;&quot;&quot;Fixture and hook definitions in conftest.py.&quot;&quot;&quot;
+import pytest
+from pathlib import Path
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    # Execute all other hooks to obtain the report object
+    outcome = yield
+    report = outcome.get_result()
+
+    # Capture diagnostic artifacts only when the test execution phase fails
+    if report.when == &quot;call&quot; and report.failed:
+        page = item.funcargs.get(&quot;page&quot;)
+        if page:
+            artifact_dir = Path(&quot;reports/artifacts&quot;)
+            artifact_dir.mkdir(parents=True, exist_ok=True)
+            screenshot_path = artifact_dir / f&quot;{item.name}.png&quot;
+            page.screenshot(path=str(screenshot_path), full_page=True)
+            print(f&quot;\n[FAILURE ARTIFACT] Saved screenshot to {screenshot_path}&quot;)
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts</code>. When running tests in headless CI pipelines, diagnosing failures requires capturing visual and network context precisely when an assertion fails. </p>
+<p>Hardcoding screenshot capture in individual test functions creates duplication and obscures core test logic. The <code>pytest_runtest_makereport</code> hook cleanly isolates diagnostic capture logic into the test harness, guaranteeing that every failure across the test suite is captured consistently without modifying test authoring patterns.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts.html">The Failure Funnel: Diagnostic Artifacts</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts</span></li></ul><h3>Across languages &amp; tools <span class="count">6</span></h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-004-01-testwatcher-failure-extension.html">TestWatcher Extension for Failure Artifacts</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-004-01-testwatcher-failure-extension</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts.html">Trace Viewer and Execution Artifacts</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-004-01-automatic-trace-and-screenshot-config.html">Automatic Trace and Artifact Configuration</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-004-01-automatic-trace-and-screenshot-config</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-006-01-takes-screenshot-and-logs.html">Failure Diagnostics via TakesScreenshot and BiDi Logs</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-006-01-takes-screenshot-and-logs</span></li><li><span class="badge">taf</span> <a href="../../../concepts/CONCEPT-taf-v1-002-01-the-result-sink.html">The result sink</a> <span class="muted">CONCEPT-taf-v1-002-01-the-result-sink</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-002-01-the-failure-funnel.html">The failure funnel</a> <span class="muted">CONCEPT-testing-v1-002-01-the-failure-funnel</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

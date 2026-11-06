@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API Request Context for State Seeding · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / playwright / concepts</div><h1 class="page-title" id="api-request-context-for-state-seeding">API Request Context for State Seeding <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-playwright-v1-005-01-api-request-context</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>playwright</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>Playwright 1.40</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/playwright/concepts/CONCEPT-playwright-v1-005-01-api-request-context.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-qa-v1-006-01-api-fixture-seeding</td></tr><tr><th>contrasts-with</th><td>CONCEPT-selenium-v1-005-01-external-http-seeding</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Playwright provides <code>APIRequestContext</code> for executing out-of-band HTTP requests directly from the test runner. It allows tests to seed test fixtures, authenticate users, reset server state, or query backend databases via REST or GraphQL APIs prior to or during browser-driven UI steps.</p>
+<p>An <code>APIRequestContext</code> can either exist independently (<code>playwright.request.newContext()</code>) or inherit cookie and authentication headers directly from a <code>BrowserContext</code> via <code>context.request</code>.</p>
+<pre><code class="language-typescript">import { test, expect } from &#39;@playwright/test&#39;;
+
+test(&#39;creates and edits resource via seeded state&#39;, async ({ request, page }) =&gt; {
+  // 1. Seed backend entity out-of-band via fast HTTP POST
+  const response = await request.post(&#39;https://api.example.com/items&#39;, {
+    data: { name: &#39;Seed Product&#39;, price: 99.00 },
+    headers: { &#39;Authorization&#39;: &#39;Bearer test-token&#39; }
+  });
+  expect(response.ok()).toBeTruthy();
+  const item = await response.json();
+
+  // 2. Open browser UI directly to the seeded entity page
+  await page.goto(`https://app.example.com/items/${item.id}`);
+  await expect(page.getByRole(&#39;heading&#39;, { name: &#39;Seed Product&#39; })).toBeVisible();
+});
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-qa-v1-006-01-api-fixture-seeding</code>. Navigating multi-step web forms solely through the browser UI to set up test prerequisites is slow and prone to cascading flakiness. Fast, reliable end-to-end tests seed preconditions out-of-band over HTTP and drive only the specific feature under test through the graphical user interface.</p>
+<p>Contrasts with <code>CONCEPT-selenium-v1-005-01-external-http-seeding</code>. In Selenium setups, executing API requests requires pulling in an external third-party HTTP client (such as Apache HttpClient, OkHttp, or python-requests). Synchronizing authentication session cookies between the external HTTP client and the Selenium <code>WebDriver</code> instance requires tedious manual cookie extraction and <code>driver.manage().addCookie(...)</code> calls. Playwright&#39;s <code>APIRequestContext</code> is unified with the browser engine and handles session and network primitives natively.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-006-01-api-fixture-seeding.html">Out-of-Band API State Seeding</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-006-01-api-fixture-seeding</span></li></ul><h3>Across languages &amp; tools <span class="count">1</span></h3><ul><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-005-01-external-http-seeding.html">External HTTP Seeding and Cookie Injection</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-005-01-external-http-seeding</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-005-01-external-http-seeding.html">External HTTP Seeding and Cookie Injection</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-005-01-external-http-seeding</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../../../research/RESEARCH-taf-v1-001-01-the-interview-surface.html">The interview surface</a> <span class="muted">RESEARCH-taf-v1-001-01-the-interview-surface</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

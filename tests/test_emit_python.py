@@ -7,7 +7,8 @@ one declaration produces a committed, reviewable pytest suite).
 import json
 import os
 
-from taf import emit_python, model
+from taf import model
+from taf.codegen.python import emitter as emit_python
 
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -40,8 +41,8 @@ def test_the_tracker_model_emits_a_suite(tmp_path):
 def test_pages_prove_arrival(tmp_path):
     pages = read(emit(tmp_path), "pages.py")
     assert 'class BoardPage' in pages and 'class TotPage' in pages
-    assert 'locator(".ikc-dock-theme")' in pages
-    assert 'expect(self.marker).to_be_visible()' in pages
+    assert 'locator(\"[data-import-id=\\\"top-bar\\\"]\")' in pages
+    assert 'expect(self.marker).to_be_visible(' in pages
 
 
 def test_journey_test_is_aaa(tmp_path):
@@ -148,3 +149,14 @@ def test_generated_code_is_python(tmp_path):
     for name in os.listdir(out):
         if name.endswith(".py"):
             py_compile.compile(os.path.join(out, name), doraise=True)
+
+
+# T-emit-009 — env: values read at run time; the secret is never emitted
+def test_env_fill_reads_the_variable(tmp_path):
+    acts = read(emit(tmp_path), "actions.py")
+    assert 'elements.handle(page).fill(os.environ["TAF_SUT_HANDLE"])' in acts
+    assert 'elements.code(page).fill(taf_journal.env_pool("TAF_SUT_CODES"))' in acts
+    assert "import os" in acts
+    # and the journey file has no inline env step — no os import
+    journeys = read(emit(tmp_path), "test_journeys.py")
+    assert "import os" not in journeys

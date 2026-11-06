@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tafbase"
+version = "0.1.0"
+description = "DSL First test automation: declare a SUT once, emit pytest+Playwright and JUnit+Playwright suites"
+requires-python = ">=3.9"
+dependencies = [
+    "antlr4-python3-runtime==4.13.1",
+    "playwright",
+    "pytest",
+    "websocket-client",
+]
+
+[project.scripts]
+taf = "taf.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["taf*"]
+
+[tool.setuptools.package-data]
+taf = ["dsl/*.dsl"]

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Network Interception and Route Mocking · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / playwright / concepts</div><h1 class="page-title" id="network-interception-and-route-mocking">Network Interception and Route Mocking <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-playwright-v1-007-01-network-interception-route</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>playwright</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>Playwright 1.40</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/playwright/concepts/CONCEPT-playwright-v1-007-01-network-interception-route.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness</td></tr><tr><th>contrasts-with</th><td>CONCEPT-selenium-v1-007-01-bidi-network-interception</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Playwright&#39;s routing subsystem enables in-process interception, inspection, modification, and mocking of network requests issued by the browser. </p>
+<p>Through <code>page.route(urlPattern, handler)</code> or <code>context.route(...)</code>, test scripts intercept HTTP traffic at the browser protocol level without external proxy daemons:</p>
+<ul>
+<li><code>route.fulfill()</code>: Returns mock responses with custom status codes, headers, and JSON or string bodies.</li>
+<li><code>route.continue()</code>: Allows the request to proceed to the real network, optionally modifying request headers or payload.</li>
+<li><code>route.abort()</code>: Simulates network disconnects, failed DNS lookups, or SSL errors.</li>
+<li><code>page.waitForResponse()</code>: Awaits specific network responses matching predicate filters.</li>
+</ul>
+<pre><code class="language-typescript">import { Page } from &#39;playwright&#39;;
+
+export async function testPaymentFailureHandling(page: Page) {
+  // Intercept payment gateway API call and stub 500 error
+  await page.route(&#39;**/api/v1/charge&#39;, async (route) =&gt; {
+    await route.fulfill({
+      status: 500,
+      contentType: &#39;application/json&#39;,
+      body: JSON.stringify({ error: &#39;Gateway timeout&#39;, code: &#39;GATEWAY_ERROR&#39; })
+    });
+  });
+
+  await page.goto(&#39;https://app.example.com/billing&#39;);
+  await page.getByRole(&#39;button&#39;, { name: &#39;Pay Now&#39; }).click();
+
+  // Verify that UI gracefully handles the stubbed server error
+  await page.getByText(&#39;Payment gateway unavailable. Please retry.&#39;).waitFor();
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness</code>. E2E tests often flake when relying on volatile third-party services (such as payment gateways, SMS verifications, or analytics beacons). Mocking or controlling network responses allows isolating the frontend under test and deterministically evaluating rare edge cases and error states.</p>
+<p>Contrasts with <code>CONCEPT-selenium-v1-007-01-bidi-network-interception</code>. In Selenium, network interception historically required spinning up separate external HTTP proxy servers (like BrowserMob Proxy), modifying browser proxy settings, and decrypting HTTPS traffic with custom certificates. While Selenium 4 introduced CDP and BiDi network support, it requires managing low-level WebSocket listeners and event handlers. Playwright provides a declarative, synchronous routing API integrated natively across all supported browser engines.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness.html">Deterministic Execution, Flakiness Quarantine, and Retry Discipline</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness</span></li></ul><h3>Across languages &amp; tools <span class="count">3</span></h3><ul><li><span class="badge">playwright</span> <a href="CONCEPT-playwright-v1-010-01-clock-and-deterministic-time.html">Deterministic Browser Clock Control</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-010-01-clock-and-deterministic-time</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-007-01-bidi-network-interception.html">W3C WebDriver BiDi Network Interception</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-007-01-bidi-network-interception</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-004-01-the-rerun.html">The rerun</a> <span class="muted">CONCEPT-testing-v1-004-01-the-rerun</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-007-01-bidi-network-interception.html">W3C WebDriver BiDi Network Interception</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-007-01-bidi-network-interception</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tagged Object Discriminant · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / js / concepts</div><h1 class="page-title" id="tagged-object-discriminant">Tagged Object Discriminant <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-js-v1-002-01-tagged-object-discriminant</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>js</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>ES2015</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/js/concepts/CONCEPT-js-v1-002-01-tagged-object-discriminant.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-002-01-closed-type-union</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>A tagged object discriminant is a JavaScript design pattern for modeling closed union variants. Each variant object includes a dedicated, constant property (conventionally named <code>kind</code>, <code>type</code>, or <code>status</code>) with a unique string literal value. Factory functions ensure each instance receives its correct tag alongside variant-specific payload fields.</p>
+<pre><code class="language-js">export function createSuccess(payload) {
+  return Object.freeze({ kind: &#39;success&#39;, payload });
+}
+
+export function createFailure(error, message) {
+  return Object.freeze({ kind: &#39;failure&#39;, error, message });
+}
+
+export function createPending() {
+  return Object.freeze({ kind: &#39;pending&#39; });
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>In dynamically typed JavaScript, functions often return ambiguous results (such as <code>false</code>, <code>null</code>, or an error object) to indicate failure. Inspecting return values via <code>typeof</code>, checking for the existence of arbitrary keys (<code>if (res.error)</code>), or using <code>instanceof</code> across different execution realms (like iframes or worker threads) is notoriously brittle and error-prone.</p>
+<p>The tagged discriminant realizes <code>CONCEPT-prog-v1-002-01-closed-type-union</code> in JavaScript:</p>
+<ol>
+<li><strong>Explicit variant distinction:</strong> Inspecting <code>obj.kind</code> provides unambiguous, uniform routing without checking for arbitrary properties.</li>
+<li><strong>Realm-independent:</strong> Unlike <code>instanceof</code>, string tag comparison works reliably across VM contexts, web workers, and serialization boundaries (JSON).</li>
+<li><strong>Foundation for exhaustiveness:</strong> Acts as the primary discriminant key for <code>switch</code> dispatch statements and TypeScript discriminated unions.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-002-01-closed-type-union.html">Closed Type Union</a> <span class="muted">CONCEPT-prog-v1-002-01-closed-type-union</span></li></ul><h3>Across languages &amp; tools <span class="count">3</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-004-01-sealed-classes.html">Sealed Classes and Interfaces</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-004-01-sealed-classes</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-002-01-union-type.html">Python Type Union</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-002-01-union-type</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-002-01-discriminated-union.html">Discriminated Union Type</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-002-01-discriminated-union</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

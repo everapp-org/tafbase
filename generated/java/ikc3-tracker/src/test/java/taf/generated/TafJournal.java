@@ -3,29 +3,52 @@
 package taf.generated;
 
 // @concept CONCEPT-taf-v1-004-01-the-artifacts
+// @concept CONCEPT-java-v1-012-01-try-with-resources-and-cleaner
 
 import java.io.IOException;
 import java.nio.file.*;
+import org.jspecify.annotations.Nullable;
 
 /** The timestamped event stream, one per test —
     results/<runId>/<testId>/journal.jsonl. The .srt writer,
     rerun manifest and fault reports read it downstream. */
-public class TafJournal {
-    private static java.io.BufferedWriter current;
+public final class TafJournal {
+    private TafJournal() {}
+    private static java.io.@Nullable BufferedWriter current;
     private static long start;
-    private static Path dir;
+    private static @Nullable Path dir;
     private static final java.util.List<long[]> noteT = new java.util.ArrayList<>();
     private static final java.util.List<String> noteL = new java.util.ArrayList<>();
 
     public static void begin(String runDir, String testId) throws IOException {
-        dir = Paths.get(runDir, testId);
-        Files.createDirectories(dir);
+        Path d = Paths.get(runDir, testId);
+        dir = d;
+        Files.createDirectories(d);
         start = System.nanoTime();
         noteT.clear(); noteL.clear();
-        current = Files.newBufferedWriter(dir.resolve("journal.jsonl"));
+        current = Files.newBufferedWriter(d.resolve("journal.jsonl"));
     }
 
-    public static Path testDir() { return dir; }
+    public static Path testDir() {
+        return java.util.Objects.requireNonNull(dir, "journal not begun");
+    }
+
+    private static final java.util.Map<String, java.util.Iterator<String>> pools =
+        new java.util.HashMap<>();
+
+    /** env-pool:NAME — one value per call from a whitespace-separated
+        env list. Single-use values spend in order; a dry pool
+        is a named error, never a silent empty fill. */
+    public static String envPool(String name) {
+        String v = System.getenv(name);
+        if (v == null || v.isBlank())
+            throw new RuntimeException("env-pool:" + name + " — the variable is unset or blank");
+        var it = pools.computeIfAbsent(name,
+            k -> java.util.Arrays.asList(v.split("\\s+")).iterator());
+        if (!it.hasNext())
+            throw new RuntimeException("env-pool:" + name + " ran dry — every value is spent");
+        return it.next();
+    }
 
     public static void note(String label) throws IOException {
         event("note", "\"label\": \"" + label.replace("\"", "'") + "\"");
@@ -35,10 +58,11 @@ public class TafJournal {
     }
 
     public static void event(String kind, String fieldsJson) throws IOException {
-        if (current == null) return;
+        var writer = current;
+        if (writer == null) return;
         long t = (System.nanoTime() - start) / 1_000_000L;
-        current.write("{\"t\": " + t + ", \"event\": \"" + kind + "\", " + fieldsJson + "}\n");
-        current.flush();
+        writer.write("{\"t\": " + t + ", \"event\": \"" + kind + "\", " + fieldsJson + "}\n");
+        writer.flush();
     }
 
     private static String srtTs(long ms) {
@@ -46,12 +70,14 @@ public class TafJournal {
     }
 
     public static void end(String outcome) throws IOException {
-        if (current != null) {
+        var writer = current;
+        if (writer != null) {
             event("end", "\"outcome\": \"" + outcome + "\"");
-            current.close();
+            writer.close();
             current = null;
         }
-        if (dir != null && !noteL.isEmpty()) {
+        var d = dir;
+        if (d != null && !noteL.isEmpty()) {
             StringBuilder s = new StringBuilder();
             for (int i = 0; i < noteL.size(); i++) {
                 long e = i + 1 < noteL.size() ? noteT.get(i + 1)[0] : noteT.get(i)[0] + 2000;
@@ -59,7 +85,18 @@ public class TafJournal {
                  .append(srtTs(noteT.get(i)[0])).append(" --> ").append(srtTs(e))
                  .append('\n').append(noteL.get(i)).append("\n\n");
             }
-            Files.writeString(dir.resolve("journal.srt"), s.toString());
+            Files.writeString(d.resolve("journal.srt"), s.toString());
+            try (var ds = Files.list(d)) {
+                ds.filter(f -> f.getFileName().toString().endsWith(".webm"))
+                  .forEach(v -> {
+                      try {
+                          String n = v.getFileName().toString();
+                          Files.copy(d.resolve("journal.srt"),
+                              v.resolveSibling(n.substring(0, n.length() - 5) + ".srt"),
+                              java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                      } catch (java.io.IOException ignored) { /* best-effort */ }
+                  });
+            }
         }
     }
 }

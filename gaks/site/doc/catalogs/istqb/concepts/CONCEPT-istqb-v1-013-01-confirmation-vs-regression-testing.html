@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confirmation Testing vs. Regression Testing · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / istqb / concepts</div><h1 class="page-title" id="confirmation-testing-vs-regression-testing">Confirmation Testing vs. Regression Testing <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-istqb-v1-013-01-confirmation-vs-regression-testing</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>istqb</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L0-theory</td></tr><tr><th>since</th><td>CTFL 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/istqb/concepts/CONCEPT-istqb-v1-013-01-confirmation-vs-regression-testing.md</code></td></tr></table><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Confirmation testing and regression testing are change-related testing activities defined in CTFL v4.0 §2.2.3 performed after software modifications (bug fixes, enhancements, refactorings, or environment upgrades):</p>
+<ul>
+<li><strong>Confirmation Testing (Re-Testing)</strong>: Confirms that a specific reported defect has been successfully fixed. It executes the exact test cases and steps that previously failed, verifying that the defect is no longer reproducible.</li>
+<li><strong>Regression Testing</strong>: Confirms that code modifications have not introduced unintended side effects, broken existing functionality, or exposed new defects in unchanged areas of the software.</li>
+</ul>
+<pre><code class="language-text">Change Event: Bug #402 fixed in Payment Gateway Module
+======================================================================
+1. Confirmation Testing (Targeted &amp; Narrow):
+   Re-run Bug #402 reproducer:
+   --&gt; Verify payment with prepaid card now completes successfully.
+
+2. Regression Testing (Broad &amp; Comprehensive):
+   Run full automated regression suite:
+   --&gt; Verify standard credit card checkout is not broken.
+   --&gt; Verify shopping cart balance calculations remain accurate.
+   --&gt; Verify order fulfillment notifications are still sent.
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Understanding the dichotomy between confirmation testing and regression testing shapes continuous integration and release validation:</p>
+<ol>
+<li><strong>High Risk of Fix Collateral Damage</strong>: Empirical software engineering demonstrates that a significant percentage of bug fixes inadvertently introduce new defects into adjacent code. Passing confirmation tests is necessary but never sufficient for release readiness.</li>
+<li><strong>Regression as Primary Target for Automation</strong>: Because confirmation testing is typically performed once or twice per bug fix, it is often initiated interactively. In contrast, regression test suites are executed hundreds of times across builds, making regression testing the highest-return investment for automated testing.</li>
+<li><strong>Optimizing CI Feedback Loops</strong>: Modern test pipelines partition test suites into fast smoke/PR regression packs and comprehensive nightly regression runs, balancing fast feedback on immediate changes with thorough protection against collateral regressions.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realized by <span class="count">6</span></h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-005-01-tag-filtering-and-parallel-execution.html">Tag Filtering and Parallel Execution</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-005-01-tag-filtering-and-parallel-execution</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-005-01-projects-matrix-and-sharding.html">Multi-Project Matrix and Worker Sharding</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-005-01-projects-matrix-and-sharding</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-005-01-markers-and-xdist-parallelism.html">Markers and xdist Worker Parallelism</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-005-01-markers-and-xdist-parallelism</span></li><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness.html">Deterministic Execution, Flakiness Quarantine, and Retry Discipline</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness</span></li><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-004-01-session-and-context-isolation.html">Session and Context Isolation</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-004-01-session-and-context-isolation</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-004-01-the-rerun.html">The rerun</a> <span class="muted">CONCEPT-testing-v1-004-01-the-rerun</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

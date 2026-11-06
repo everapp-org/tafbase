@@ -19,6 +19,17 @@
         "tot"
       ],
       "test": "test_board_to_tot"
+    },
+    {
+      "actions": [
+        "file-a-fault-report"
+      ],
+      "journey": "files-a-fault-report",
+      "states": [
+        "board",
+        "board"
+      ],
+      "test": "test_files_a_fault_report"
     }
   ]
 }

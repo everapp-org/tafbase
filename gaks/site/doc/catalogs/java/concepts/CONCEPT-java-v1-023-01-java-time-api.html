@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Immutable java.time API · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / java / concepts</div><h1 class="page-title" id="immutable-javatime-api">Immutable java.time API <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-java-v1-023-01-java-time-api</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>java</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>Java 8</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/java/concepts/CONCEPT-java-v1-023-01-java-time-api.md</code></td></tr></table><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>The <code>java.time</code> package (JSR-310) provides an immutable, thread-safe domain model for dates, times, durations, and intervals based on the ISO-8601 calendar, separating machine time (<code>Instant</code>) from human-oriented wall-clock time (<code>LocalDate</code>, <code>LocalTime</code>, <code>ZonedDateTime</code>, <code>OffsetDateTime</code>).</p>
+<pre><code class="language-java">Instant nowUtc = Instant.now();
+LocalDate date = LocalDate.of(2026, Month.NOVEMBER, 6);
+ZonedDateTime eventTime = ZonedDateTime.now(ZoneId.of(&quot;America/New_York&quot;));
+
+Duration timeout = Duration.ofMinutes(15);
+Instant deadline = nowUtc.plus(timeout);
+
+Period gracePeriod = Period.ofDays(30);
+LocalDate renewalDate = date.plus(gracePeriod);
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Replaces legacy <code>java.util.Date</code>, <code>java.util.Calendar</code>, and <code>java.text.SimpleDateFormat</code>. Legacy date classes were notoriously mutable (leading to race conditions and defensive copy requirements), zero-indexed months confusingly (January was 0), conflated timestamps with time zones, and formatting classes were not thread-safe. The <code>java.time</code> types are completely immutable, thread-safe, mathematically sound, and aligned with ISO standards.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

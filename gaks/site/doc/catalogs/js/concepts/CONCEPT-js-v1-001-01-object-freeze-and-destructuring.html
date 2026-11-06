@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frozen Plain Object and Destructuring · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / js / concepts</div><h1 class="page-title" id="frozen-plain-object-and-destructuring">Frozen Plain Object and Destructuring <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-js-v1-001-01-object-freeze-and-destructuring</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>js</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>ES2015</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/js/concepts/CONCEPT-js-v1-001-01-object-freeze-and-destructuring.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-001-01-immutable-data-carrier</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>In JavaScript, shallowly immutable data carriers are constructed using plain object literals sealed with <code>Object.freeze()</code>. A frozen object prevents the addition of new properties, removal of existing properties, and modification of property values. Paired with ES2015 destructuring assignment, properties can be unpacked cleanly into local variables.</p>
+<pre><code class="language-js">export function createPoint(x, y) {
+  return Object.freeze({ x, y });
+}
+
+const point = createPoint(10, 20);
+// point.x = 99; // Fails silently or throws TypeError in strict mode (&#39;use strict&#39;)
+
+const { x, y } = point;
+console.log(`Point at (${x}, ${y})`);
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Plain JavaScript objects are open and mutable by default. Passing mutable objects across module boundaries or callback pipelines frequently causes bugs when a consumer modifies an object&#39;s properties in place or attaches undocumented fields.</p>
+<p><code>Object.freeze()</code> and destructuring realize <code>CONCEPT-prog-v1-001-01-immutable-data-carrier</code>:</p>
+<ol>
+<li><strong>Mutation prevention:</strong> Throws an immediate <code>TypeError</code> in strict mode if any code attempts to alter, add, or delete object fields.</li>
+<li><strong>Ergonomic unpacking:</strong> Destructuring syntax allows consumers to extract required properties directly in parameter lists or assignments.</li>
+<li><strong>Engine optimizations:</strong> JavaScript virtual machines (like V8) can optimize property lookups on frozen objects by freezing the hidden class transitions.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-001-01-immutable-data-carrier.html">Immutable Data Carrier</a> <span class="muted">CONCEPT-prog-v1-001-01-immutable-data-carrier</span></li></ul><h3>Across languages &amp; tools <span class="count">4</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-002-01-records.html">Java Records</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-002-01-records</span></li><li><span class="badge">pom</span> <a href="../../../concepts/CONCEPT-pom-v1-001-01-the-page-object.html">The page object</a> <span class="muted">CONCEPT-pom-v1-001-01-the-page-object</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-001-01-frozen-dataclass.html">Frozen Dataclass</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-001-01-frozen-dataclass</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-001-01-readonly-interface-and-type.html">Readonly Interface and Const Assertion Carrier</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-001-01-readonly-interface-and-type</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

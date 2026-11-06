@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arrange-Act-Assert Pattern · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / qa / concepts</div><h1 class="page-title" id="arrange-act-assert-pattern">Arrange-Act-Assert Pattern <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-qa-v1-001-01-arrange-act-assert</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>qa</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L1-archetype</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/qa/concepts/CONCEPT-qa-v1-001-01-arrange-act-assert.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-istqb-v1-012-01-test-oracle, CONCEPT-istqb-v1-014-01-entry-and-exit-criteria</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>The Arrange-Act-Assert (AAA) pattern is the canonical structural architecture for automated test cases. It partitions each test into three distinct, non-overlapping phases executed in strict chronological order:</p>
+<ol>
+<li><strong>Arrange</strong>: Set up all preconditions, system states, test data, mocks, and environment fixtures required for the scenario.</li>
+<li><strong>Act</strong>: Execute the single, specific behavior, user interaction, command, or method invocation being tested.</li>
+<li><strong>Assert</strong>: Verify that the actual outcomes, state mutations, and returned values match the expected results defined by the test oracle.</li>
+</ol>
+<p>This pattern is isomorphic to the <strong>Given-When-Then</strong> structure used in Behavior-Driven Development (BDD): Given the arranged state, When an action is taken, Then assert the observable outcome.</p>
+<pre><code class="language-python">def test_user_can_promote_ticket_to_triage(board_fixture):
+    # 1. Arrange: Create initial preconditions and seed ticket in backlog
+    ticket = board_fixture.create_ticket(title=&quot;Fix CSS layout&quot;, status=&quot;BACKLOG&quot;)
+    
+    # 2. Act: Execute the single action under test
+    ticket.promote_to(&quot;TRIAGE&quot;)
+    
+    # 3. Assert: Verify the postcondition state matches expectation
+    updated = board_fixture.fetch_ticket(ticket.id)
+    assert updated.status == &quot;TRIAGE&quot;
+    assert updated.transition_history[-1].to_state == &quot;TRIAGE&quot;
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>The Arrange-Act-Assert pattern establishes structural discipline across automated test suites:</p>
+<ol>
+<li><strong>Failure Diagnosis Isolation</strong>: Clear separation pinpoints test failure etiology. A failure during the Arrange phase indicates broken test fixtures, stale data, or environment infrastructure issues. A failure during Act indicates interface or runtime execution errors. A failure during Assert indicates a functional defect or regression.</li>
+<li><strong>Single-Action Focus</strong>: Enforcing a single Act phase prevents tests from sprawling into multi-action integration odysseys where a failure in the middle leaves subsequent actions unexecuted and unverified.</li>
+<li><strong>Readability and Cognitive Load</strong>: Any engineer or reviewer reading the test can immediately identify the target behavior (the Act line) without getting lost in boilerplate setup code.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-012-01-test-oracle.html">Test Oracle and Expected Result Determination</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-012-01-test-oracle</span></li><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-014-01-entry-and-exit-criteria.html">Entry Criteria and Exit Criteria</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-014-01-entry-and-exit-criteria</span></li></ul><h3>Across languages &amp; tools <span class="count">4</span></h3><ul><li><span class="badge">qa</span> <a href="CONCEPT-qa-v1-007-01-hard-vs-soft-assertions.html">Hard Assertions, Soft Assertions, and Auto-Retrying Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-007-01-hard-vs-soft-assertions</span></li><li><span class="badge">qa</span> <a href="CONCEPT-qa-v1-006-01-api-fixture-seeding.html">Out-of-Band API State Seeding</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-006-01-api-fixture-seeding</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-001-01-arrange-act-assert.html">Arrange–Act–Assert</a> <span class="muted">CONCEPT-testing-v1-001-01-arrange-act-assert</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-003-01-the-golden-file.html">The golden file</a> <span class="muted">CONCEPT-testing-v1-003-01-the-golden-file</span></li></ul><h3>Realized by <span class="count">1</span></h3><ul><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-001-01-arrange-act-assert.html">Arrange–Act–Assert</a> <span class="muted">CONCEPT-testing-v1-001-01-arrange-act-assert</span></li></ul><h3>Unlocks <span class="count">1</span></h3><ul><li><span class="badge">qa</span> <a href="CONCEPT-qa-v1-006-01-api-fixture-seeding.html">Out-of-Band API State Seeding</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-006-01-api-fixture-seeding</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../../../concepts/CONCEPT-taf-v1-001-01-the-learning-path.html">The learning path</a> <span class="muted">CONCEPT-taf-v1-001-01-the-learning-path</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

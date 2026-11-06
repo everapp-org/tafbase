@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dependency-Injected Fixtures and Scoped Lifecycles · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / pytest / concepts</div><h1 class="page-title" id="dependency-injected-fixtures-and-scoped-lifecycles">Dependency-Injected Fixtures and Scoped Lifecycles <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-pytest-v1-001-01-dependency-injected-fixtures</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>pytest</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>pytest 8.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/pytest/concepts/CONCEPT-pytest-v1-001-01-dependency-injected-fixtures.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-006-01-scoped-test-fixture, CONCEPT-qa-v1-004-01-session-and-context-isolation</td></tr><tr><th>contrasts-with</th><td>CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle, CONCEPT-pwtest-v1-001-01-test-extend-fixtures</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Pytest fixtures are modular, composable dependency injection providers declared via <code>@pytest.fixture</code>. Test functions and higher-level fixtures request dependencies explicitly by listing fixture names as function arguments.</p>
+<p>Fixtures support distinct lifecycle scopes:</p>
+<ul>
+<li><code>function</code> (default): Created and torn down for each individual test function.</li>
+<li><code>class</code>: Shared across methods in a test class.</li>
+<li><code>module</code>: Created once per test file.</li>
+<li><code>package</code>: Shared across tests within a subpackage directory.</li>
+<li><code>session</code>: Created once per entire test invocation.</li>
+</ul>
+<p>Teardown logic is expressed using Python generators: code prior to <code>yield</code> runs during setup, the yielded value is injected into the test, and code following <code>yield</code> executes during teardown even if test execution raises an exception.</p>
+<pre><code class="language-python">import pytest
+from playwright.sync_api import sync_playwright, Browser, BrowserContext, Page
+
+@pytest.fixture(scope=&quot;session&quot;)
+def browser():
+    &quot;&quot;&quot;Heavyweight browser launched once per test run.&quot;&quot;&quot;
+    with sync_playwright() as p:
+        browser_instance = p.chromium.launch()
+        yield browser_instance
+        browser_instance.close()
+
+@pytest.fixture(scope=&quot;function&quot;)
+def page(browser: Browser) -&gt; Page:
+    &quot;&quot;&quot;Lightweight isolated context and page per test function.&quot;&quot;&quot;
+    context: BrowserContext = browser.new_context()
+    page_instance: Page = context.new_page()
+    yield page_instance
+    context.close()
+
+def test_user_dashboard(page: Page):
+    page.goto(&quot;https://app.example.com/dashboard&quot;)
+    assert page.is_visible(&quot;header#dashboard-header&quot;)
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-prog-v1-006-01-scoped-test-fixture</code> and <code>CONCEPT-qa-v1-004-01-session-and-context-isolation</code>. Reusable test state requires granular lifecycle control without tight coupling or rigid class inheritance trees.</p>
+<p>Contrasts with <code>CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle</code> and <code>CONCEPT-pwtest-v1-001-01-test-extend-fixtures</code>. JUnit relies on class inheritance and <code>@BeforeEach</code>/<code>@AfterEach</code> annotations that bind state to class fields. Pytest uses functional dependency injection with automatic resolution of directed acyclic graph (DAG) fixture dependencies, automatic caching per scope, and centralized discovery via <code>conftest.py</code>. Playwright Test adopts a similar philosophy in TypeScript via <code>test.extend()</code>.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-006-01-scoped-test-fixture.html">Scoped Test Fixture Lifecycle</a> <span class="muted">CONCEPT-prog-v1-006-01-scoped-test-fixture</span></li><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-004-01-session-and-context-isolation.html">Session and Context Isolation</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-004-01-session-and-context-isolation</span></li></ul><h3>Across languages &amp; tools <span class="count">12</span></h3><ul><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-016-01-the-auth-clause.html">The auth clause</a> <span class="muted">CONCEPT-dsl-v1-016-01-the-auth-clause</span></li><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-001-01-junit-lifecycle-annotations.html">JUnit 5 Lifecycle Annotations</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-001-01-junit-lifecycle-annotations</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-006-01-async-fixture-callback.html">Async Fixture Callback Lifecycle</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-006-01-async-fixture-callback</span></li><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle.html">Per-Method Test Instance Lifecycle and Fixtures</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-008-01-storage-state-reuse.html">Authenticated Storage State Snapshot and Reuse</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-008-01-storage-state-reuse</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy.html">Browser, BrowserContext, and Page Isolation Hierarchy</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-001-01-test-extend-fixtures.html">Typed Fixtures via test.extend</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-001-01-test-extend-fixtures</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-006-01-pytest-yield-fixture.html">Pytest Yield Fixture</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-006-01-pytest-yield-fixture</span></li><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-004-01-session-and-context-isolation.html">Session and Context Isolation</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-004-01-session-and-context-isolation</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-010-01-remote-webdriver-and-grid.html">RemoteWebDriver and Distributed Selenium Grid</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-010-01-remote-webdriver-and-grid</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-001-01-webdriver-session-lifecycle.html">WebDriver Session Lifecycle and Selenium Manager</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-001-01-webdriver-session-lifecycle</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-006-01-typed-test-fixture-extension.html">Typed Test Fixture Extension</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-006-01-typed-test-fixture-extension</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle.html">Per-Method Test Instance Lifecycle and Fixtures</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-001-01-test-extend-fixtures.html">Typed Fixtures via test.extend</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-001-01-test-extend-fixtures</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">2</span></h2><ul><li><a href="../../../research/RESEARCH-taf-v1-001-01-the-interview-surface.html">The interview surface</a> <span class="muted">RESEARCH-taf-v1-001-01-the-interview-surface</span></li><li><a href="../../../concepts/CONCEPT-taf-v1-001-01-the-learning-path.html">The learning path</a> <span class="muted">CONCEPT-taf-v1-001-01-the-learning-path</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

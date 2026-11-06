@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explicit WebDriverWait and ExpectedConditions · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / selenium / concepts</div><h1 class="page-title" id="explicit-webdriverwait-and-expectedconditions">Explicit WebDriverWait and ExpectedConditions <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-selenium-v1-003-01-webdriverwait-and-expected-conditions</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>selenium</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>Selenium 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/selenium/concepts/CONCEPT-selenium-v1-003-01-webdriverwait-and-expected-conditions.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-qa-v1-003-01-synchronization-and-actionability</td></tr><tr><th>contrasts-with</th><td>CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Synchronization in Selenium WebDriver relies on explicit polling via <code>WebDriverWait</code> and predefined <code>ExpectedConditions</code> (or lambda predicates). </p>
+<p><code>WebDriverWait</code> repeatedly evaluates an expected condition over a configured timeout (e.g., 10 seconds) with a defined polling frequency (typically 500ms), ignoring specific exceptions such as <code>NoSuchElementException</code> until the condition evaluates to a truthy value or the timeout is exceeded.</p>
+<p>Mixing implicit waits (<code>driver.manage().timeouts().implicitlyWait(...)</code>) with explicit waits is an established anti-pattern in Selenium: because both mechanisms poll the browser driver, the W3C specification does not define an order of precedence, causing unpredictable and compounded timeout delays.</p>
+<pre><code class="language-java">import java.time.Duration;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class SyncDemo {
+    public static void submitOrder(WebDriver driver) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        // Explicitly wait until the button is both visible and enabled for interaction
+        By submitLocator = By.cssSelector(&quot;button#confirm-checkout&quot;);
+        WebElement submitButton = wait.until(ExpectedConditions.elementToBeClickable(submitLocator));
+        submitButton.click();
+
+        // Wait until success banner appears in the DOM and becomes visible
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.className(&quot;success-message&quot;)));
+    }
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-qa-v1-003-01-synchronization-and-actionability</code>. Web browsers render asynchronously; attempting to interact with elements before they are attached, visible, or enabled causes immediate runtime errors.</p>
+<p>Contrasts with <code>CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability</code>. In Selenium, actions (<code>click()</code>, <code>sendKeys()</code>) do not auto-wait for interactability checks; if an element is animating or obscured, <code>click()</code> immediately fails with <code>ElementClickInterceptedException</code>. Consequently, Selenium test authors must explicitly write <code>wait.until(...)</code> calls before interacting with elements. In contrast, Playwright automatically performs actionability checks prior to every action, eliminating manual synchronization boilerplate.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-003-01-synchronization-and-actionability.html">UI Synchronization and Actionability Waiting</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-003-01-synchronization-and-actionability</span></li></ul><h3>Across languages &amp; tools <span class="count">4</span></h3><ul><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-003-01-the-dwell.html">The dwell</a> <span class="muted">CONCEPT-dsl-v1-003-01-the-dwell</span></li><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-004-01-the-wait.html">The wait</a> <span class="muted">CONCEPT-dsl-v1-004-01-the-wait</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability.html">Built-in Auto-Waiting and Actionability Checks</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability</span></li><li><span class="badge">selenium</span> <a href="CONCEPT-selenium-v1-009-01-actions-api.html">Low-Level Actions API for Complex Interactions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-009-01-actions-api</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability.html">Built-in Auto-Waiting and Actionability Checks</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

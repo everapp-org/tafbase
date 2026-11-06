@@ -14,7 +14,8 @@ import sys
 
 import pytest
 
-from taf import emit_python, model
+from taf import model
+from taf.codegen.python import emitter as emit_python
 
 MODEL = "suts/ikc3-tracker.sut.model.json"
 

@@ -174,6 +174,31 @@ export function buildSite({ rules, root, out, name, marked }) {
     }
   }
 
+  // Ontology graph: realizes, requires and contrasts-with from frontmatter.
+  const listRefs = (v) => {
+    if (v === null || v === undefined) return [];
+    const raw = Array.isArray(v) ? v : String(v).split(',');
+    return raw.map((x) => String(x).trim().replace(/^\[\[|\]\]$/g, '').trim()).filter(Boolean);
+  };
+  const realizedBy = new Map(); // target entry path -> Set of child entry paths
+  const requiredBy = new Map(); // target entry path -> Set of dependent entry paths
+  for (const e of entries) {
+    for (const ref of listRefs(e.frontmatter.realizes)) {
+      const r = corpus.lookup(ref);
+      if (r && r.entry && r.entry !== e) {
+        if (!realizedBy.has(r.entry.path)) realizedBy.set(r.entry.path, new Set());
+        realizedBy.get(r.entry.path).add(e.path);
+      }
+    }
+    for (const ref of listRefs(e.frontmatter.requires)) {
+      const r = corpus.lookup(ref);
+      if (r && r.entry && r.entry !== e) {
+        if (!requiredBy.has(r.entry.path)) requiredBy.set(r.entry.path, new Set());
+        requiredBy.get(r.entry.path).add(e.path);
+      }
+    }
+  }
+
   // ----- Markdown rendering. `current` is the context of the parse that runs.
   let current = null;
   const md = new marked.Marked({ gfm: true });
@@ -403,12 +428,45 @@ ${body}
     if (dateOf(fm)) rows.push(['date', esc(dateOf(fm))]);
     if (fm.authors) rows.push(['authors', esc(str(fm.authors))]);
     if (e.isDocument) rows.push(['kind', `<a href="${rel(at, `reports/${e.prefix}.html`)}">${esc(kindName(e.prefix))}</a>`]);
+    if (fm.layer) rows.push(['layer', esc(str(fm.layer))]);
+    if (fm.since) rows.push(['since', esc(str(fm.since))]);
+    if (fm.standing) rows.push(['standing', `<span class="badge">${esc(str(fm.standing))}</span>`]);
     rows.push(['source', `<code>${esc(e.path)}</code>`]);
-    const shown = new Set(['id', 'status', 'subproject', 'date', 'authors']);
+    const shown = new Set(['id', 'status', 'subproject', 'date', 'authors', 'layer', 'since', 'standing']);
     const rest = Object.entries(fm).filter(([k, v]) => !shown.has(k) && v !== null);
     const props = `<table class="props">${rows.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('')}</table>`
       + (rest.length ? `<details class="props-more"><summary>All properties (${rest.length} more)</summary><table class="props">${rest.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(str(v))}</td></tr>`).join('')}</table></details>` : '');
     const html = render(withoutTitle(e.body), { from: at, srcPath: e.path, depth: 0, stack: [e.path], ids: true });
+    const entryItem = (x) => {
+      const sub = x.subproject ? `<span class="badge">${esc(x.subproject)}</span> ` : '';
+      const st = x.frontmatter.standing ? ` <span class="muted">(${esc(str(x.frontmatter.standing))})</span>` : '';
+      return `<li>${sub}<a href="${rel(at, pageOut(x.path))}">${titleHtml(x.title)}</a>${st} <span class="muted">${esc(x.id || x.docId || x.path)}</span></li>`;
+    };
+    const refItem = (ref) => {
+      const r = corpus.lookup(ref);
+      return r && r.entry ? entryItem(r.entry) : `<li><code>${esc(ref)}</code></li>`;
+    };
+    const realRefs = listRefs(fm.realizes);
+    const siblingPaths = new Set();
+    for (const ref of realRefs) {
+      const r = corpus.lookup(ref);
+      if (r && r.entry && realizedBy.has(r.entry.path)) {
+        for (const p of realizedBy.get(r.entry.path)) if (p !== e.path) siblingPaths.add(p);
+      }
+    }
+    const siblings = [...siblingPaths].map((p) => byPath.get(p)).sort((a, b) => (a.subproject || '').localeCompare(b.subproject || '') || a.title.localeCompare(b.title));
+    const children = [...(realizedBy.get(e.path) || [])].map((p) => byPath.get(p)).sort((a, b) => (a.subproject || '').localeCompare(b.subproject || '') || a.title.localeCompare(b.title));
+    const contrasts = listRefs(fm['contrasts-with'] ?? fm.contrasts_with);
+    const reqs = listRefs(fm.requires);
+    const unlocks = [...(requiredBy.get(e.path) || [])].map((p) => byPath.get(p)).sort((a, b) => a.title.localeCompare(b.title));
+    const ontBlocks = [];
+    if (realRefs.length) ontBlocks.push(`<h3>Realizes</h3><ul>${realRefs.map(refItem).join('')}</ul>`);
+    if (siblings.length) ontBlocks.push(`<h3>Across languages &amp; tools <span class="count">${siblings.length}</span></h3><ul>${siblings.map(entryItem).join('')}</ul>`);
+    if (children.length) ontBlocks.push(`<h3>Realized by <span class="count">${children.length}</span></h3><ul>${children.map(entryItem).join('')}</ul>`);
+    if (contrasts.length) ontBlocks.push(`<h3>Contrasts with</h3><ul>${contrasts.map(refItem).join('')}</ul>`);
+    if (reqs.length) ontBlocks.push(`<h3>Prerequisites</h3><ul>${reqs.map(refItem).join('')}</ul>`);
+    if (unlocks.length) ontBlocks.push(`<h3>Unlocks <span class="count">${unlocks.length}</span></h3><ul>${unlocks.map(entryItem).join('')}</ul>`);
+    const ontHtml = ontBlocks.length ? `<section class="ontology"><h2>Concept ontology</h2>${ontBlocks.join('')}</section>` : '';
     const back = [...(backlinks.get(e.path) || [])].map((p) => byPath.get(p)).sort((a, b) => a.title.localeCompare(b.title));
     const backHtml = `<section class="backlinks"><h2>Mentioned in <span class="count">${back.length}</span></h2>`
       + (back.length
@@ -419,7 +477,7 @@ ${body}
     const crumbHtml = `<div class="crumbs"><a href="${rel(at, 'tree.html')}">Tree</a>${crumbs.map((c) => ` / ${esc(c)}`).join('')}</div>`;
     const badge = state || e.status ? ' ' + stateBadge(state, e.status) : '';
     const h1 = `<h1 class="page-title" id="${esc(slug(e.title))}">${titleHtml(e.title)}${badge}</h1>`;
-    write(at, layout(at, e.title, `${crumbHtml}${h1}${props}<article class="doc">${html}</article>${backHtml}`));
+    write(at, layout(at, e.title, `${crumbHtml}${h1}${props}<article class="doc">${html}</article>${ontHtml}${backHtml}`));
   }
 
   // ----- The report of each kind: the page properties report.

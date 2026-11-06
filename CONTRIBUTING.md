@@ -8,11 +8,13 @@ This file is how to work *on* it.
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install pytest playwright websocket-client
+.venv/bin/pip install -e .                        # the `taf` command + deps
 .venv/bin/python -m playwright install chromium   # for live runs
 ```
 
-Always invoke `.venv/bin/python`, never the system interpreter.
+The editable install puts `taf` on the venv's PATH; `python -m taf`
+spells the same command. Always invoke `.venv/bin/python`, never the
+system interpreter.
 
 ## Tests
 
@@ -35,7 +37,11 @@ other change. After touching the model or an emitter:
 ```bash
 .venv/bin/python -m taf emit --lang python suts/ikc3-tracker.sut.model.json -o generated/python/ikc3-tracker
 .venv/bin/python -m taf emit --lang java   suts/ikc3-tracker.sut.model.json -o generated/java/ikc3-tracker
+.venv/bin/python -m taf emit --lang ts     suts/ikc3-tracker.sut.model.json -o generated/ts/ikc3-tracker
+.venv/bin/python -m taf emit --lang js     suts/ikc3-tracker.sut.model.json -o generated/js/ikc3-tracker
 diff generated/python/ikc3-tracker/taf.manifest.json generated/java/ikc3-tracker/taf.manifest.json
+diff generated/python/ikc3-tracker/taf.manifest.json generated/ts/ikc3-tracker/taf.manifest.json
+diff generated/python/ikc3-tracker/taf.manifest.json generated/js/ikc3-tracker/taf.manifest.json
 ```
 
 The diff must be empty — SM-9's parity contract. `tests/test_parity.py`

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Out-of-Band API State Seeding · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / qa / concepts</div><h1 class="page-title" id="out-of-band-api-state-seeding">Out-of-Band API State Seeding <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-qa-v1-006-01-api-fixture-seeding</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>qa</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L1-archetype</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/qa/concepts/CONCEPT-qa-v1-006-01-api-fixture-seeding.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-istqb-v1-004-01-test-levels, CONCEPT-istqb-v1-014-01-entry-and-exit-criteria</td></tr><tr><th>requires</th><td>CONCEPT-qa-v1-001-01-arrange-act-assert</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Out-of-Band API State Seeding is an architectural pattern for UI and end-to-end testing where preconditions and test data are created directly via backend REST/GraphQL APIs, database fixtures, or state injection endpoints, completely bypassing the user interface during the Arrange phase.</p>
+<p>In this pattern:</p>
+<ul>
+<li><strong>Preconditions via API (Out-of-Band)</strong>: Creating users, populating inventory, creating shopping carts, or setting permissions is executed via direct HTTP API requests or database scripts. This takes a few milliseconds.</li>
+<li><strong>Session Injection</strong>: Authentication tokens or cookies are injected directly into the browser context (<code>storageState</code>), bypassing the multi-step UI login form.</li>
+<li><strong>UI Reserved for the Act Phase</strong>: The browser UI is loaded only at the exact page and state required to exercise the specific interaction under test.</li>
+</ul>
+<pre><code class="language-text">Anti-pattern (UI-only):
+[Open Browser] -&gt; [UI Register Form] -&gt; [UI Login Form] -&gt; [UI Catalog Search] -&gt; [UI Add to Cart] -&gt; [TEST CHECKOUT UI]
+  (Slow: 35s, 5 potential failure points before test even starts)
+
+Archetype (Out-of-Band API Seeding):
+[POST /api/seed/cart] (15ms) -&gt; [Inject Auth Cookie] (2ms) -&gt; [Open /checkout] -&gt; [TEST CHECKOUT UI]
+  (Fast: 1.2s, 0 UI flakiness in setup)
+</code></pre>
+<pre><code class="language-python">def test_checkout_submission_with_api_seeding(api_client, browser_context):
+    # Arrange (Out-of-Band): Seed state directly via backend APIs
+    token = api_client.create_authenticated_user(&quot;qa_user@example.com&quot;)
+    order_id = api_client.seed_cart_with_items(user_token=token, items=[&quot;SKU-1&quot;, &quot;SKU-2&quot;])
+    
+    # Inject auth state directly into browser context
+    browser_context.add_cookies([{
+        &quot;name&quot;: &quot;session_token&quot;,
+        &quot;value&quot;: token,
+        &quot;domain&quot;: &quot;localhost&quot;,
+        &quot;path&quot;: &quot;/&quot;
+    }])
+    
+    # Act: Navigate directly to the checkout page under test
+    page = browser_context.new_page()
+    page.goto(f&quot;/checkout/{order_id}&quot;)
+    page.get_by_role(&quot;button&quot;, name=&quot;Place Order&quot;).click()
+    
+    # Assert
+    assert page.get_by_text(&quot;Order Confirmed&quot;).is_visible()
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Out-of-band state seeding is essential for scaling end-to-end test suites:</p>
+<ol>
+<li><strong>Massive Speedup</strong>: A test that sets up data through the UI takes 20 to 45 seconds; setting up the same data via direct API calls takes 50 to 200 milliseconds, resulting in a 10x-50x speedup of the test suite.</li>
+<li><strong>Defect Localization</strong>: If the login UI has a bug, a traditional suite of 200 tests will fail 200 times even though only one test was supposed to test login. With API seeding, only the single login test fails, while the other 199 tests seed their state out-of-band and continue testing their respective features.</li>
+<li><strong>Resilience Against UI Churn</strong>: Preconditions are shielded from front-end styling and form refactorings, making tests far more stable over time.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-004-01-test-levels.html">Test Levels</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-004-01-test-levels</span></li><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-014-01-entry-and-exit-criteria.html">Entry Criteria and Exit Criteria</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-014-01-entry-and-exit-criteria</span></li></ul><h3>Across languages &amp; tools <span class="count">1</span></h3><ul><li><span class="badge">qa</span> <a href="CONCEPT-qa-v1-001-01-arrange-act-assert.html">Arrange-Act-Assert Pattern</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-001-01-arrange-act-assert</span></li></ul><h3>Realized by <span class="count">2</span></h3><ul><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-005-01-api-request-context.html">API Request Context for State Seeding</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-005-01-api-request-context</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-005-01-external-http-seeding.html">External HTTP Seeding and Cookie Injection</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-005-01-external-http-seeding</span></li></ul><h3>Prerequisites</h3><ul><li><span class="badge">qa</span> <a href="CONCEPT-qa-v1-001-01-arrange-act-assert.html">Arrange-Act-Assert Pattern</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-001-01-arrange-act-assert</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

@@ -6,6 +6,10 @@ authored: 2026-10-16
 authors:
   - George Petrov
   - Devin
+layer: L2-taf
+realizes:
+  - CONCEPT-istqb-v1-013-01-confirmation-vs-regression-testing
+  - CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness
 ---
 
 # The rerun

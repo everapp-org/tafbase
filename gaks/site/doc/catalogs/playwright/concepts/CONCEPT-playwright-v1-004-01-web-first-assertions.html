@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auto-Retrying Web-First Assertions · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / playwright / concepts</div><h1 class="page-title" id="auto-retrying-web-first-assertions">Auto-Retrying Web-First Assertions <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-playwright-v1-004-01-web-first-assertions</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>playwright</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>Playwright 1.40</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/playwright/concepts/CONCEPT-playwright-v1-004-01-web-first-assertions.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-qa-v1-007-01-hard-vs-soft-assertions</td></tr><tr><th>contrasts-with</th><td>CONCEPT-selenium-v1-004-01-one-shot-dom-assertions</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Web-first assertions are asynchronous verification matchers designed specifically for the dynamic nature of web applications. Instead of checking DOM state once at an arbitrary instant, web-first assertions poll the targeted locator repeatedly until the expected condition is satisfied or a timeout is reached.</p>
+<p>Standard web-first assertions include:</p>
+<ul>
+<li><code>expect(locator).toBeVisible()</code></li>
+<li><code>expect(locator).toHaveText(expected)</code></li>
+<li><code>expect(locator).toBeEnabled()</code></li>
+<li><code>expect(locator).toHaveValue(value)</code></li>
+<li><code>expect(page).toHaveURL(urlOrRegex)</code></li>
+</ul>
+<pre><code class="language-typescript">import { Page, expect } from &#39;@playwright/test&#39;;
+
+export async function verifyOrderProcessed(page: Page, expectedOrderNumber: string) {
+  const confirmationBanner = page.getByRole(&#39;alert&#39;);
+  const orderNumberDisplay = page.getByTestId(&#39;order-confirmation-id&#39;);
+
+  // Retries continuously until the alert appears or timeout expires (e.g., 5000ms)
+  await expect(confirmationBanner).toBeVisible();
+
+  // Retries until client-side hydration or API response updates the text content
+  await expect(orderNumberDisplay).toHaveText(expectedOrderNumber);
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-qa-v1-007-01-hard-vs-soft-assertions</code>. Web verification requires oracles that understand the eventual consistency of user interfaces. Assertions that evaluate too early produce false-negative test failures.</p>
+<p>Contrasts with <code>CONCEPT-selenium-v1-004-01-one-shot-dom-assertions</code>. In Selenium frameworks, standard testing assertions (such as JUnit&#39;s <code>assertEquals</code> or TestNG&#39;s <code>assertTrue</code>) are one-shot synchronous checks. They extract a string or boolean from a <code>WebElement</code> at a single instant in time and immediately fail if the state has not settled. To make one-shot assertions reliable, test authors are forced to write verbose explicit wait loops prior to each assert statement. Playwright integrates retrying verification directly into the assertion syntax, drastically simplifying test structure.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-007-01-hard-vs-soft-assertions.html">Hard Assertions, Soft Assertions, and Auto-Retrying Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-007-01-hard-vs-soft-assertions</span></li></ul><h3>Across languages &amp; tools <span class="count">5</span></h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-003-01-assertall-grouped-assertions.html">Grouped Soft Assertions via assertAll</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-003-01-assertall-grouped-assertions</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-003-01-expect-soft-and-poll.html">Soft and Polling Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-003-01-expect-soft-and-poll</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-003-01-assert-introspection.html">Assert Statement AST Introspection</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-003-01-assert-introspection</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-004-01-one-shot-dom-assertions.html">One-Shot DOM Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-004-01-one-shot-dom-assertions</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-002-01-the-failure-funnel.html">The failure funnel</a> <span class="muted">CONCEPT-testing-v1-002-01-the-failure-funnel</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-004-01-one-shot-dom-assertions.html">One-Shot DOM Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-004-01-one-shot-dom-assertions</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

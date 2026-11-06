@@ -3,36 +3,51 @@
 """One page object per declared state.
 
 @concept CONCEPT-pom-v1-001-01-the-page-object
-@concept CONCEPT-playwright-v1-003-01-auto-waiting
+@concept CONCEPT-qa-v1-005-01-page-object-model
+@concept CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability
 """
 
 from playwright.sync_api import expect
+import os
 
-ROUTES = {"board": "/index.html?island=board", "tot": "/index.html?island=tot"}
+ROUTES = {"login": "/index.html?island=board", "board": "/index.html?island=board", "tot": "/index.html?island=tot"}
+
+class LoginPage:
+    """The 'login' state. Its marker proves arrival."""
+
+    def __init__(self, page):
+        self.page = page
+        self.marker = page.get_by_text("The bus records who wrote a thought only when it knows who you are.")
+
+    def goto(self, base_url):
+        self.page.goto(base_url + ROUTES["login"])
+
+    def expect_arrived(self):
+        expect(self.marker).to_be_visible(timeout=float(os.environ.get("TAF_ARRIVE_MS", "15000")))
 
 class BoardPage:
     """The 'board' state. Its marker proves arrival."""
 
     def __init__(self, page):
         self.page = page
-        self.marker = page.locator(".ikc-dock-theme")
+        self.marker = page.locator("[data-import-id=\"top-bar\"]")
 
     def goto(self, base_url):
         self.page.goto(base_url + ROUTES["board"])
 
     def expect_arrived(self):
-        expect(self.marker).to_be_visible()
+        expect(self.marker).to_be_visible(timeout=float(os.environ.get("TAF_ARRIVE_MS", "15000")))
 
 class TotPage:
     """The 'tot' state. Its marker proves arrival."""
 
     def __init__(self, page):
         self.page = page
-        self.marker = page.locator(".ikc-dock-theme")
+        self.marker = page.locator("[data-import-id=\"top-bar\"]")
 
     def goto(self, base_url):
         self.page.goto(base_url + ROUTES["tot"])
 
     def expect_arrived(self):
-        expect(self.marker).to_be_visible()
+        expect(self.marker).to_be_visible(timeout=float(os.environ.get("TAF_ARRIVE_MS", "15000")))
 

@@ -2,8 +2,10 @@
 # edit the model and regenerate.
 """Fixtures for the generated suite.
 
-@concept CONCEPT-pytest-v1-001-01-the-pytest-fixture
-@concept CONCEPT-playwright-v1-002-01-the-browser-context
+@concept CONCEPT-pytest-v1-001-01-dependency-injected-fixtures
+@concept CONCEPT-python-v1-006-01-pytest-yield-fixture
+@concept CONCEPT-python-v1-010-01-os-environ-get
+@concept CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy
 """
 
 import os
@@ -11,6 +13,14 @@ import pytest
 from playwright.sync_api import sync_playwright
 
 import taf_journal
+
+_MODEL_BASE_URL = "http://127.0.0.1:4856"
+
+# Failures the journal cannot carry: a teardown-phase failure lands
+# after journal.end() already wrote the outcome, and a setup failure
+# before begin() leaves no journal at all. sessionfinish unions these
+# into failed.txt so TAF_RERUN still finds them.
+_LATE_FAILURES = []
 
 
 # @concept CONCEPT-taf-v1-004-01-the-artifacts
@@ -36,7 +46,7 @@ def journal(run_dir, request):
 # @concept CONCEPT-taf-v1-003-01-the-environment
 @pytest.fixture(scope="session")
 def base_url():
-    return os.environ.get("TAF_BASE_URL", "http://127.0.0.1:4856")
+    return os.environ.get("TAF_BASE_URL", _MODEL_BASE_URL)
 
 
 @pytest.fixture(scope="session")
@@ -52,13 +62,13 @@ def browser():
 
 
 @pytest.fixture
-def page(browser, journal):
+def page(browser, journal, auth_state):
     """A fresh context per test: full isolation, no shared state.
     TAF_VIDEO=<dir-name> records the run into the test's results dir."""
     opts = {}
     if os.environ.get("TAF_VIDEO"):
         opts["record_video_dir"] = taf_journal.test_dir()
-    ctx = browser.new_context(**opts)
+    ctx = browser.new_context(storage_state=auth_state, **opts)
     pg = ctx.new_page()
     yield pg
     if os.environ.get("TAF_DEBUG") and taf_journal.failed():
@@ -94,9 +104,11 @@ def pytest_runtest_makereport(item, call):
     """A red test files a fault report into the tracker — when a sink is
     configured (TAF_IKC3_WS=ws://host:port/bus-ws). A sink that cannot
     file warns; it never fails the suite a second time."""
-    if call.when != "call" or call.excinfo is None:
-        return
+    if call.excinfo is None or isinstance(call.excinfo.value,
+                                          pytest.skip.Exception):
+        return  # green, or a skip — neither is a failure
     taf_journal.mark("failed")
+    _LATE_FAILURES.append(item.name)
     ws_url = os.environ.get("TAF_IKC3_WS")
     if not ws_url:
         return
@@ -119,15 +131,34 @@ def pytest_runtest_makereport(item, call):
                     f.write(dom)
             except Exception:
                 pass
-        rid = ikc3_sink.file_report(
-            ws_url,
-            "taf journey failed: %s — %s" % (item.name, err),
-            url=url, dom=dom,
-        )
-        print("fault report filed:", rid)
+        fp = ikc3_sink.fingerprint(item.name, err)
+        old = ikc3_sink.filed(fp)
+        if old:
+            print("fault report already filed: %s (fp %s)" % (old, fp))
+            taf_journal.note("fault report already filed: %s" % old)
+        else:
+            rid = ikc3_sink.file_report(
+                ws_url,
+                "taf journey failed: %s — %s" % (item.name, err),
+                url=url, dom=dom,
+            )
+            ikc3_sink.record(fp, rid)
+            print("fault report filed:", rid)
         taf_journal.event("fail", test=item.name, error=err)
     except Exception as e:  # noqa: BLE001 — the sink is a side channel
         print("ikc3 sink could not file the report:", e)
+
+
+def pytest_sessionstart(session):
+    """The run contract, printed once: what env shaped this run."""
+    print("taf env: base_url=%s headless=%s slowmo=%s video=%s "
+          "arrive_ms=%s results=%s" % (
+              os.environ.get("TAF_BASE_URL", _MODEL_BASE_URL),
+              os.environ.get("TAF_HEADLESS", "0") == "1",
+              os.environ.get("TAF_SLOWMO", "0"),
+              "on" if "TAF_VIDEO" in os.environ else "off",
+              os.environ.get("TAF_ARRIVE_MS", "15000"),
+              os.environ.get("TAF_RESULTS", "results")))
 
 
 # @concept CONCEPT-testing-v1-004-01-the-rerun
@@ -137,12 +168,14 @@ def pytest_sessionfinish(session, exitstatus):
     run = taf_journal.RUN_DIR
     if not run:
         return
-    names = [os.path.basename(os.path.dirname(jf))
+    names = {os.path.basename(os.path.dirname(jf))
              for jf in glob.glob(os.path.join(run, "*", "journal.jsonl"))
-             if '"outcome": "failed"' in open(jf, encoding="utf-8").read()]
+             if '"outcome": "failed"' in open(jf, encoding="utf-8").read()}
+    names.update(_LATE_FAILURES)
     with open(os.path.join(run, "failed.txt"), "w",
               encoding="utf-8") as f:
         f.write("\n".join(sorted(names)))
+    print("\nresults → %s" % run)
 
 
 def _last_failed_file():
@@ -164,3 +197,33 @@ def pytest_collection_modifyitems(items, config):
     config.hook.pytest_deselected(
         items=[i for i in items if i.name not in keep])
     items[:] = [i for i in items if i.name in keep]
+
+# @concept CONCEPT-dsl-v1-016-01-the-auth-clause
+# @concept CONCEPT-playwright-v1-008-01-storage-state-reuse
+@pytest.fixture(scope="session")
+def auth_state(browser, base_url, run_dir):
+    """One sign-in per run — the session kept as storage state; every
+    test's fresh context inherits it. One credential spent per run."""
+    import actions
+    from pages import LoginPage
+    path = os.path.join(run_dir, "auth-state.json")
+    ctx = browser.new_context()
+    pg = ctx.new_page()
+    try:
+        LoginPage(pg).goto(base_url)
+        actions.log_in_with_code(pg, base_url)
+    except Exception:
+        # the bootstrap owns no journal — leave the same evidence a
+        # test failure leaves, under a setup/ dir in the run.
+        d = os.path.join(run_dir, "setup")
+        os.makedirs(d, exist_ok=True)
+        with open(os.path.join(d, "dom.html"), "w",
+                  encoding="utf-8") as f:
+            f.write(pg.content())
+        pg.screenshot(path=os.path.join(d, "screenshot.png"))
+        if os.environ.get("TAF_DEBUG"):
+            pg.pause()  # TAF_DEBUG: stop at the failure, browser stays open
+        raise
+    ctx.storage_state(path=path)
+    ctx.close()
+    return path

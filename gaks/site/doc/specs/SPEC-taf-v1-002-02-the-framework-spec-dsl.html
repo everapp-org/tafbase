@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The framework-spec DSL · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / specs</div><h1 class="page-title" id="the-framework-spec-dsl">The framework-spec DSL <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>SPEC-taf-v1-002-02-the-framework-spec-dsl</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-27</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/SPEC.html">Specification</a></td></tr><tr><th>source</th><td><code>specs/SPEC-taf-v1-002-02-the-framework-spec-dsl.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-27</td></tr></table></details><article class="doc"><p>A project-specific, grammar-hosted DSL (DSL-First §2.4 — ANTLR — the family
+member Kernel/Behavior/Verification/Catalog cannot express: spellings
+as data). The model <code>taf/dsl/framework-spec.dsl</code> declares what the
+framework is; emitters derive framework code from it.</p>
+<h2 id="metamodel">Metamodel<a class="anchor" href="#metamodel" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Clause</th>
+<th>Shape</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>dsl</code></td>
+<td><code>{name, version, binding}</code></td>
+<td>language identity + version</td>
+</tr>
+</tbody></table>
+<p>The grammar is <code>dsl/FrameworkSpec.g4</code>; the parser is ANTLR-generated
+into <code>taf/_antlr/</code> (regenerate on grammar change — see
+<code>taf/dsl_parse.py</code> docstring); <code>dsl_parse</code> walks the tree to the
+model dict.
+| <code>vocabulary</code> | <code>{form: entry}</code> | step forms of the SUT language |
+| <code>locators</code> | <code>{rung: entry}</code> | locator-ladder rungs |</p>
+<p><strong>Form entry</strong>: <code>arg</code> (shape doc), <code>caption</code> (<code>.srt</code> template),
+<code>spell</code> (<code>{python, java}</code> templates or a line list), optional
+<code>variants</code> (keyed by <code>when</code> = arg keys present) or <code>wrap</code>
+(<code>pre</code>/<code>post</code> lines for <code>maybe</code>).</p>
+<p><strong>Rung entry</strong>: <code>key</code> (locator arg), <code>spell</code> or <code>variants</code>.</p>
+<p><strong>Spelling templates</strong>: <code>${key}</code> placeholders; emitters substitute
+escaped values and computed fragments (<code>${state_class}</code>, <code>${value_expr}</code>,
+<code>${loc_chain}</code>, <code>${save_key}</code>…). Values pass through <code>_py</code>/<code>_j</code> name
+transforms and per-language escaping.</p>
+<h2 id="well-formedness">Well-formedness<a class="anchor" href="#well-formedness" aria-label="Link to this section">#</a></h2>
+<ul>
+<li>Every form/rung spells both <code>python</code> and <code>java</code> (parity is the point)</li>
+<li>Every <code>when</code> list matches arg keys exactly; variants are exhaustive</li>
+<li><code>${value}</code> never appears in a <code>caption</code> — captions name, never leak</li>
+<li>Consumers emit byte-identical output to the last handwritten emitter
+(the conformance test until all consumers derive)</li>
+</ul>
+<h2 id="semantics">Semantics<a class="anchor" href="#semantics" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><code>emit_java</code> → <code>Elements</code>/<code>assertThat</code>/<code>page.*</code> Java+Playwright lines</li>
+<li><code>emit_python</code> → <code>elements.</code>/<code>expect</code>/<code>page.*</code> Python+Playwright lines</li>
+<li><code>model.py</code> → <code>_check_step</code> arg-shape validation (pending M1)</li>
+<li>Adding a form or rung = one model row, all consumers derive</li>
+</ul>
+<h2 id="versioning">Versioning<a class="anchor" href="#versioning" aria-label="Link to this section">#</a></h2>
+<p><code>dsl.version</code> bumps on clause shape changes; additive forms/rungs are
+backward-compatible by construction.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../research/RESEARCH-taf-v1-004-01-evaluation-and-implementation-deficiencies.html">Evaluation of project clarity, missing information, and implementation deficiencies</a> <span class="muted">RESEARCH-taf-v1-004-01-evaluation-and-implementation-deficiencies</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

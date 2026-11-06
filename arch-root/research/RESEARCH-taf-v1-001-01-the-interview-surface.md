@@ -23,24 +23,24 @@ the gaps as work.
 
 | # | interview asks | covered by | state |
 |---|---|---|---|
-| 1 | Playwright vs Selenium | — | gap |
-| 2 | Project setup (TypeScript assumed) | — | gap |
-| 3 | Browser / BrowserContext / Page | [[CONCEPT-playwright-v1-002-01-the-browser-context]] | part |
-| 4 | Auto-waiting, actionability | [[CONCEPT-playwright-v1-003-01-auto-waiting]] | covered |
-| 5 | locator() vs page.$() | [[CONCEPT-playwright-v1-001-01-the-locator-ladder]] | part — locator-vs-$ deserves a line |
-| 6 | Dynamic elements, flaky tests | — | gap |
-| 7 | getByRole vs getByText vs css/xpath | [[CONCEPT-playwright-v1-001-01-the-locator-ladder]] | covered |
-| 8 | Dropdowns, checkboxes, alerts, iframes | — | gap |
+| 1 | Playwright vs Selenium | [[CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy]], [[CONCEPT-selenium-v1-001-01-webdriver-session-lifecycle]] | covered |
+| 2 | Project setup (TypeScript assumed) | [[CONCEPT-ts-v1-006-01-typed-test-fixture-extension]], [[CONCEPT-pwtest-v1-001-01-test-extend-fixtures]] | covered |
+| 3 | Browser / BrowserContext / Page | [[CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy]] | covered |
+| 4 | Auto-waiting, actionability | [[CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability]] | covered |
+| 5 | locator() vs page.$() | [[CONCEPT-playwright-v1-002-01-semantic-locators]] | covered |
+| 6 | Dynamic elements, flaky tests | [[CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness]] | covered |
+| 7 | getByRole vs getByText vs css/xpath | [[CONCEPT-qa-v1-002-01-the-locator-ladder]], [[CONCEPT-playwright-v1-002-01-semantic-locators]] | covered |
+| 8 | Dropdowns, checkboxes, alerts, iframes | [[CONCEPT-playwright-v1-009-01-frame-and-shadow-dom-piercing]] | covered |
 | 9 | File upload/download | — | gap |
-| 10 | Screenshots/videos on failure | [[CONCEPT-taf-v1-002-01-the-result-sink]] (our answer is richer: DOM + report) | part |
-| 11 | API testing via request context | the model's `api`/`save`/`expect` steps | covered |
-| 12 | Authentication reuse | — | gap |
-| 13 | storageState | — | gap |
-| 14 | Parallel execution, workers | — | gap |
-| 15 | Sharding | — | gap |
-| 16 | Retries, flaky-test investigation | — | gap |
-| 17 | beforeEach/afterEach | [[CONCEPT-java-v1-001-01-the-junit-lifecycle]], [[CONCEPT-pytest-v1-001-01-the-pytest-fixture]] | covered (in two idioms) |
-| 18 | Framework architecture: POM + fixtures | [[CONCEPT-pom-v1-001-01-the-page-object]] + the whole generated layout | covered — our strongest answer |
+| 10 | Screenshots/videos on failure | [[CONCEPT-taf-v1-002-01-the-result-sink]], [[CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts]] | covered |
+| 11 | API testing via request context | [[CONCEPT-playwright-v1-005-01-api-request-context]] + the model's `api`/`save`/`expect` steps | covered |
+| 12 | Authentication reuse | [[CONCEPT-dsl-v1-016-01-the-auth-clause]] | covered |
+| 13 | storageState | [[CONCEPT-playwright-v1-008-01-storage-state-reuse]] | covered |
+| 14 | Parallel execution, workers | [[CONCEPT-pwtest-v1-005-01-projects-matrix-and-sharding]], [[CONCEPT-pytest-v1-005-01-markers-and-xdist-parallelism]] | covered |
+| 15 | Sharding | [[CONCEPT-pwtest-v1-005-01-projects-matrix-and-sharding]] | covered |
+| 16 | Retries, flaky-test investigation | [[CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness]] | covered |
+| 17 | beforeEach/afterEach | [[CONCEPT-java-v1-001-01-junit-lifecycle-annotations]], [[CONCEPT-pytest-v1-001-01-dependency-injected-fixtures]], [[CONCEPT-pwtest-v1-001-01-test-extend-fixtures]] | covered (in four idioms) |
+| 18 | Framework architecture: POM + fixtures | [[CONCEPT-qa-v1-005-01-page-object-model]], [[CONCEPT-pom-v1-001-01-the-page-object]] + the whole generated layout | covered — our strongest answer |
 | 19 | HTML reports | the manifest + sink | part — ours is better (traceable), say so |
 | 20 | CI/CD integration | — | gap |
 | 21 | Cross-browser (chromium/firefox/webkit) | — | gap — model has no browser clause yet |

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Callable and Protocol Interfaces · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / python / concepts</div><h1 class="page-title" id="callable-and-protocol-interfaces">Callable and Protocol Interfaces <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-python-v1-009-01-callable-and-protocol</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>python</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>Python 3.8</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/python/concepts/CONCEPT-python-v1-009-01-callable-and-protocol.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-009-01-higher-order-function</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>In Python, first-class functions and callables are statically typed using <code>collections.abc.Callable</code> and structural <code>typing.Protocol</code> interfaces. Functions can be passed as arguments, assigned to variables, returned from closures, or represented by objects implementing the <code>__call__</code> dunder method. <code>Protocol</code> enables structural subtyping (static duck typing), allowing higher-order functions to accept any callable or class matching a signature without explicit inheritance.</p>
+<pre><code class="language-python">from collections.abc import Callable
+from typing import TypeVar
+
+T = TypeVar(&quot;T&quot;)
+
+def retry(attempts: int, operation: Callable[..., T]) -&gt; T:
+    last_err: Exception | None = None
+    for _ in range(attempts):
+        try:
+            return operation()
+        except Exception as e:
+            last_err = e
+    if last_err is not None:
+        raise last_err
+    raise RuntimeError(&quot;Unreachable&quot;)
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Historically, Python relied entirely on dynamic runtime duck typing, meaning type mismatches in function arguments or callbacks were only detected when an invalid call was executed at runtime. Additionally, implementing interfaces required formal ABC inheritance, which introduced unwanted coupling and metaclass conflicts.</p>
+<p><code>Callable</code> and <code>Protocol</code> realize <code>CONCEPT-prog-v1-009-01-higher-order-function</code>:</p>
+<ol>
+<li><strong>Accurate signature verification:</strong> Static type checkers verify argument and return types of callbacks and decorators without running code.</li>
+<li><strong>Structural decoupling:</strong> A callable or service object does not need to inherit from a shared base class; conforming to the protocol method signature is sufficient.</li>
+<li><strong>First-class composability:</strong> Enables decorators, middleware pipelines, and functional transformers with complete type safety.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-009-01-higher-order-function.html">First-Class Callable and Higher-Order Function</a> <span class="muted">CONCEPT-prog-v1-009-01-higher-order-function</span></li></ul><h3>Across languages &amp; tools <span class="count">3</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-014-01-lambdas-and-method-references.html">Lambdas, Method References, and Functional Interfaces</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-014-01-lambdas-and-method-references</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-009-01-arrow-functions-and-closures.html">Arrow Functions and Lexical Closures</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-009-01-arrow-functions-and-closures</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-009-01-generic-function-signature.html">Generic Function Signatures and Type Predicates</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-009-01-generic-function-signature</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

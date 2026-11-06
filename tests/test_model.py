@@ -40,7 +40,7 @@ def refusals_of(doc):
 def test_the_tracker_model_loads():
     m = model.load(TRACKER_MODEL)
     assert m["sut"]["name"] == "ikc3-tracker"
-    assert set(m["journeys"]) == {"the-board-is-up", "board-to-tot"}
+    assert set(m["journeys"]) == {"the-board-is-up", "board-to-tot", "files-a-fault-report"}
 
 
 def test_a_valid_model_refuses_nothing():
@@ -197,6 +197,65 @@ def test_mixed_steps():
     assert any(r["reason"] == "mixed-steps" for r in refusals_of(doc))
 
 
+# T-model-014 — env: values name a need; an empty env: is a refusal
+def test_env_fill_names_a_variable():
+    doc = minimal()
+    doc["elements"]["secret"] = {"label": "Secret"}
+    doc["actions"]["go-b"]["do"] = [
+        {"fill": {"element": "secret", "value": "env:TAF_SUT_SECRET"}}]
+    assert refusals_of(doc) == []
+    doc["actions"]["go-b"]["do"] = [
+        {"fill": {"element": "secret", "value": "env:"}}]
+    reasons = [r["reason"] for r in refusals_of(doc)]
+    assert "bad-env" in reasons
+
+
+def test_env_needs_collects_what_steps_read():
+    doc = minimal()
+    doc["elements"]["secret"] = {"label": "Secret"}
+    doc["actions"]["go-b"]["do"] = [
+        {"fill": {"element": "secret", "value": "env:TAF_SUT_SECRET"}},
+        {"maybe": {"fill": {"element": "secret", "value": "env:TAF_SUT_HANDLE"}}}]
+    m = model.loads(json.dumps(doc))
+    assert model.env_needs(m) == ["TAF_SUT_HANDLE", "TAF_SUT_SECRET"]
+
+
+# T-model-015 — sut.auth names an action; its from state is reachable
+def test_auth_clause_validation():
+    doc = minimal()
+    doc["sut"]["auth"] = {"action": "go-b"}
+    assert refusals_of(doc) == []
+    doc["sut"]["auth"] = {"action": "ghost"}
+    assert any(r["reason"] == "unknown-action" for r in refusals_of(doc))
+    doc["sut"]["auth"] = {}
+    assert any(r["reason"] == "missing-field" and r["clause"] == "sut.auth"
+               for r in refusals_of(doc))
+    doc["sut"]["auth"] = {"action": "to-b"}
+    doc["actions"]["to-b"] = {"to": "b", "do": []}   # no from — can't bootstrap
+    assert any(r["reason"] == "bad-auth" for r in refusals_of(doc))
+
+
+def test_env_needs_includes_the_auth_action():
+    doc = minimal()
+    doc["elements"]["code"] = {"label": "Code"}
+    doc["actions"]["auth-in"] = {
+        "from": "a", "to": "b",
+        "do": [{"fill": {"element": "code", "value": "env-pool:CODES"}}]}
+    doc["sut"]["auth"] = {"action": "auth-in"}
+    m = model.loads(json.dumps(doc))
+    assert model.env_needs(m) == ["CODES"]
+
+
+def test_env_pool_spends_in_order_and_dries(monkeypatch):
+    from taf import journal_runtime as jr
+    monkeypatch.setenv("P", "a b c")
+    assert [jr.env_pool("P"), jr.env_pool("P"), jr.env_pool("P")] == ["a", "b", "c"]
+    with pytest.raises(RuntimeError, match="ran dry"):
+        jr.env_pool("P")
+    with pytest.raises(RuntimeError, match="unset"):
+        jr.env_pool("NOPE")
+
+
 def test_load_raises_with_all_refusals():
     bad = dict(minimal())
     bad["states"] = {"a": {}}
@@ -205,3 +264,20 @@ def test_load_raises_with_all_refusals():
         model.loads(json.dumps(bad))
     reasons = {r["reason"] for r in e.value.refusals}
     assert {"missing-field", "unknown-action", "unreachable"} <= reasons
+
+
+def test_bad_identifier_refuses_reserved_words_and_invalid_chars():
+    doc = minimal()
+    doc["elements"]["class"] = {"role": "button", "name": "Bad"}
+    doc["states"]["123-bad"] = {"marker": {"css": ".x"}}
+    rs = refusals_of(doc)
+    clauses = {r["clause"] for r in rs if r["reason"] == "bad-identifier"}
+    assert {"elements.class", "states.123-bad"} <= clauses
+
+
+def test_expect_final_mismatch_is_an_edge_gap():
+    doc = minimal()
+    doc["journeys"]["go"]["expect-final"] = {"state": "a"}
+    rs = refusals_of(doc)
+    assert any(r["reason"] == "edge-gap" and "expect-final" in r["clause"] for r in rs)
+

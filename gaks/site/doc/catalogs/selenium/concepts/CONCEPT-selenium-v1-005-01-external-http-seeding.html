@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>External HTTP Seeding and Cookie Injection · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / selenium / concepts</div><h1 class="page-title" id="external-http-seeding-and-cookie-injection">External HTTP Seeding and Cookie Injection <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-selenium-v1-005-01-external-http-seeding</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>selenium</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>Selenium 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/selenium/concepts/CONCEPT-selenium-v1-005-01-external-http-seeding.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-qa-v1-006-01-api-fixture-seeding</td></tr><tr><th>contrasts-with</th><td>CONCEPT-playwright-v1-005-01-api-request-context</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Because Selenium WebDriver controls only browser interactions and provides no built-in HTTP client for raw network requests, state seeding requires pairing Selenium with an external HTTP library (such as Java 11&#39;s <code>HttpClient</code>, Apache HttpClient, or OkHttp).</p>
+<p>The external HTTP client seeds test entities or authenticates user accounts over fast REST/GraphQL endpoints. To bridge the resulting authentication state to the browser, the driver navigates to the target domain, and cookies are injected into the active session via <code>driver.manage().addCookie(...)</code>.</p>
+<pre><code class="language-java">import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import org.openqa.selenium.Cookie;
+import org.openqa.selenium.WebDriver;
+
+public class HttpSeedingDemo {
+    public static void seedAndInject(WebDriver driver) throws Exception {
+        // 1. External HTTP client authenticates out-of-band
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(&quot;https://app.example.com/api/login&quot;))
+                .POST(HttpRequest.BodyPublishers.ofString(&quot;{\&quot;user\&quot;:\&quot;test\&quot;,\&quot;pass\&quot;:\&quot;secret\&quot;}&quot;))
+                .header(&quot;Content-Type&quot;, &quot;application/json&quot;)
+                .build();
+        HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        // 2. WebDriver must navigate to the domain before cookies can be added
+        driver.get(&quot;https://app.example.com/404&quot;);
+
+        // 3. Inject authenticated session token into the browser session
+        driver.manage().addCookie(new Cookie(&quot;session_id&quot;, &quot;auth-token-xyz&quot;, &quot;.example.com&quot;, &quot;/&quot;, null));
+
+        // 4. Open authenticated page directly
+        driver.get(&quot;https://app.example.com/dashboard&quot;);
+    }
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-qa-v1-006-01-api-fixture-seeding</code>. Setting up complex database records, user permissions, or multi-item carts via the browser UI is time-consuming and introduces unnecessary failure points. Seeding data via HTTP endpoints enables UI tests to focus purely on the core interaction under test.</p>
+<p>Contrasts with <code>CONCEPT-playwright-v1-005-01-api-request-context</code>. In Selenium, bridging HTTP client state to the browser is a manual, multi-step process: the browser must first load a page on the domain (to avoid cross-domain cookie exceptions) before <code>addCookie</code> can succeed. Playwright provides unified <code>APIRequestContext</code> instances that can share storage state and cookie jars with browser contexts automatically without intermediate dummy navigations.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-006-01-api-fixture-seeding.html">Out-of-Band API State Seeding</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-006-01-api-fixture-seeding</span></li></ul><h3>Across languages &amp; tools <span class="count">1</span></h3><ul><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-005-01-api-request-context.html">API Request Context for State Seeding</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-005-01-api-request-context</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-005-01-api-request-context.html">API Request Context for State Seeding</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-005-01-api-request-context</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

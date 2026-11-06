@@ -3,23 +3,29 @@
 package taf.generated;
 
 // @concept CONCEPT-pom-v1-001-01-the-page-object
-// @concept CONCEPT-playwright-v1-003-01-auto-waiting
+// @concept CONCEPT-qa-v1-005-01-page-object-model
+// @concept CONCEPT-java-v1-002-01-records
+// @concept CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 /** The 'board' state. Its marker proves arrival. */
-public class BoardPage {
+public final class BoardPage {
     public static final String ROUTE = "/index.html?island=board";
     private final Page page;
     private final Locator marker;
 
     public BoardPage(Page page) {
         this.page = page;
-        this.marker = page.locator(".ikc-dock-theme");
+        this.marker = page.locator("[data-import-id=\"top-bar\"]");
     }
 
     public void gotoRoute(String baseUrl) { page.navigate(baseUrl + ROUTE); }
-    public void expectArrived() { assertThat(marker).isVisible(); }
+    public void expectArrived() {
+        double ms = Double.parseDouble(System.getenv().getOrDefault("TAF_ARRIVE_MS", "15000"));
+        assertThat(marker).isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(ms));
+    }
 }

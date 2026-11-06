@@ -4,3 +4,8 @@ __pycache__/
 .pytest_cache/
 target/
 results/
+*.egg-info/
+/tafenv.sh
+/recorded.json
+/recorded*.json
+/report*.json

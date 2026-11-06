@@ -1,7 +1,9 @@
 """The SUT model loader — lane TAF/PLAN-taf-v1-001-01/A-1.
 
 @concept CONCEPT-dsl-v1-001-01-the-sut-model
-@concept CONCEPT-playwright-v1-001-01-the-locator-ladder
+@concept CONCEPT-qa-v1-002-01-the-locator-ladder
+@concept CONCEPT-playwright-v1-002-01-semantic-locators
+@concept CONCEPT-dsl-v1-015-01-the-env-value
 
 Implements SPEC-taf-v1-001-04: loads a sut.model.json document, validates
 every clause, and reports every refusal as {"clause", "reason", "message"}.
@@ -10,17 +12,43 @@ emitters never see it. One form only — nothing is guessed.
 """
 
 import json
+import keyword
+import re
 
-# THE LOCATOR LADDER (CONCEPT-playwright-v1-001-01): a locator dict is valid when it
+from taf import ops
+
+# THE LOCATOR LADDER (CONCEPT-qa-v1-002-01): a locator dict is valid when it
 # carries at least one of these keys. Order is the preference; `css`/`xpath`
 # are the last-resort rung and flag the element `fragile` in the manifest.
-LOCATOR_RUNGS = ("role", "label", "text", "placeholder", "testid", "css", "xpath")
+# Derived from taf/dsl/framework-spec.dsl — the validator is a spec
+# consumer like the emitters (SPEC-taf-v1-002-02).
+def _derive():
+    from taf import spec as _s
+    return _s.rungs(), _s.forms(), set(_s.spec()["contract"]["refusals"])
 
-STEP_FORMS = ("click", "fill", "check", "select", "navigate", "wait-for",
-              "api", "expect", "dwell", "wait-any", "maybe",
-              "compare-screen")
+LOCATOR_RUNGS, STEP_FORMS, DECLARED_REFUSALS = _derive()
 
 REQUIRED_TOP = ("sut", "states", "journeys")
+
+_JAVA_JS_RESERVED = frozenset({
+    "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
+    "class", "const", "continue", "debugger", "default", "delete", "do",
+    "double", "else", "enum", "export", "extends", "false", "final", "finally",
+    "float", "for", "function", "goto", "if", "implements", "import", "in",
+    "instanceof", "int", "interface", "let", "long", "native", "new", "null",
+    "package", "private", "protected", "public", "return", "short", "static",
+    "strictfp", "super", "switch", "synchronized", "this", "throw", "throws",
+    "transient", "true", "try", "typeof", "var", "void", "volatile", "while",
+    "with", "yield",
+})
+
+
+def _valid_identifier(name):
+    if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]*", name):
+        return False
+    if keyword.iskeyword(ops.snake(name)) or ops.camel(name) in _JAVA_JS_RESERVED:
+        return False
+    return True
 
 
 class ModelRefusal(Exception):
@@ -28,6 +56,8 @@ class ModelRefusal(Exception):
 
 
 def _refusal(clause, reason, message):
+    if reason not in DECLARED_REFUSALS:
+        raise AssertionError("undeclared refusal reason: %s" % reason)
     return {"clause": clause, "reason": reason, "message": message}
 
 
@@ -81,6 +111,13 @@ def _check_step(step, elements, states, endpoints, clause, refusals):
         if name not in elements:
             refusals.append(_refusal(clause, "unknown-element",
                                      "fill names no element: %r" % (arg,)))
+        val = arg.get("value") if isinstance(arg, dict) else None
+        if isinstance(val, str) and val.startswith("env:") and not val[4:]:
+            refusals.append(_refusal(clause, "bad-env",
+                                     "env: names no variable: %r" % val))
+        if isinstance(val, str) and val.startswith("env-pool:") and not val[9:]:
+            refusals.append(_refusal(clause, "bad-env",
+                                     "env-pool: names no variable: %r" % val))
     elif form == "navigate":
         if arg not in states:
             refusals.append(_refusal(clause, "unknown-state",
@@ -171,6 +208,16 @@ def validate(doc):
     journeys = doc.get("journeys") or {}
     endpoints = doc.get("endpoints") or {}
 
+    for sec_name, sec_map in (("states", states), ("elements", elements),
+                              ("actions", actions), ("journeys", journeys),
+                              ("endpoints", endpoints)):
+        if isinstance(sec_map, dict):
+            for k in sec_map:
+                if not _valid_identifier(k):
+                    refusals.append(_refusal(
+                        f"{sec_name}.{k}", "bad-identifier",
+                        f"'{k}' is not a valid identifier"))
+
     if not states and not journeys:
         refusals.append(_refusal("document", "empty-model",
                                  "no states and no journeys: nothing to test"))
@@ -245,8 +292,48 @@ def validate(doc):
                 cursor = ato if ato is not None else cursor
                 if cursor is not None:
                     visited.add(cursor)
+                for inner in act.get("do") or []:
+                    if isinstance(inner, dict):
+                        nav = inner.get("navigate")
+                        if nav in states:
+                            visited.add(nav)
+                        wf = inner.get("wait-for")
+                        if isinstance(wf, dict) and wf.get("state") in states:
+                            visited.add(wf["state"])
             else:
                 _check_step(s, elements, states, endpoints, "%s.steps[%d]" % (clause, i), refusals)
+                if isinstance(s, dict):
+                    nav = s.get("navigate")
+                    if nav in states:
+                        cursor = nav
+                        visited.add(nav)
+                    wf = s.get("wait-for")
+                    if isinstance(wf, dict) and wf.get("state") in states:
+                        visited.add(wf["state"])
+        if fstate is not None and fstate in states and steps and cursor in states and cursor != fstate:
+            refusals.append(_refusal(
+                "%s.expect-final" % clause, "edge-gap",
+                "journey ends at state %r but expect-final names %r" % (cursor, fstate)))
+
+    auth = sut.get("auth")
+    if auth is not None:
+        if not isinstance(auth, dict) or "action" not in auth:
+            refusals.append(_refusal("sut.auth", "missing-field",
+                                     "auth needs an action"))
+        elif auth["action"] not in actions:
+            refusals.append(_refusal("sut.auth", "unknown-action",
+                                     "auth names no action: %r" % auth["action"]))
+        else:
+            act = actions[auth["action"]]
+            if "from" not in act:
+                refusals.append(_refusal(
+                    "sut.auth", "bad-auth",
+                    "the auth action needs a from state — the run "
+                    "navigates there to sign in"))
+            else:
+                visited.add(act["from"])
+                if act.get("to"):
+                    visited.add(act["to"])
 
     for name in states:
         if name not in visited:
@@ -254,6 +341,46 @@ def validate(doc):
                                      "no journey reaches state %r" % name))
 
     return refusals
+
+
+def env_needs(m):
+    """The env:/env-pool: variables a run reads at run time — the needs
+    of the declared journeys, not of actions nothing walks. The model
+    names the need; the environment supplies the value.
+
+    @concept CONCEPT-dsl-v1-015-01-the-env-value
+    """
+    needs = set()
+    actions = m.get("actions") or {}
+
+    def scan(step):
+        if not isinstance(step, dict) or len(step) != 1:
+            return
+        form, arg = next(iter(step.items()))
+        if form == "fill" and isinstance(arg, dict):
+            v = arg.get("value")
+            if isinstance(v, str):
+                if v.startswith("env:"):
+                    needs.add(v[4:])
+                elif v.startswith("env-pool:"):
+                    needs.add(v[9:])
+        elif form == "maybe" and isinstance(arg, dict):
+            scan(arg)
+
+    for j in (m.get("journeys") or {}).values():
+        if not isinstance(j, dict):
+            continue
+        for s in j.get("steps", []):
+            if isinstance(s, str):
+                for st in (actions.get(s) or {}).get("do", []):
+                    scan(st)
+            else:
+                scan(s)
+    auth = ((m.get("sut") or {}).get("auth") or {}).get("action")
+    if auth:
+        for st in (actions.get(auth) or {}).get("do", []):
+            scan(st)
+    return sorted(needs)
 
 
 def _strip_dupes_marks(node):

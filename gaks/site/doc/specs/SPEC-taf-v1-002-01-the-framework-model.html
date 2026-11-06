@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The framework model (PRD) · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / specs</div><h1 class="page-title" id="the-framework-model-prd">The framework model (PRD) <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>SPEC-taf-v1-002-01-the-framework-model</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-27</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/SPEC.html">Specification</a></td></tr><tr><th>source</th><td><code>specs/SPEC-taf-v1-002-01-the-framework-model.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-27</td></tr></table></details><article class="doc"><h2 id="one-line">One line<a class="anchor" href="#one-line" aria-label="Link to this section">#</a></h2>
+<p>A test automation framework&#39;s semantics are declared once — as a
+model — and working framework implementations are generated from it
+in each target language. Python+Playwright and Java+Playwright are
+the first two outputs, not the design center.</p>
+<h2 id="the-object">The object<a class="anchor" href="#the-object" aria-label="Link to this section">#</a></h2>
+<p>The product is the <strong>model</strong>, not a framework: a language-neutral
+declaration of what a test automation framework is — its step
+vocabulary, locator ladder, journey semantics, auth model,
+environment contract, evidence format, reporting protocol — plus a
+generator that spells those declarations as compilable, reviewable
+framework code per target language.</p>
+<p>Anything a practitioner would otherwise hand-code three times is a
+model clause; anything that differs per language is only a spelling.
+The generator is handwritten and stays that way — it is not the
+product; the model is.</p>
+<h2 id="layers">Layers<a class="anchor" href="#layers" aria-label="Link to this section">#</a></h2>
+<pre><code>dsl/                    the framework model (the artifact)
+  forms.dsl.json        step forms: arg shapes, captions, per-language spellings
+  locators.dsl.json     ladder rungs + per-language spellings
+  contract.dsl.json     env contract, refusal table, evidence/rerun/report formats
+taf/
+  ops.py                canonical IR — what a journey IS, language-free
+  emit_python.py        model → Python+Playwright/pytest framework
+  emit_java.py          model → Java+Playwright/JUnit5 framework
+</code></pre>
+<p>A generated framework then does what it was modeled to do: load SUT
+models (its own input DSL), refuse ambiguity, emit or run journeys,
+produce evidence. The SUT model and the framework model are different
+objects — the second generates the programs that read the first.</p>
+<h2 id="requirements">Requirements<a class="anchor" href="#requirements" aria-label="Link to this section">#</a></h2>
+<ol>
+<li><strong>Grammar as data.</strong> Step forms, locator rungs, their arg shapes
+and their per-language spellings live in declared tables. Adding a
+step form is one row, not three code changes. Validation and all
+emitters read the same table — divergence is impossible by
+construction, not just tested for.</li>
+<li><strong>Named refusals.</strong> Every invalid clause refuses with a named
+reason the spec lists. Never guess, never die on the first.</li>
+<li><strong>Language parity.</strong> Generated frameworks carry a canonical
+manifest; targets must produce identical semantics. Parity is
+proven, not promised.</li>
+<li><strong>Environment contract.</strong> Effective values resolve
+flag &gt; env &gt; model; needs (<code>env:</code>, <code>env-pool:</code>) derive from
+declared use and gate before a browser opens. Secrets are named,
+never stored.</li>
+<li><strong>Session semantics.</strong> <code>auth</code> declares sign-in-once: run it in a
+bootstrap context, keep the session as storage state, every test&#39;s
+fresh context inherits it. Isolation kept, one credential per run.</li>
+<li><strong>Evidence.</strong> Every test leaves a journal, timed <code>.srt</code> narration
+paired with <code>.webm</code> video, failure screenshot + DOM, a rerun
+manifest, and a printed artifact dir. Captions name steps, never
+values.</li>
+<li><strong>Reporting.</strong> Fault reports file on failure — through the SUT&#39;s
+own surface or an adapter — and never twice: a fingerprint ledger
+dedups an unchanged error across runs.</li>
+<li><strong>Authoring aids.</strong> <code>record</code> drafts model clauses from live
+driving (secrets redacted by locator); <code>walk</code> derives journeys by
+seeded graph traversal; <code>dry-run</code> reports what a run would do and
+lacks; <code>env</code> prints the contract for the console.</li>
+</ol>
+<h2 id="non-goals">Non-goals<a class="anchor" href="#non-goals" aria-label="Link to this section">#</a></h2>
+<ul>
+<li>No runtime interpreter of step semantics — semantics compile to
+code; a human reads the model, the grammar, the generator and the generated framework</li>
+<li>No GUI test runner — the console narration + journal are the feed</li>
+<li>The generator itself is not model-driven (the bootstrap must end
+somewhere; it ends at handwritten emitters reading the tables)</li>
+<li>As DSL First teaches, the model should be the source of truth and is used for onboarding new developers</li>
+</ul>
+<h2 id="status">Status<a class="anchor" href="#status" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Evidence today</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SUT DSL + refusals</td>
+<td><code>model.py</code>, SPEC-taf-v1-001-04</td>
+</tr>
+<tr>
+<td>Canonical IR + parity</td>
+<td><code>ops.py</code>, byte-identical manifests</td>
+</tr>
+<tr>
+<td>env contract, needs, gate</td>
+<td><code>env:</code>/<code>env-pool:</code>, <code>env_needs</code>, preflight</td>
+</tr>
+<tr>
+<td>auth/storage-state</td>
+<td><code>sut.auth</code>, <code>auth-state.json</code></td>
+</tr>
+<tr>
+<td>Evidence</td>
+<td>journal, <code>.srt</code>, video, setup/ artifacts</td>
+</tr>
+<tr>
+<td>Reporting + dedup</td>
+<td><code>sink_ikc3</code>, <code>results/filed.json</code></td>
+</tr>
+<tr>
+<td><strong>Grammar as data</strong></td>
+<td><strong>missing — forms/rungs are imperative code</strong></td>
+</tr>
+</tbody></table>
+<p>The open row is the product: today&#39;s emitters hand-write each form
+per language; the model would make the grammar the artifact.</p>
+<h2 id="milestones">Milestones<a class="anchor" href="#milestones" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><strong>M1 Forms table</strong> — step forms + spellings declared; emitters
+read it; one row adds a step in both languages</li>
+<li><strong>M2 Contract table</strong> — env contract + refusal table as data;
+<code>taf env</code>, dry-run, and the gate derive from it</li>
+<li><strong>M3 Third spelling</strong> — a second spell target per clause proves the
+model isn&#39;t Python-shaped by accident (JS/TS or .NET)</li>
+<li><strong>M4 Sinks as model</strong> — reporting backends declared like forms</li>
+</ul>
+<h2 id="risks">Risks<a class="anchor" href="#risks" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><strong>Parity drift</strong> — mitigated by manifests; table-driven emission
+reduces it further</li>
+<li><strong>Scope creep toward a programming language</strong> — the vocabulary is
+deliberately finite; <code>maybe</code>, <code>dwell</code>, <code>wait-any</code> mark the boundary</li>
+<li><strong>Divergence inside the tables</strong> — a spelling per clause per
+language is honest only while the model stays small; complexity
+belongs in the clause semantics, not per-target branches</li>
+</ul>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

@@ -5,7 +5,8 @@ import sys
 
 import pytest
 
-from taf import emit_python, graph, model
+from taf import graph, model
+from taf.codegen.python import emitter as emit_python
 
 
 def _graph_model(tmp_path):

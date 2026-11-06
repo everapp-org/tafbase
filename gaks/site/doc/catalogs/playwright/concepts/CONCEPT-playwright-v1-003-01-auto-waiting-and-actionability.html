@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Built-in Auto-Waiting and Actionability Checks · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / playwright / concepts</div><h1 class="page-title" id="built-in-auto-waiting-and-actionability-checks">Built-in Auto-Waiting and Actionability Checks <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>playwright</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>Playwright 1.40</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/playwright/concepts/CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-qa-v1-003-01-synchronization-and-actionability</td></tr><tr><th>contrasts-with</th><td>CONCEPT-selenium-v1-003-01-webdriverwait-and-expected-conditions</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Playwright performs comprehensive actionability checks automatically prior to executing any user interaction (such as <code>.click()</code>, <code>.fill()</code>, <code>.check()</code>, or <code>.hover()</code>). </p>
+<p>Before performing an action, Playwright verifies that the targeted element satisfies a strict set of prerequisites:</p>
+<ol>
+<li><strong>Attached</strong>: Present in the Document Object Model.</li>
+<li><strong>Visible</strong>: Non-empty bounding box, not hidden (<code>display: none</code>, <code>visibility: hidden</code>), and viewport-visible.</li>
+<li><strong>Stable</strong>: Not undergoing CSS transitions or geometric animations.</li>
+<li><strong>Receives Events</strong>: Not covered or occluded by modal overlays, backdrop scrims, or sticky banners.</li>
+<li><strong>Enabled</strong>: Form controls are not disabled (<code>disabled</code> attribute).</li>
+<li><strong>Editable</strong>: Form inputs are enabled and not marked <code>readOnly</code>.</li>
+</ol>
+<p>If any check fails, Playwright retries continuously until all conditions pass or the configured action timeout expires.</p>
+<pre><code class="language-typescript">import { Page } from &#39;playwright&#39;;
+
+export async function completeCheckout(page: Page) {
+  // Automatically waits for #confirm-btn to be attached, visible,
+  // stationary, enabled, and unoccluded by loading spinners
+  await page.getByRole(&#39;button&#39;, { name: &#39;Confirm Purchase&#39; }).click();
+
+  // Automatically waits for input to be editable before typing
+  await page.getByLabel(&#39;Cardholder Name&#39;).fill(&#39;Alex Morgan&#39;);
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-qa-v1-003-01-synchronization-and-actionability</code>. Modern web applications are fundamentally asynchronous, rendering components, animating layouts, and mounting client-side state dynamically. Manual timing coordination is the leading cause of test flakiness in end-to-end suites.</p>
+<p>Contrasts with <code>CONCEPT-selenium-v1-003-01-webdriverwait-and-expected-conditions</code>. In Selenium WebDriver, invoking <code>element.click()</code> attempts an immediate dispatch against the element. If an animation is in flight or a modal backdrop has not fully dissolved, WebDriver throws <code>ElementClickInterceptedException</code> or <code>ElementNotInteractableException</code>. Test authors must manually interleave explicit <code>WebDriverWait</code> statements and expected conditions before every interaction. Playwright eliminates this boilerplate entirely by baking actionability verification into the runtime dispatch pipeline.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-003-01-synchronization-and-actionability.html">UI Synchronization and Actionability Waiting</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-003-01-synchronization-and-actionability</span></li></ul><h3>Across languages &amp; tools <span class="count">4</span></h3><ul><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-003-01-the-dwell.html">The dwell</a> <span class="muted">CONCEPT-dsl-v1-003-01-the-dwell</span></li><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-004-01-the-wait.html">The wait</a> <span class="muted">CONCEPT-dsl-v1-004-01-the-wait</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-003-01-webdriverwait-and-expected-conditions.html">Explicit WebDriverWait and ExpectedConditions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-003-01-webdriverwait-and-expected-conditions</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-009-01-actions-api.html">Low-Level Actions API for Complex Interactions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-009-01-actions-api</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-003-01-webdriverwait-and-expected-conditions.html">Explicit WebDriverWait and ExpectedConditions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-003-01-webdriverwait-and-expected-conditions</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">4</span></h2><ul><li><a href="../../../concepts/CONCEPT-dsl-v1-003-01-the-dwell.html">The dwell</a> <span class="muted">CONCEPT-dsl-v1-003-01-the-dwell</span></li><li><a href="../../../research/RESEARCH-taf-v1-001-01-the-interview-surface.html">The interview surface</a> <span class="muted">RESEARCH-taf-v1-001-01-the-interview-surface</span></li><li><a href="../../../concepts/CONCEPT-taf-v1-001-01-the-learning-path.html">The learning path</a> <span class="muted">CONCEPT-taf-v1-001-01-the-learning-path</span></li><li><a href="../../../concepts/CONCEPT-dsl-v1-004-01-the-wait.html">The wait</a> <span class="muted">CONCEPT-dsl-v1-004-01-the-wait</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

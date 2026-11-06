@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Locator Ladder · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / qa / concepts</div><h1 class="page-title" id="the-locator-ladder">The Locator Ladder <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-qa-v1-002-01-the-locator-ladder</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>qa</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L1-archetype</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/qa/concepts/CONCEPT-qa-v1-002-01-the-locator-ladder.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-istqb-v1-005-01-test-types</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>The Locator Ladder is an architectural priority hierarchy for selecting UI elements in web and mobile test automation. It orders element locator strategies from most resilient, semantic, and user-facing down to the most brittle and implementation-dependent:</p>
+<ol>
+<li><strong>Rung 1: User-Facing Accessibility Roles &amp; Accessible Names (Highest Priority)</strong>:<ul>
+<li>Queries based on accessibility attributes (<code>role=&quot;button&quot;</code>, <code>name=&quot;Submit Order&quot;</code>).</li>
+<li>Mirrors how assistive technologies and actual human users perceive and navigate the interface.</li>
+</ul>
+</li>
+<li><strong>Rung 2: Semantic Labels and Visible Text</strong>:<ul>
+<li>Queries based on form labels (<code>&lt;label for=&quot;...&quot;&gt;</code>), placeholder text, or prominent visible text.</li>
+</ul>
+</li>
+<li><strong>Rung 3: Explicit Test IDs (<code>data-testid</code>)</strong>:<ul>
+<li>Dedicated testing attributes (<code>data-testid=&quot;submit-checkout&quot;</code>) placed specifically for automation.</li>
+<li>Decoupled from CSS class styling and DOM restructuring, though invisible to real users.</li>
+</ul>
+</li>
+<li><strong>Rung 4: CSS Selectors (Low Priority / Discouraged)</strong>:<ul>
+<li>Queries relying on style classes or structure (<code>button.btn-primary.submit-v2</code>).</li>
+<li>Fragile; frequently breaks during UI redesigns and CSS refactorings.</li>
+</ul>
+</li>
+<li><strong>Rung 5: Structural XPath / DOM Index Paths (Lowest Priority / Strictly Prohibited)</strong>:<ul>
+<li>Hardcoded DOM hierarchy paths (<code>/html/body/div[2]/div/form/button[1]</code>).</li>
+<li>Extremely brittle; breaks whenever any ancestor container, wrapper <code>div</code>, or layout element changes.</li>
+</ul>
+</li>
+</ol>
+<pre><code class="language-text">  +-----------------------------------------------------------+  Resilient, User-Facing,
+  | 1. Accessibility Role &amp; Name: get_by_role(&quot;button&quot;, ...)  |  Verifies A11y
+  +-----------------------------------------------------------+
+  | 2. Label &amp; Text: get_by_label(&quot;Username&quot;)                 |
+  +-----------------------------------------------------------+
+  | 3. Dedicated Test ID: get_by_test_id(&quot;submit-order&quot;)      |  Stable fallback
+  +-----------------------------------------------------------+
+  | 4. CSS Class Selectors: locator(&quot;button.btn-primary&quot;)     |  Brittle
+  +-----------------------------------------------------------+
+  | 5. Absolute XPath: xpath(&quot;/html/body/div[3]/button[1]&quot;)   |  Extremely fragile
+  +-----------------------------------------------------------+  (PROHIBITED)
+</code></pre>
+<pre><code class="language-python"># Preferred: Rung 1 (Accessibility Role and Name)
+page.get_by_role(&quot;button&quot;, name=&quot;Submit Order&quot;).click()
+
+# Preferred Fallback: Rung 3 (Explicit Test ID for complex visual canvases)
+page.get_by_test_id(&quot;cart-total-badge&quot;).click()
+
+# Anti-pattern: Rung 4 &amp; 5 (Brittle CSS / Absolute XPath)
+# page.locator(&quot;.css-1x84a .btn-wrap &gt; button:nth-child(2)&quot;).click() # BREAKS ON NEXT SPRINT
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>The Locator Ladder directly addresses the single largest cause of flakiness and maintenance overhead in UI test automation:</p>
+<ol>
+<li><strong>Decoupling Tests from Implementation Detail</strong>: Tests should verify what the user experiences, not the implementation trivia of CSS frameworks (like Tailwind or styled-components generated hashes).</li>
+<li><strong>Promoting Web Accessibility</strong>: By using accessibility roles and labels as the primary locator strategy, automated tests immediately fail if a UI component is inaccessible to screen readers, turning test automation into a continuous accessibility audit.</li>
+<li><strong>Longevity Across Redesigns</strong>: When designers redesign buttons from blue to green or rewrite CSS classes, tests rooted in role and name continue to pass without modification.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-005-01-test-types.html">Test Types: Functional, Non-Functional, Black-Box, and White-Box</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-005-01-test-types</span></li></ul><h3>Realized by <span class="count">5</span></h3><ul><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-005-01-the-versioned-locator.html">The versioned locator</a> <span class="muted">CONCEPT-dsl-v1-005-01-the-versioned-locator</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-009-01-frame-and-shadow-dom-piercing.html">Automatic Shadow DOM Piercing and Frame Locators</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-009-01-frame-and-shadow-dom-piercing</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-002-01-semantic-locators.html">Semantic Locators and Strict Element Resolution</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-002-01-semantic-locators</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-002-01-by-locators-and-webelement.html">By Locators, WebElement, and Stale Element References</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-002-01-by-locators-and-webelement</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-008-01-switchto-frame-and-shadow-root.html">Explicit Context Switching for Frames and Shadow DOM</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-008-01-switchto-frame-and-shadow-root</span></li></ul><h3>Unlocks <span class="count">1</span></h3><ul><li><span class="badge">qa</span> <a href="CONCEPT-qa-v1-005-01-page-object-model.html">Page Object Model and Screenplay Encapsulation</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-005-01-page-object-model</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">5</span></h2><ul><li><a href="../../../research/RESEARCH-taf-v1-003-01-the-harvest-in-detail.html">The harvest in detail — evidence appendix</a> <span class="muted">RESEARCH-taf-v1-003-01-the-harvest-in-detail</span></li><li><a href="../../../concepts/CONCEPT-dsl-v1-008-01-the-image-step.html">The image step</a> <span class="muted">CONCEPT-dsl-v1-008-01-the-image-step</span></li><li><a href="../../../research/RESEARCH-taf-v1-001-01-the-interview-surface.html">The interview surface</a> <span class="muted">RESEARCH-taf-v1-001-01-the-interview-surface</span></li><li><a href="../../../concepts/CONCEPT-taf-v1-001-01-the-learning-path.html">The learning path</a> <span class="muted">CONCEPT-taf-v1-001-01-the-learning-path</span></li><li><a href="../../../concepts/CONCEPT-dsl-v1-005-01-the-versioned-locator.html">The versioned locator</a> <span class="muted">CONCEPT-dsl-v1-005-01-the-versioned-locator</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

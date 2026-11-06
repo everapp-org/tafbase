@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Equivalence Partitioning · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / istqb / concepts</div><h1 class="page-title" id="equivalence-partitioning">Equivalence Partitioning <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-istqb-v1-007-01-equivalence-partitioning</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>istqb</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L0-theory</td></tr><tr><th>since</th><td>CTFL 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/istqb/concepts/CONCEPT-istqb-v1-007-01-equivalence-partitioning.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>requires</th><td>CONCEPT-istqb-v1-003-01-seven-testing-principles</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Equivalence Partitioning (EP) is a black-box test design technique defined in CTFL v4.0 §4.2.1 in which input data and output values are divided into partitions (equivalence classes) such that all members of a given partition are expected to be processed in the same way by the system under test.</p>
+<ul>
+<li><strong>Valid Partitions</strong>: Values that must be accepted and processed normally by the application according to specifications.</li>
+<li><strong>Invalid Partitions</strong>: Values that must be rejected, ignored, or handled with explicit error handling routines.</li>
+</ul>
+<p>If a test case uncovers a defect using one representative value from a partition, other values from that same partition are assumed to uncover the same defect. Conversely, if one representative value passes, other values within that partition are assumed to pass.</p>
+<pre><code class="language-text">Specification: Age must be an integer between 18 and 65 (inclusive) to register.
+
+Partitions:
+  Invalid Partition 1: age &lt; 18        --&gt; Representative: 12  --&gt; Expected: Rejection error
+  Valid Partition:     18 &lt;= age &lt;= 65 --&gt; Representative: 35  --&gt; Expected: Registration success
+  Invalid Partition 2: age &gt; 65        --&gt; Representative: 72  --&gt; Expected: Rejection error
+  Invalid Partition 3: Non-numeric     --&gt; Representative: &quot;a&quot; --&gt; Expected: Format error
+</code></pre>
+<pre><code class="language-python">import pytest
+
+@pytest.mark.parametrize(&quot;age,expected_status&quot;, [
+    (12, &quot;ERROR_TOO_YOUNG&quot;),   # Invalid partition 1
+    (35, &quot;REGISTERED&quot;),         # Valid partition
+    (72, &quot;ERROR_TOO_OLD&quot;),     # Invalid partition 2
+])
+def test_user_registration_age_partitions(age, expected_status):
+    result = register_account(name=&quot;Alex&quot;, age=age)
+    assert result.status == expected_status
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Equivalence partitioning solves the fundamental impossibility of exhaustive testing:</p>
+<ol>
+<li><strong>Test Suite Minimization</strong>: Rather than testing thousands of arbitrary integers, EP systematically compresses an infinite input domain into a finite, provably representative set of test cases.</li>
+<li><strong>Eliminating Redundancy</strong>: Testing inputs 31, 32, 33, 34, and 35 provides zero additional defect-detection capability when all belong to the same linear valid partition; EP avoids wasted test execution cycles.</li>
+<li><strong>Structured Negative Testing</strong>: EP forces explicit identification of invalid partitions, ensuring automated test suites verify negative error paths and edge validations alongside happy paths.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realized by <span class="count">3</span></h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-002-01-parameterized-test-and-sources.html">Parameterized Tests and Value Sources</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-002-01-parameterized-test-and-sources</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-002-01-data-driven-test-loop.html">Data-Driven Parameterized Test Loops</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-002-01-data-driven-test-loop</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-002-01-mark-parametrize.html">Parameterized Test Matrix via mark.parametrize</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-002-01-mark-parametrize</span></li></ul><h3>Prerequisites</h3><ul><li><span class="badge">istqb</span> <a href="CONCEPT-istqb-v1-003-01-seven-testing-principles.html">The Seven Testing Principles</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-003-01-seven-testing-principles</span></li></ul><h3>Unlocks <span class="count">1</span></h3><ul><li><span class="badge">istqb</span> <a href="CONCEPT-istqb-v1-008-01-boundary-value-analysis.html">Boundary Value Analysis</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-008-01-boundary-value-analysis</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

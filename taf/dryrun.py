@@ -16,11 +16,13 @@ import glob
 import importlib.util
 import json
 import os
+import shlex
 import shutil
 import socket
 import urllib.request
+import urllib.parse
 
-from taf import ops
+from taf import model, ops, spec
 
 # The TAF_* contract, in display order. Each row names what the
 # variable means when the run reads it — unset rows show the default
@@ -34,6 +36,8 @@ def _env_table(m, env):
          "headed is the default; =1 for CI"),
         ("TAF_SLOWMO", (env.get("TAF_SLOWMO") or "0") + " ms",
          "slows each action"),
+        ("TAF_ARRIVE_MS", (env.get("TAF_ARRIVE_MS") or "15000") + " ms",
+         "marker arrival timeout"),
         ("TAF_VIDEO", "on" if env.get("TAF_VIDEO") else "off",
          "records .webm into the test's results dir"),
         ("TAF_DEBUG", "on" if env.get("TAF_DEBUG") else "off",
@@ -45,6 +49,9 @@ def _env_table(m, env):
         ("TAF_IKC3_WS", env.get("TAF_IKC3_WS") or "off",
          "a red test files a fault report"),
     ]
+    declared = set(spec.spec()["contract"]["env"])
+    assert {v for v, _, _ in rows} == declared, (
+        "env table out of sync with contract: %s" % ({v for v, _, _ in rows} ^ declared))
     return [{"var": v, "set": v in env, "effective": eff, "note": note}
             for v, eff, note in rows]
 
@@ -159,6 +166,23 @@ def _model_findings(m, suite):
     return out
 
 
+def _needs_findings(m, env):
+    """env: variables the model reads at run time — a need unset is
+    missing, no network required (@concept CONCEPT-dsl-v1-015-01)."""
+    out = []
+    for name in model.env_needs(m):
+        if env.get(name):
+            out.append(_finding("ok", "env %s" % name, "set"))
+        else:
+            f = _finding("missing", "env %s" % name,
+                         "the model needs env:%s and it is unset" % name)
+            f["hint"] = ("export %s=..., or uncomment it in tafenv.sh — "
+                         "the model names the need, never the secret"
+                         % name)
+            out.append(f)
+    return out
+
+
 def _suite_findings(m, suite):
     if not os.path.isdir(suite):
         return [_finding("missing", "suite",
@@ -180,6 +204,10 @@ def _suite_findings(m, suite):
                                 "regenerate"))
     customs = (glob.glob(os.path.join(suite, "custom", "test_*.py")) +
                glob.glob(os.path.join(suite, "custom", "**", "*.java"),
+                         recursive=True) +
+               glob.glob(os.path.join(suite, "custom", "**", "*.spec.ts"),
+                         recursive=True) +
+               glob.glob(os.path.join(suite, "custom", "**", "*.spec.mjs"),
                          recursive=True))
     customs = [c for c in customs if not c.endswith("README.md")]
     if customs:
@@ -201,13 +229,20 @@ def _toolchain_findings(lang):
         else:
             out.append(_finding("ok", "python toolchain",
                                 "pytest and playwright importable"))
-    else:
+    elif lang == "java":
         if shutil.which("mvn"):
             out.append(_finding("ok", "java toolchain", "mvn on PATH"))
         else:
             out.append(_finding("missing", "java toolchain",
                                 "mvn not on PATH — the emitted suite "
                                 "cannot build"))
+    else:
+        if shutil.which("node") and shutil.which("npx"):
+            out.append(_finding("ok", "%s toolchain" % lang, "node and npx on PATH"))
+        else:
+            out.append(_finding("missing", "%s toolchain" % lang,
+                                "node/npx not on PATH — the emitted suite "
+                                "cannot run"))
     return out
 
 
@@ -219,8 +254,12 @@ def _probe_findings(m, env):
             out.append(_finding("ok", "sut",
                                 "%s answers: HTTP %d" % (url, r.status)))
     except Exception as e:
-        out.append(_finding("missing", "sut",
-                            "%s does not answer: %s" % (url, e)))
+        f = _finding("missing", "sut",
+                     "%s does not answer: %s" % (url, e))
+        f["hint"] = ("point the run at a live SUT: --base-url URL (one "
+                     "run), TAF_BASE_URL (this console), or sut.base-url "
+                     "in the model")
+        out.append(f)
     ws = env.get("TAF_IKC3_WS")
     if ws:
         hostport = ws.split("://", 1)[-1].split("/", 1)[0]
@@ -230,16 +269,38 @@ def _probe_findings(m, env):
                 out.append(_finding("ok", "ikc3 bus",
                                     "%s accepts a connection" % hostport))
         except Exception as e:
-            out.append(_finding("missing", "ikc3 bus",
-                                "%s refuses: %s" % (hostport, e)))
-    browsers = env.get("PLAYWRIGHT_BROWSERS_PATH") or os.path.expanduser(
-        "~/.cache/ms-playwright")
-    if glob.glob(os.path.join(browsers, "chromium*")):
-        out.append(_finding("ok", "browsers", "a chromium build is installed"))
+            f = _finding("missing", "ikc3 bus",
+                         "%s refuses: %s" % (hostport, e))
+            f["hint"] = ("--sink URL points elsewhere; unset TAF_IKC3_WS "
+                         "to skip fault reports")
+            out.append(f)
+    try:
+        from playwright.sync_api import sync_playwright
+        # probe against the env the run will see — a --set override
+        # shapes the child's browser lookup too
+        bp = env.get("PLAYWRIGHT_BROWSERS_PATH")
+        old = os.environ.get("PLAYWRIGHT_BROWSERS_PATH")
+        try:
+            if bp:
+                os.environ["PLAYWRIGHT_BROWSERS_PATH"] = bp
+            with sync_playwright() as p:
+                exe = p.chromium.executable_path
+        finally:
+            if bp:
+                if old is None:
+                    os.environ.pop("PLAYWRIGHT_BROWSERS_PATH", None)
+                else:
+                    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = old
+        present = os.path.exists(exe)
+    except Exception as e:
+        exe, present = str(e), False
+    if present:
+        out.append(_finding("ok", "browsers", "chromium: %s" % exe))
     else:
-        out.append(_finding("missing", "browsers",
-                            "no chromium under %s — run "
-                            "`playwright install chromium`" % browsers))
+        f = _finding("missing", "browsers",
+                     "no usable chromium (%s)" % exe)
+        f["hint"] = "install: python -m playwright install chromium"
+        out.append(f)
     return out
 
 
@@ -256,7 +317,8 @@ def report(m, env=None, suite=None, lang="python", probe=False):
                       "start": j["start"], "actions": t["actions"],
                       "steps": forms,
                       "final": (j.get("expect-final") or {}).get("state")})
-    findings = (_env_findings(m, env) +
+    findings = (_needs_findings(m, env) +
+                _env_findings(m, env) +
                 _model_findings(m, suite) +
                 (_suite_findings(m, suite) if suite else []) +
                 _toolchain_findings(lang))
@@ -267,6 +329,73 @@ def report(m, env=None, suite=None, lang="python", probe=False):
             "tests": tests,
             "env": _env_table(m, env),
             "findings": findings}
+
+
+def _bus_url(base_url):
+    """The IKC3 bus on the SUT's own host — ws for http, wss for https."""
+    p = urllib.parse.urlparse(base_url)
+    scheme = "wss" if p.scheme == "https" else "ws"
+    return "%s://%s/bus-ws" % (scheme, p.netloc)
+
+
+def env_lines(m, env=None, shell=None, base_url=None, results=None,
+              headless=False, slowmo=None, arrive_ms=None, video=False,
+              debug=False, rerun=False, sink=None, unset=False):
+    """Shell lines for `eval "$(taf env ...)"` — the TAF_* contract as
+    exports. Base variables always export; opt-ins export when their
+    flag passed (or are already set); the rest print as comments — the
+    generated script documents what it did not turn on."""
+    env = os.environ if env is None else env
+    fish = (shell or os.path.basename(env.get("SHELL", ""))) == "fish"
+
+    def set_line(var, val):
+        return ("set -gx %s %s;" if fish else "export %s=%s") \
+            % (var, shlex.quote(str(val)))
+
+    def unset_line(var):
+        return ("set -e %s;" if fish else "unset %s") % var
+
+    base = base_url or env.get("TAF_BASE_URL") or m["sut"]["base-url"]
+    # (var, value or None, why) — None means opt-in not requested.
+    chosen = [
+        ("TAF_BASE_URL", base, "where the SUT lives"),
+        ("TAF_RESULTS", results or env.get("TAF_RESULTS") or "results",
+         "one folder per run"),
+        ("TAF_HEADLESS", "1" if (headless or env.get("TAF_HEADLESS") == "1")
+         else None, "headless, for CI"),
+        ("TAF_SLOWMO", str(slowmo) if slowmo is not None
+         else env.get("TAF_SLOWMO") or None, "ms between actions"),
+        ("TAF_ARRIVE_MS", str(arrive_ms) if arrive_ms is not None
+         else env.get("TAF_ARRIVE_MS") or None, "marker arrival timeout in ms"),
+        ("TAF_VIDEO", "1" if (video or env.get("TAF_VIDEO")) else None,
+         "records .webm into the test's results dir"),
+        ("TAF_DEBUG", "1" if (debug or env.get("TAF_DEBUG")) else None,
+         "pauses at the failure"),
+        ("TAF_RERUN", "1" if (rerun or env.get("TAF_RERUN")) else None,
+         "replays only the last failed.txt"),
+        ("TAF_IKC3_WS",
+         _bus_url(base) if sink is True else sink or env.get("TAF_IKC3_WS"),
+         "a red test files a fault report"),
+    ]
+    lines = ["# taf env — %s" % m["sut"]["name"],
+             "# eval \"$(taf env <model> ...)\"  |  fish: taf env ... | source"]
+    for var, val, why in chosen:
+        if unset:
+            lines.append(unset_line(var))
+        elif val is not None:
+            lines.append("%s  # %s" % (set_line(var, val), why))
+        else:
+            lines.append("# %s  (%s)" % (set_line(var, 1), why))
+    for name in model.env_needs(m):
+        why = "the model's env:%s need" % name
+        if unset:
+            lines.append(unset_line(name))
+        elif env.get(name):
+            # set already — and a secret is never echoed into the file
+            lines.append("# %s is set  (%s)" % (name, why))
+        else:
+            lines.append("# %s  (%s)" % (set_line(name, ""), why))
+    return "\n".join(lines)
 
 
 _LEVELS = ("missing", "off", "note", "ok")
@@ -296,6 +425,8 @@ def render(rep):
     for lv in _LEVELS:
         for f in by[lv]:
             lines.append("  %-8s %-24s %s" % (lv, f["what"], f["detail"]))
+            if f.get("hint"):
+                lines.append("           ↳ %s" % f["hint"])
     if not rep["findings"]:
         lines.append("  (nothing to report)")
     lines.append("")

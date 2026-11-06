@@ -6,6 +6,9 @@ authored: 2026-10-15
 authors:
   - George Petrov
   - Devin
+layer: L2-taf
+realizes:
+  - CONCEPT-prog-v1-010-01-external-environment-binding
 ---
 
 # The environment contract
@@ -32,8 +35,11 @@ reads it. A variable set for one command applies to that run only:
 TAF_SLOWMO=800 .venv/bin/python -m pytest generated/python/ikc3-tracker -q
 ```
 
-*(Not this word's other meaning: the **virtual environment** is a
-different thing — [[CONCEPT-python-v1-002-01-the-virtual-environment]].)*
+*(Each target language binds this contract through its own environment
+idiom — [[CONCEPT-python-v1-010-01-os-environ-get]],
+[[CONCEPT-java-v1-031-01-system-getenv-binding]],
+[[CONCEPT-ts-v1-010-01-typed-env-config]], and
+[[CONCEPT-js-v1-010-01-process-env-binding]].)*
 
 ## Why it exists
 
@@ -59,8 +65,11 @@ twelve-factor form of the same idea.
 | `TAF_RESULTS`  | `conftest.py`, `BaseTest`   | the artifacts root; default `results/`      |
 | `TAF_LIVE`     | `tests/test_live.py`        | opts the live acceptance tests in           |
 
-`taf dry-run` prints this table as the current shell sets it —
-[[CONCEPT-taf-v1-008-01-the-dry-run]].
+`taf dry-run` prints this table as the current shell sets it
+([[CONCEPT-taf-v1-008-01-the-dry-run]]); `taf env` prints the same
+contract as `export` lines a console evals — base variables always
+export, opt-ins export on their flag, the rest print as comments so
+the generated script documents what it did not turn on.
 
 `TAF_BASE_URL` appears in `taf/emit_python.py`, `taf/emit_java.py`, and
 every emitted `conftest.py`/`BaseTest.java`. `TAF_IKC3_WS` drives
@@ -70,7 +79,12 @@ every emitted `conftest.py`/`BaseTest.java`. `TAF_IKC3_WS` drives
 
 ```bash
 env | grep TAF                    # what is set right now — usually nothing
-TAF_BASE_URL=http://x .venv/bin/python -m taf check suts/ikc3-tracker.sut.model.json
+taf env suts/ikc3-tracker.sut.model.json --video --sink
+# prints the contract as export lines; a console adopts it by eval:
+eval "$(taf env suts/ikc3-tracker.sut.model.json --video --sink)"
+taf env suts/ikc3-tracker.sut.model.json --unset    # clears it again
+# or set it for one run only — the flags are the same contract:
+taf run suts/ikc3-tracker.sut.model.json --slowmo 500 --video --sink
 ```
 
 ## Neighbors

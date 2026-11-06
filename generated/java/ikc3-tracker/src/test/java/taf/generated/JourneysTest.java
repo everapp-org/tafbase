@@ -3,9 +3,12 @@
 package taf.generated;
 
 // @concept CONCEPT-testing-v1-001-01-arrange-act-assert
+// @concept CONCEPT-qa-v1-001-01-arrange-act-assert
+// @concept CONCEPT-istqb-v1-010-01-state-transition-testing
 
 import org.junit.jupiter.api.Test;
 import com.microsoft.playwright.*;
+import org.jspecify.annotations.Nullable;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -34,6 +37,19 @@ public class JourneysTest extends BaseTest {
         new TotPage(page).expectArrived();
         // assert
         new TotPage(page).expectArrived();
+    }
+
+    @Test
+    void filesAFaultReport() {
+        // arrange
+        var sut = new BoardPage(page);
+        sut.gotoRoute(baseUrl);
+        sut.expectArrived();
+        // act
+        Actions.fileAFaultReport(page, baseUrl, soft);
+        new BoardPage(page).expectArrived();
+        // assert
+        new BoardPage(page).expectArrived();
     }
 
 }

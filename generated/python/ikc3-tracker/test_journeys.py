@@ -3,10 +3,13 @@
 """One test per declared journey — arrange, act, assert.
 
 @concept CONCEPT-testing-v1-001-01-arrange-act-assert
+@concept CONCEPT-qa-v1-001-01-arrange-act-assert
+@concept CONCEPT-istqb-v1-010-01-state-transition-testing
 """
 
 import actions
-from pages import BoardPage, TotPage
+import elements
+from pages import LoginPage, BoardPage, TotPage
 
 def test_the_board_is_up(page, base_url, soft):
     # arrange
@@ -27,4 +30,15 @@ def test_board_to_tot(page, base_url, soft):
     TotPage(page).expect_arrived()
     # assert
     TotPage(page).expect_arrived()
+
+def test_files_a_fault_report(page, base_url, soft):
+    # arrange
+    sut = BoardPage(page)
+    sut.goto(base_url)
+    sut.expect_arrived()
+    # act
+    actions.file_a_fault_report(page, base_url, soft)
+    BoardPage(page).expect_arrived()
+    # assert
+    BoardPage(page).expect_arrived()
 

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>None-Aware Strict Typing · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / python / concepts</div><h1 class="page-title" id="none-aware-strict-typing">None-Aware Strict Typing <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-python-v1-004-01-none-aware-typing</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>python</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>Python 3.10</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/python/concepts/CONCEPT-python-v1-004-01-none-aware-typing.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-004-01-null-safe-optionality</td></tr><tr><th>contrasts-with</th><td>CONCEPT-java-v1-019-01-jspecify-and-nullaway, CONCEPT-ts-v1-004-01-strict-null-checks</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>None-aware strict typing in Python uses the union syntax <code>T | None</code> (replacing <code>typing.Optional[T]</code>) under strict static analysis configurations (<code>mypy --strict</code> or <code>pyright</code>). Under strict checking, any type <code>T</code> is non-nullable by default. Attempting to access an attribute or invoke a method on a variable typed as <code>T | None</code> without first checking for <code>None</code> (via <code>if x is not None:</code>) triggers a static type analysis error.</p>
+<pre><code class="language-python">def format_greeting(user_name: str | None) -&gt; str:
+    # return user_name.strip()  # Rejected: Item &quot;None&quot; of &quot;str | None&quot; has no attribute &quot;strip&quot;
+    if user_name is None:
+        return &quot;Hello, Guest!&quot;
+    return f&quot;Hello, {user_name.strip()}!&quot;
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p><code>AttributeError: &#39;NoneType&#39; object has no attribute &#39;...&#39;</code> is the Python runtime equivalent of the Java <code>NullPointerException</code>. Because Python is dynamically typed, passing <code>None</code> into functions expecting an active object often fails many stack frames away from the original invocation, complicating debugging and root-cause analysis.</p>
+<p>None-aware typing realizes <code>CONCEPT-prog-v1-004-01-null-safe-optionality</code>:</p>
+<ol>
+<li><strong>Explicit API contracts:</strong> Functions explicitly signal whether <code>None</code> is acceptable as an input or possible as a return value.</li>
+<li><strong>Static verification without runtime penalty:</strong> Type checkers narrow the union within <code>if x is not None:</code> blocks (flow-sensitive typing) with zero runtime performance cost.</li>
+<li><strong>Contrast with Java and TypeScript:</strong> Java requires external checker plugins like NullAway with JSpecify annotations (<code>CONCEPT-java-v1-019-01-jspecify-and-nullaway</code>). TypeScript uses <code>strictNullChecks</code> (<code>CONCEPT-ts-v1-004-01-strict-null-checks</code>) separating <code>null</code> and <code>undefined</code>. Python unifies absent values under the singleton <code>None</code>.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-004-01-null-safe-optionality.html">Null-Safe Optionality</a> <span class="muted">CONCEPT-prog-v1-004-01-null-safe-optionality</span></li></ul><h3>Across languages &amp; tools <span class="count">4</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-019-01-jspecify-and-nullaway.html">Compile-Time Null Safety with JSpecify and NullAway</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-019-01-jspecify-and-nullaway</span></li><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-013-01-optional-discipline.html">Optional Return Discipline</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-013-01-optional-discipline</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-004-01-nullish-coalescing-and-optional-chaining.html">Nullish Coalescing and Optional Chaining</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-004-01-nullish-coalescing-and-optional-chaining</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-004-01-strict-null-checks.html">Strict Null Checks</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-004-01-strict-null-checks</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-019-01-jspecify-and-nullaway.html">Compile-Time Null Safety with JSpecify and NullAway</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-019-01-jspecify-and-nullaway</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-004-01-strict-null-checks.html">Strict Null Checks</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-004-01-strict-null-checks</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

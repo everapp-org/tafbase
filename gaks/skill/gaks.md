@@ -58,19 +58,37 @@ Example: `ADR-shop-v1-004-01-pick-a-store.md`.
 | prefix | name | folder | template headings |
 |---|---|---|---|
 | `ADR` | Decision record | `decisions/` | `Context` · `Decision` · `Consequences` · `The pillars, tested` |
-| `CONCEPT` | Concept | `concepts/` | `Definition` · `Why it exists` |
 | `PLAN` | Plan | `plans/` | `Release note (draft)` · `The pillars, tested` · `The lanes` |
 | `F` | Feature | `features/` | `Summary` · `Acceptance criteria` |
 | `RESEARCH` | Research | `research/` | `Why this exists` · `How it was measured` · `The summary` · `The decisions that are George's` |
-| `SPEC` | Specification | `specs/` | none |
+| `CONCEPT` | Concept | `concepts/` | `Definition` · `Why it exists` |
 | `PRINCIPLE` | Principle | `principles/` | `Statement` · `Demands` |
+| `SPEC` | Specification | `specs/` | none |
+| `SPIKE` | Spike | `spikes/` | none |
+| `AC` | Acceptance criteria | `acceptance/` | none |
+| `HANDOFF` | Handoff | `plans/` | none |
 
 A document of a kind goes into the folder of that kind. The checker gives the
 finding `kind-folder` when a document is in the folder of another kind.
 
 ## The subprojects
 
+- `dsl`
+- `istqb`
+- `java`
+- `js`
+- `junit`
+- `playwright`
+- `pom`
+- `prog`
+- `pwtest`
+- `pytest`
+- `python`
+- `qa`
+- `selenium`
 - `taf`
+- `testing`
+- `ts`
 
 The frontmatter `subproject:` holds one of these words. Do not write a list.
 

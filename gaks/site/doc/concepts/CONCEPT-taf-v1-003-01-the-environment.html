@@ -15,7 +15,7 @@
 </header>
 <div class="shell">
 <main class="main">
-<div class="crumbs"><a href="../../tree.html">Tree</a> / concepts</div><h1 class="page-title" id="the-environment-contract">The environment contract <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-taf-v1-003-01-the-environment</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-15</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>source</th><td><code>concepts/CONCEPT-taf-v1-003-01-the-environment.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-15</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<div class="crumbs"><a href="../../tree.html">Tree</a> / concepts</div><h1 class="page-title" id="the-environment-contract">The environment contract <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-taf-v1-003-01-the-environment</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-15</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-taf</td></tr><tr><th>source</th><td><code>concepts/CONCEPT-taf-v1-003-01-the-environment.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-15</td></tr><tr><th>realizes</th><td>CONCEPT-prog-v1-010-01-external-environment-binding</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
 <p>Every process inherits a set of text key=value pairs from the program
 that started it — its <strong>environment</strong>. The shell exports them; the
 program reads them. This page is the framework&#39;s <em>contract</em> over that
@@ -30,8 +30,11 @@ variables does not exist: the variable means the same thing whoever
 reads it. A variable set for one command applies to that run only:</p>
 <pre><code class="language-bash">TAF_SLOWMO=800 .venv/bin/python -m pytest generated/python/ikc3-tracker -q
 </code></pre>
-<p><em>(Not this word&#39;s other meaning: the <strong>virtual environment</strong> is a
-different thing — <a class="wikilink" href="CONCEPT-python-v1-002-01-the-virtual-environment.html" title="The virtual environment">CONCEPT-python-v1-002-01-the-virtual-environment</a>.)</em></p>
+<p><em>(Each target language binds this contract through its own environment
+idiom — <a class="wikilink" href="../catalogs/python/concepts/CONCEPT-python-v1-010-01-os-environ-get.html" title="Environment Lookup with Fallback">CONCEPT-python-v1-010-01-os-environ-get</a>,
+<a class="wikilink" href="../catalogs/java/concepts/CONCEPT-java-v1-031-01-system-getenv-binding.html" title="Environment Variable Binding via System.getenv">CONCEPT-java-v1-031-01-system-getenv-binding</a>,
+<a class="wikilink" href="../catalogs/ts/concepts/CONCEPT-ts-v1-010-01-typed-env-config.html" title="Validated Environment Configuration Binding">CONCEPT-ts-v1-010-01-typed-env-config</a>, and
+<a class="wikilink" href="../catalogs/js/concepts/CONCEPT-js-v1-010-01-process-env-binding.html" title="Process Environment Binding with Nullish Fallback">CONCEPT-js-v1-010-01-process-env-binding</a>.)</em></p>
 <h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
 <p>Generated code is immutable — you edit the model and regenerate, never
 the output. But where the SUT runs <em>changes</em> run to run. The environment
@@ -70,25 +73,55 @@ twelve-factor form of the same idea.</p>
 <td>ms between Playwright actions</td>
 </tr>
 <tr>
+<td><code>TAF_VIDEO</code></td>
+<td><code>conftest.py</code>, <code>BaseTest</code></td>
+<td>when set, the run records <code>.webm</code></td>
+</tr>
+<tr>
+<td><code>TAF_DEBUG</code></td>
+<td><code>conftest.py</code>, <code>BaseTest</code></td>
+<td>when set, a failure pauses the browser</td>
+</tr>
+<tr>
+<td><code>TAF_RERUN</code></td>
+<td><code>conftest.py</code></td>
+<td>replays only the last <code>failed.txt</code></td>
+</tr>
+<tr>
+<td><code>TAF_RESULTS</code></td>
+<td><code>conftest.py</code>, <code>BaseTest</code></td>
+<td>the artifacts root; default <code>results/</code></td>
+</tr>
+<tr>
 <td><code>TAF_LIVE</code></td>
 <td><code>tests/test_live.py</code></td>
 <td>opts the live acceptance tests in</td>
 </tr>
 </tbody></table>
+<p><code>taf dry-run</code> prints this table as the current shell sets it
+(<a class="wikilink" href="CONCEPT-taf-v1-008-01-the-dry-run.html" title="The dry run">CONCEPT-taf-v1-008-01-the-dry-run</a>); <code>taf env</code> prints the same
+contract as <code>export</code> lines a console evals — base variables always
+export, opt-ins export on their flag, the rest print as comments so
+the generated script documents what it did not turn on.</p>
 <p><code>TAF_BASE_URL</code> appears in <code>taf/emit_python.py</code>, <code>taf/emit_java.py</code>, and
 every emitted <code>conftest.py</code>/<code>BaseTest.java</code>. <code>TAF_IKC3_WS</code> drives
 <a class="wikilink" href="CONCEPT-taf-v1-002-01-the-result-sink.html" title="The result sink">CONCEPT-taf-v1-002-01-the-result-sink</a>.</p>
 <h2 id="touch-it">Touch it<a class="anchor" href="#touch-it" aria-label="Link to this section">#</a></h2>
 <pre><code class="language-bash">env | grep TAF                    # what is set right now — usually nothing
-TAF_BASE_URL=http://x .venv/bin/python -m taf check suts/ikc3-tracker.sut.model.json
+taf env suts/ikc3-tracker.sut.model.json --video --sink
+# prints the contract as export lines; a console adopts it by eval:
+eval &quot;$(taf env suts/ikc3-tracker.sut.model.json --video --sink)&quot;
+taf env suts/ikc3-tracker.sut.model.json --unset    # clears it again
+# or set it for one run only — the flags are the same contract:
+taf run suts/ikc3-tracker.sut.model.json --slowmo 500 --video --sink
 </code></pre>
 <h2 id="neighbors">Neighbors<a class="anchor" href="#neighbors" aria-label="Link to this section">#</a></h2>
 <p>The virtual environment (above); the result sink the <code>TAF_IKC3_WS</code>
 variable enables; <a class="wikilink" href="CONCEPT-taf-v1-001-01-the-learning-path.html" title="The learning path">CONCEPT-taf-v1-001-01-the-learning-path</a>.</p>
-</article><section class="backlinks"><h2>Mentioned in <span class="count">6</span></h2><ul><li><a href="CONCEPT-testing-v1-005-01-the-debug-run.html">The debug run</a> <span class="muted">CONCEPT-testing-v1-005-01-the-debug-run</span></li><li><a href="CONCEPT-dsl-v1-003-01-the-dwell.html">The dwell</a> <span class="muted">CONCEPT-dsl-v1-003-01-the-dwell</span></li><li><a href="../research/RESEARCH-taf-v1-003-01-the-harvest-in-detail.html">The harvest in detail — evidence appendix</a> <span class="muted">RESEARCH-taf-v1-003-01-the-harvest-in-detail</span></li><li><a href="CONCEPT-taf-v1-001-01-the-learning-path.html">The learning path</a> <span class="muted">CONCEPT-taf-v1-001-01-the-learning-path</span></li><li><a href="CONCEPT-dsl-v1-012-01-the-target.html">The target</a> <span class="muted">CONCEPT-dsl-v1-012-01-the-target</span></li><li><a href="CONCEPT-python-v1-002-01-the-virtual-environment.html">The virtual environment</a> <span class="muted">CONCEPT-python-v1-002-01-the-virtual-environment</span></li></ul></section>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../catalogs/prog/concepts/CONCEPT-prog-v1-010-01-external-environment-binding.html">External Environment Binding</a> <span class="muted">CONCEPT-prog-v1-010-01-external-environment-binding</span></li></ul><h3>Across languages &amp; tools <span class="count">4</span></h3><ul><li><span class="badge">java</span> <a href="../catalogs/java/concepts/CONCEPT-java-v1-031-01-system-getenv-binding.html">Environment Variable Binding via System.getenv</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-031-01-system-getenv-binding</span></li><li><span class="badge">js</span> <a href="../catalogs/js/concepts/CONCEPT-js-v1-010-01-process-env-binding.html">Process Environment Binding with Nullish Fallback</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-010-01-process-env-binding</span></li><li><span class="badge">python</span> <a href="../catalogs/python/concepts/CONCEPT-python-v1-010-01-os-environ-get.html">Environment Lookup with Fallback</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-010-01-os-environ-get</span></li><li><span class="badge">ts</span> <a href="../catalogs/ts/concepts/CONCEPT-ts-v1-010-01-typed-env-config.html">Validated Environment Configuration Binding</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-010-01-typed-env-config</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">7</span></h2><ul><li><a href="CONCEPT-testing-v1-005-01-the-debug-run.html">The debug run</a> <span class="muted">CONCEPT-testing-v1-005-01-the-debug-run</span></li><li><a href="CONCEPT-taf-v1-008-01-the-dry-run.html">The dry run</a> <span class="muted">CONCEPT-taf-v1-008-01-the-dry-run</span></li><li><a href="CONCEPT-dsl-v1-003-01-the-dwell.html">The dwell</a> <span class="muted">CONCEPT-dsl-v1-003-01-the-dwell</span></li><li><a href="CONCEPT-dsl-v1-015-01-the-env-value.html">The env: value</a> <span class="muted">CONCEPT-dsl-v1-015-01-the-env-value</span></li><li><a href="../research/RESEARCH-taf-v1-003-01-the-harvest-in-detail.html">The harvest in detail — evidence appendix</a> <span class="muted">RESEARCH-taf-v1-003-01-the-harvest-in-detail</span></li><li><a href="CONCEPT-taf-v1-001-01-the-learning-path.html">The learning path</a> <span class="muted">CONCEPT-taf-v1-001-01-the-learning-path</span></li><li><a href="CONCEPT-dsl-v1-012-01-the-target.html">The target</a> <span class="muted">CONCEPT-dsl-v1-012-01-the-target</span></li></ul></section>
 </main>
-<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">35</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-18 05:04 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

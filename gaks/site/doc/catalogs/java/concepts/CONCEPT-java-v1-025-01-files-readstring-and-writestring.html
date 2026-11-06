@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modern Files Helpers and Path Operations · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / java / concepts</div><h1 class="page-title" id="modern-files-helpers-and-path-operations">Modern Files Helpers and Path Operations <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-java-v1-025-01-files-readstring-and-writestring</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>java</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>Java 12</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/java/concepts/CONCEPT-java-v1-025-01-files-readstring-and-writestring.md</code></td></tr></table><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>The <code>java.nio.file.Files</code> utility class provides concise methods for file operations, including <code>Files.readString(Path)</code>, <code>Files.writeString(Path, CharSequence)</code>, <code>Files.mismatch(Path, Path)</code>, and modern factory methods like <code>Path.of(...)</code>.</p>
+<pre><code class="language-java">Path configPath = Path.of(&quot;etc&quot;, &quot;app-config.yaml&quot;);
+
+// Read entire file as UTF-8 String in one call
+String content = Files.readString(configPath, StandardCharsets.UTF_8);
+
+// Write String atomically with standard options
+Path outputPath = Path.of(&quot;var&quot;, &quot;output.json&quot;);
+Files.writeString(outputPath, jsonPayload,
+    StandardOpenOption.CREATE,
+    StandardOpenOption.TRUNCATE_EXISTING);
+
+// Find offset of first mismatched byte between two files (-1 if identical)
+long mismatchOffset = Files.mismatch(configPath, Path.of(&quot;etc&quot;, &quot;backup.yaml&quot;));
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Reading or writing a small text file historically required ceremonies involving <code>BufferedReader</code>, <code>InputStreamReader</code>, <code>FileInputStream</code>, or third-party utility libraries. Developers frequently mishandled character encodings (defaulting to platform encoding instead of UTF-8) or neglected proper stream closure. <code>Files.readString</code> and <code>Files.writeString</code> guarantee proper UTF-8 decoding, buffered chunk transfers, and deterministic file descriptor release.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

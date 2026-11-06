@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UI Synchronization and Actionability Waiting · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / qa / concepts</div><h1 class="page-title" id="ui-synchronization-and-actionability-waiting">UI Synchronization and Actionability Waiting <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-qa-v1-003-01-synchronization-and-actionability</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>qa</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L1-archetype</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/qa/concepts/CONCEPT-qa-v1-003-01-synchronization-and-actionability.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-istqb-v1-006-01-static-vs-dynamic-testing</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>UI Synchronization and Actionability Waiting is an automation architecture pattern that synchronizes test actions with dynamic, asynchronous browser execution without using arbitrary static sleep intervals (<code>time.sleep()</code> or <code>Thread.sleep()</code>).</p>
+<p>Before interacting with an element (e.g., clicking, typing, selecting), an automation engine must verify that the target element has reached an <strong>Actionable State</strong>:</p>
+<ol>
+<li><strong>Attached</strong>: The element is present in the Document Object Model (DOM).</li>
+<li><strong>Visible</strong>: The element has non-empty bounding box dimensions and lacks styles such as <code>display: none</code> or <code>visibility: hidden</code>.</li>
+<li><strong>Stable</strong>: The element has finished CSS transitions and animations and its coordinates are stationary.</li>
+<li><strong>Enabled</strong>: The element does not have the <code>disabled</code> attribute and is not blocked by a form fieldset.</li>
+<li><strong>Editable</strong>: For input fields, the element is not <code>readonly</code> or disabled.</li>
+<li><strong>Receives Events</strong>: The element is not obscured or occluded by overlaying modal backdrops, dialogs, or sticky banners.</li>
+</ol>
+<p>Rather than pausing for fixed durations, actionability engines poll the DOM and layout engine automatically until all conditions are satisfied or an explicit timeout expires.</p>
+<pre><code class="language-text">Action Request: click(button)
+      |
+      v
++-------------------------------------------------------------+
+| Check Actionability Predicates:                            |
+| 1. Is attached to DOM?                   [Yes]              |
+| 2. Is visible (bounding box &gt; 0)?        [Yes]              |
+| 3. Is stable (animations finished)?      [Waiting... Yes]   |
+| 4. Is enabled (not disabled)?            [Yes]              |
+| 5. Can receive pointer events (unmasked)?[Yes]              |
++-------------------------------------------------------------+
+      |
+      +---&gt; Dispatch Click Event
+</code></pre>
+<pre><code class="language-python"># Bad Anti-pattern: Hardcoded sleep produces brittle or painfully slow tests
+import time
+time.sleep(5)  # Guessing: 5 seconds might be too short on CI, too long locally
+page.locator(&quot;#submit-btn&quot;).click()
+
+# Good Archetype: Auto-waiting actionability synchronization
+# The framework waits for attached, visible, stable, enabled, and unmasked state:
+page.get_by_role(&quot;button&quot;, name=&quot;Submit&quot;).click(timeout=5000)
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Synchronization failures represent the leading source of intermittent flakiness in automated UI test suites:</p>
+<ol>
+<li><strong>Eliminating Race Conditions</strong>: Modern web applications render asynchronously via micro-tasks, client-side routing, and background HTTP fetches. A button may appear in the DOM milliseconds before its event handlers are wired or before its CSS animation finishes moving it under the cursor.</li>
+<li><strong>Maximizing Pipeline Speed</strong>: Hardcoded sleep statements accumulate across test suites. A suite of 500 tests with three 2-second sleeps each adds 50 minutes of dead waiting time to CI builds. Actionability checks proceed the exact millisecond the element is ready.</li>
+<li><strong>Self-Documenting Failure Diagnostics</strong>: When an actionability check times out, the framework reports the exact missing predicate (e.g., &quot;Element is visible but covered by <code>&lt;div class=&#39;modal-backdrop&#39;&gt;</code>&quot;), instantly highlighting the root cause.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-006-01-static-vs-dynamic-testing.html">Static Testing vs. Dynamic Testing</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-006-01-static-vs-dynamic-testing</span></li></ul><h3>Realized by <span class="count">5</span></h3><ul><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-003-01-the-dwell.html">The dwell</a> <span class="muted">CONCEPT-dsl-v1-003-01-the-dwell</span></li><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-004-01-the-wait.html">The wait</a> <span class="muted">CONCEPT-dsl-v1-004-01-the-wait</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability.html">Built-in Auto-Waiting and Actionability Checks</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-003-01-webdriverwait-and-expected-conditions.html">Explicit WebDriverWait and ExpectedConditions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-003-01-webdriverwait-and-expected-conditions</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-009-01-actions-api.html">Low-Level Actions API for Complex Interactions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-009-01-actions-api</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

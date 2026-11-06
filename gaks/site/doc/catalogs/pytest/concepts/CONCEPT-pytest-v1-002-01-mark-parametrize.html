@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parameterized Test Matrix via mark.parametrize · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / pytest / concepts</div><h1 class="page-title" id="parameterized-test-matrix-via-markparametrize">Parameterized Test Matrix via mark.parametrize <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-pytest-v1-002-01-mark-parametrize</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>pytest</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>pytest 8.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/pytest/concepts/CONCEPT-pytest-v1-002-01-mark-parametrize.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-istqb-v1-007-01-equivalence-partitioning, CONCEPT-istqb-v1-008-01-boundary-value-analysis</td></tr><tr><th>contrasts-with</th><td>CONCEPT-junit-v1-002-01-parameterized-test-and-sources, CONCEPT-pwtest-v1-002-01-data-driven-test-loop</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Pytest&#39;s <code>@pytest.mark.parametrize</code> decorator defines multi-variable, data-driven test matrices. It accepts a comma-separated string of argument names, an iterable of test vectors (tuples), and optional custom test identifiers via <code>ids</code>.</p>
+<p>When multiple <code>@pytest.mark.parametrize</code> decorators are stacked on a single test function, pytest calculates the Cartesian product of all argument sets, generating an isolated test execution for every combination.</p>
+<pre><code class="language-python">import pytest
+
+@pytest.mark.parametrize(
+    &quot;tier,quantity,expected_discount&quot;,
+    [
+        (&quot;STANDARD&quot;, 1, 0.00),
+        (&quot;STANDARD&quot;, 10, 0.05),
+        (&quot;VIP&quot;, 1, 0.10),
+        (&quot;VIP&quot;, 5, 0.15),
+    ],
+    ids=[&quot;std-single&quot;, &quot;std-bulk&quot;, &quot;vip-single&quot;, &quot;vip-bulk&quot;]
+)
+def test_discount_calculation(tier: str, quantity: int, expected_discount: float):
+    discount = calculate_discount(tier, quantity)
+    assert discount == pytest.approx(expected_discount, abs=1e-3)
+
+@pytest.mark.parametrize(
+    &quot;age,expected_eligible&quot;,
+    [
+        pytest.param(17, False, id=&quot;boundary-below-min&quot;),
+        pytest.param(18, True,  id=&quot;boundary-exact-min&quot;),
+        pytest.param(65, True,  id=&quot;boundary-exact-max&quot;),
+        pytest.param(66, False, id=&quot;boundary-above-max&quot;),
+    ]
+)
+def test_age_eligibility_boundaries(age: int, expected_eligible: bool):
+    assert check_eligibility(age) == expected_eligible
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-istqb-v1-007-01-equivalence-partitioning</code> and <code>CONCEPT-istqb-v1-008-01-boundary-value-analysis</code>. Systematic quality assurance requires validating edge boundaries and partition classes thoroughly without code duplication.</p>
+<p>Contrasts with <code>CONCEPT-junit-v1-002-01-parameterized-test-and-sources</code> and <code>CONCEPT-pwtest-v1-002-01-data-driven-test-loop</code>. In JUnit 5, parameterization relies on reflection-based value sources (<code>@CsvSource</code>, <code>@MethodSource</code>) and class annotations. In Playwright Test, parameterization is achieved by wrapping tests in native JavaScript loops. Pytest provides a declarative Pythonic decorator syntax with fine-grained control via <code>pytest.param</code> to attach specific markers or expectations (such as <code>marks=pytest.mark.xfail</code>) to individual test vectors.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-007-01-equivalence-partitioning.html">Equivalence Partitioning</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-007-01-equivalence-partitioning</span></li><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-008-01-boundary-value-analysis.html">Boundary Value Analysis</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-008-01-boundary-value-analysis</span></li></ul><h3>Across languages &amp; tools <span class="count">2</span></h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-002-01-parameterized-test-and-sources.html">Parameterized Tests and Value Sources</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-002-01-parameterized-test-and-sources</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-002-01-data-driven-test-loop.html">Data-Driven Parameterized Test Loops</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-002-01-data-driven-test-loop</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-002-01-parameterized-test-and-sources.html">Parameterized Tests and Value Sources</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-002-01-parameterized-test-and-sources</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-002-01-data-driven-test-loop.html">Data-Driven Parameterized Test Loops</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-002-01-data-driven-test-loop</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

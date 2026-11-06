@@ -1,42 +1,230 @@
 {
   "sut": {
     "name": "ikc3-tracker",
-    "base-url": "http://127.0.0.1:4856"
+    "base-url": "http://127.0.0.1:4856",
+    "auth": {
+      "action": "log-in-with-code"
+    }
   },
   "states": {
+    "login": {
+      "route": "/index.html?island=board",
+      "marker": {
+        "text": "The bus records who wrote a thought only when it knows who you are."
+      }
+    },
     "board": {
       "route": "/index.html?island=board",
-      "marker": {"css": ".ikc-dock-theme"}
+      "marker": {
+        "css": "[data-import-id=\"top-bar\"]"
+      }
     },
     "tot": {
       "route": "/index.html?island=tot",
-      "marker": {"css": ".ikc-dock-theme"}
+      "marker": {
+        "css": "[data-import-id=\"top-bar\"]"
+      }
     }
   },
-  "elements": {},
+  "elements": {
+    "handle": {
+      "label": "Handle"
+    },
+    "secret": {
+      "label": "Secret"
+    },
+    "code": {
+      "css": "#code-in"
+    },
+    "sign-in": {
+      "role": "button",
+      "name": "Sign in",
+      "exact": true
+    },
+    "have-a-code": {
+      "css": "#have-code"
+    },
+    "sign-in-with-code": {
+      "css": "#code-go"
+    },
+    "report-fault": {
+      "css": "[data-import-id=\"top-bar/report-a-fault\"]"
+    },
+    "start-new-instead": {
+      "role": "button",
+      "name": "Start new instead"
+    },
+    "report-choice-feat": {
+      "css": "[data-import-id=\"report-dialog/choice-feature-request\"]"
+    },
+    "report-text": {
+      "css": "[data-import-id=\"report-dialog/text\"]"
+    },
+    "report-details": {
+      "css": "[data-import-id=\"report-dialog/details\"]"
+    },
+    "report-choice-todo": {
+      "css": "[data-import-id=\"report-dialog/choice-todo\"]"
+    },
+    "report-file": {
+      "css": "[data-import-id=\"report-dialog/file\"]"
+    },
+    "report-close": {
+      "css": "[data-import-id=\"report-dialog/close\"]"
+    }
+  },
   "actions": {
+    "log-in": {
+      "from": "login",
+      "to": "board",
+      "title": "sign in with handle and secret",
+      "do": [
+        {
+          "fill": {
+            "element": "handle",
+            "value": "env:TAF_SUT_HANDLE"
+          }
+        },
+        {
+          "fill": {
+            "element": "secret",
+            "value": "env:TAF_SUT_SECRET"
+          }
+        },
+        {
+          "click": "sign-in"
+        },
+        {
+          "wait-for": {
+            "state": "board"
+          }
+        }
+      ]
+    },
+    "log-in-with-code": {
+      "from": "login",
+      "to": "board",
+      "title": "sign in with a one-time code",
+      "do": [
+        {
+          "click": "have-a-code"
+        },
+        {
+          "fill": {
+            "element": "code",
+            "value": "env-pool:TAF_SUT_CODES"
+          }
+        },
+        {
+          "click": "sign-in-with-code"
+        },
+        {
+          "navigate": "board"
+        },
+        {
+          "wait-for": {
+            "state": "board"
+          }
+        },
+        {
+          "maybe": {
+            "click": "start-new-instead"
+          }
+        }
+      ]
+    },
     "open-board": {
       "to": "board",
       "title": "open the ticket board",
-      "do": [{"navigate": "board"}]
+      "do": [
+        {
+          "navigate": "board"
+        }
+      ]
     },
     "open-tot": {
       "from": "board",
       "to": "tot",
       "title": "open the TOT island",
-      "do": [{"navigate": "tot"}, {"dwell": 800}]
+      "do": [
+        {
+          "navigate": "tot"
+        },
+        {
+          "dwell": 800
+        }
+      ]
+    },
+    "file-a-fault-report": {
+      "from": "board",
+      "to": "board",
+      "title": "file a fault report through the UI",
+      "do": [
+        {
+          "click": "report-fault"
+        },
+        {
+          "wait-for": {
+            "element": "report-text"
+          }
+        },
+        {
+          "click": "report-choice-feat"
+        },
+        {
+          "fill": {
+            "element": "report-text",
+            "value": "taf: the suite exercising fault reporting \u2014 safe to delete"
+          }
+        },
+        {
+          "fill": {
+            "element": "report-details",
+            "value": "filed by a taf run of ikc3-tracker \u2014 the UI half of fail -> file"
+          }
+        },
+        {
+          "click": "report-choice-todo"
+        },
+        {
+          "click": "report-file"
+        },
+        {
+          "wait-for": {
+            "element": "report-close"
+          }
+        },
+        {
+          "click": "report-close"
+        }
+      ]
     }
   },
   "journeys": {
     "the-board-is-up": {
       "start": "board",
       "steps": [],
-      "expect-final": {"state": "board"}
+      "expect-final": {
+        "state": "board"
+      }
     },
     "board-to-tot": {
       "start": "board",
-      "steps": ["open-tot"],
-      "expect-final": {"state": "tot"}
+      "steps": [
+        "open-tot"
+      ],
+      "expect-final": {
+        "state": "tot"
+      }
+    },
+    "files-a-fault-report": {
+      "start": "board",
+      "steps": [
+        "file-a-fault-report"
+      ],
+      "expect-final": {
+        "state": "board"
+      }
     }
   },
   "endpoints": {}

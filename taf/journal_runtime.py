@@ -88,7 +88,30 @@ def end(outcome=None):
         _current = None
     if _dir and _notes:
         _write_srt(os.path.join(_dir, "journal.srt"), _notes)
+        # the video is page@<uuid>.webm — a sidecar only pairs when
+        # the basenames match, so the track copies to the video's name
+        import glob, shutil
+        for v in glob.glob(os.path.join(_dir, "*.webm")):
+            shutil.copy(os.path.join(_dir, "journal.srt"),
+                        os.path.splitext(v)[0] + ".srt")
     _outcome = "passed"
+
+
+_pools = {}
+
+
+def env_pool(name):
+    """env-pool:NAME — one value per call from a whitespace-separated
+    env list. Single-use values (codes) spend in order; a dry pool is
+    a named error, never a silent empty fill."""
+    if name not in os.environ:
+        raise RuntimeError("env-pool:%s — the variable is unset" % name)
+    it = _pools.setdefault(name, iter(os.environ[name].split()))
+    try:
+        return next(it)
+    except StopIteration:
+        raise RuntimeError(
+            "env-pool:%s ran dry — every value is spent" % name)
 
 
 _current = None

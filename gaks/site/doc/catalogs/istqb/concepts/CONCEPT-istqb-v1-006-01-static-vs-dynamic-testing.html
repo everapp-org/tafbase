@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Static Testing vs. Dynamic Testing · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / istqb / concepts</div><h1 class="page-title" id="static-testing-vs-dynamic-testing">Static Testing vs. Dynamic Testing <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-istqb-v1-006-01-static-vs-dynamic-testing</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>istqb</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L0-theory</td></tr><tr><th>since</th><td>CTFL 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/istqb/concepts/CONCEPT-istqb-v1-006-01-static-vs-dynamic-testing.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>requires</th><td>CONCEPT-istqb-v1-001-01-error-defect-failure</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Testing approaches are divided into static and dynamic methods based on whether code execution is required, as defined in CTFL v4.0 §3.1:</p>
+<ul>
+<li><strong>Static Testing</strong>: Evaluates software work products (source code, schemas, architecture designs, user stories, requirements) without executing the software. Techniques include informal reviews, walkthroughs, inspections, linters, abstract syntax tree (AST) analyzers, and compiler type-checking. Static testing discovers defects directly in the artifacts themselves.</li>
+<li><strong>Dynamic Testing</strong>: Evaluates software by executing the program on a machine with defined test inputs and observing its dynamic execution behavior, state transformations, outputs, and performance metrics. Dynamic testing discovers failures caused by executed defects.</li>
+</ul>
+<pre><code class="language-python"># Static Testing: Analyzed by a linter/type-checker WITHOUT running code
+def calculate_tax(amount: float, rate: float) -&gt; float:
+    # Static analyzer flags unreachable code, unassigned variables, or type mismatches:
+    if rate &lt; 0:
+        raise ValueError(&quot;Rate must be non-negative&quot;)
+    return amount * rate
+    unreachable_value = 42  # Static check flags: Unreachable code defect
+
+# Dynamic Testing: Evaluates runtime behavior by executing the compiled/interpreted program
+def test_calculate_tax_runtime_execution():
+    result = calculate_tax(100.0, 0.05)
+    assert result == 5.0  # Dynamic check: asserts expected output on executed inputs
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Static and dynamic testing find different kinds of flaws and serve different economic roles:</p>
+<ol>
+<li><strong>Defect vs. Failure Detection</strong>: Static testing finds defects directly (e.g., syntax errors, uncalled functions, security vulnerabilities, missing requirements) without needing a test harness. Dynamic testing detects failures that emerge only during execution, such as concurrency race conditions, memory leaks, and distributed network latency.</li>
+<li><strong>Economic Shift-Left</strong>: Running static linters and semantic validators takes milliseconds and costs virtually nothing, catching defects before compilation or container deployment.</li>
+<li><strong>Complementary Coverage</strong>: Static verification cannot confirm runtime environmental behavior, database query performance, or third-party service integration; dynamic automated tests remain indispensable for runtime verification.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realized by <span class="count">1</span></h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-003-01-synchronization-and-actionability.html">UI Synchronization and Actionability Waiting</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-003-01-synchronization-and-actionability</span></li></ul><h3>Prerequisites</h3><ul><li><span class="badge">istqb</span> <a href="CONCEPT-istqb-v1-001-01-error-defect-failure.html">Error, Defect, and Failure Causal Chain</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-001-01-error-defect-failure</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

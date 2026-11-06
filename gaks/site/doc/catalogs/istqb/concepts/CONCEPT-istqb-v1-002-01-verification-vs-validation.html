@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verification vs. Validation · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / istqb / concepts</div><h1 class="page-title" id="verification-vs-validation">Verification vs. Validation <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-istqb-v1-002-01-verification-vs-validation</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>istqb</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L0-theory</td></tr><tr><th>since</th><td>CTFL 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/istqb/concepts/CONCEPT-istqb-v1-002-01-verification-vs-validation.md</code></td></tr></table><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Verification and validation represent two complementary evaluation processes defined in CTFL v4.0 §1.1.1:</p>
+<ul>
+<li><strong>Verification (&quot;Building the system right&quot;)</strong>: The confirmation through objective evidence that specified requirements have been fulfilled. It evaluates whether a work product conforms to its inputs, design specifications, standards, and regulatory rules.</li>
+<li><strong>Validation (&quot;Building the right system&quot;)</strong>: The confirmation through objective evidence that the requirements for a specific intended use or application have been fulfilled. It evaluates whether the system satisfies genuine operational needs, business goals, and user expectations in its operational environment.</li>
+</ul>
+<pre><code class="language-python"># Verification: Asserting system conforms strictly to technical specification
+def test_verify_discount_calculation():
+    # Spec: &quot;When total &gt; 100, apply 10% discount&quot;
+    cart = ShoppingCart(total=150)
+    cart.apply_rules()
+    assert cart.discount == 15.0
+
+# Validation: Evaluating fitness for actual operational use
+def test_validate_checkout_workflow_satisfies_user_need(user_session):
+    # User need: &quot;A shopper must be able to complete checkout with one click&quot;
+    user_session.add_saved_item(&quot;widget-1&quot;)
+    user_session.one_click_buy()
+    assert user_session.order_status == &quot;CONFIRMED&quot;
+    assert user_session.total_steps == 1
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Differentiating verification from validation prevents the failure mode of delivering a technically flawless system that solves the wrong problem:</p>
+<ol>
+<li><strong>Specification Flaws</strong>: A system can pass 100% of automated unit and integration verification tests while remaining entirely useless if the underlying specification was flawed or obsolete.</li>
+<li><strong>Layered Test Strategy</strong>: Automated unit and component tests primarily verify structural code correctness against detailed design. Higher-level acceptance tests, user journeys, and exploratory testing validate whether workflows deliver the intended business value.</li>
+<li><strong>Traceability</strong>: Verification traces code upwards to written requirements; validation traces systems outward to user workflows, customer feedback, and business operational realities.</li>
+</ol>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

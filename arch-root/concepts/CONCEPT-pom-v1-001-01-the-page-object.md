@@ -6,6 +6,10 @@ authored: 2026-10-14
 authors:
   - George Petrov
   - Devin
+layer: L2-taf
+realizes:
+  - CONCEPT-qa-v1-005-01-page-object-model
+  - CONCEPT-prog-v1-001-01-immutable-data-carrier
 ---
 
 # The page object

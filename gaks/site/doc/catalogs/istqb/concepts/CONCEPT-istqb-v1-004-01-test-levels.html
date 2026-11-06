@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test Levels · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / istqb / concepts</div><h1 class="page-title" id="test-levels">Test Levels <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-istqb-v1-004-01-test-levels</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>istqb</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L0-theory</td></tr><tr><th>since</th><td>CTFL 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/istqb/concepts/CONCEPT-istqb-v1-004-01-test-levels.md</code></td></tr></table><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Test levels are structured groups of test activities that are organized and managed together, defined in CTFL v4.0 §2.2.1. Each level targets a specific test object, utilizes specific test bases, detects characteristic defect types, and runs in an appropriate test environment:</p>
+<ol>
+<li><strong>Component Testing (Unit Testing)</strong>: Focuses on components (functions, classes, modules) in isolation. Test doubles (mocks, stubs, fakes) eliminate external dependencies. Goal: verify internal algorithmic logic, boundary conditions, and state transitions.</li>
+<li><strong>Component Integration Testing</strong>: Focuses on interactions and communication interfaces between internal components, packages, or services. Goal: identify protocol mismatches, serialization errors, and parameter ordering defects.</li>
+<li><strong>System Testing</strong>: Focuses on the overall behavior and capabilities of the complete integrated product or application. Goal: verify end-to-end business functional workflows and non-functional requirements (performance, security).</li>
+<li><strong>System Integration Testing</strong>: Focuses on interactions between the system under test and external third-party systems, external APIs, microservice boundaries, hardware platforms, or database tiers.</li>
+<li><strong>Acceptance Testing</strong>: Focuses on determining whether the system satisfies acceptance criteria and is ready for operational deployment or user sign-off (e.g., User Acceptance Testing / UAT, Operational Acceptance Testing / OAT, regulatory compliance).</li>
+</ol>
+<pre><code class="language-text">+-----------------------------------------------------------------+
+|                       Acceptance Testing                        |  User readiness, business fit
++-----------------------------------------------------------------+
+|                    System Integration Testing                   |  External APIs, payment gateways
++-----------------------------------------------------------------+
+|                         System Testing                          |  End-to-end product workflows
++-----------------------------------------------------------------+
+|                  Component Integration Testing                  |  Internal package/service boundaries
++-----------------------------------------------------------------+
+|                    Component (Unit) Testing                     |  Isolated classes, functions
++-----------------------------------------------------------------+
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Organizing automated test suites into distinct levels prevents architectural antipatterns such as the &quot;ice-cream cone&quot; (where all tests run end-to-end through the UI):</p>
+<ol>
+<li><strong>Feedback Speed and Isolation</strong>: Component unit tests execute in milliseconds and pinpoint the exact line containing a defect. System tests take seconds or minutes and detect emergent integration defects across layers.</li>
+<li><strong>Failure Attribution</strong>: When a test fails at the component integration level, engineers immediately know the defect lies in the interface contract, avoiding deep system-level debugging.</li>
+<li><strong>Cost and Stability</strong>: Running tests at the lowest viable level dramatically reduces flakiness, execution time, and infrastructure costs across continuous delivery pipelines.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realized by <span class="count">1</span></h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-006-01-api-fixture-seeding.html">Out-of-Band API State Seeding</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-006-01-api-fixture-seeding</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>
