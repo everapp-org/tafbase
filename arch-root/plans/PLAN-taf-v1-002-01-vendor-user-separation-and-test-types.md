@@ -86,3 +86,4 @@ In `tafbase` today, **everything was flattened into a single test type: a browse
   - Emit visual regression journeys with the `TCID_RunId_Resolution_StepId_{Expected,Actual,Diff}.png` artifact grammar, mask locators, and a `taf promote` CLI / HTML diff report for human baseline approval (completing Lane J-10).
 - [ ] **Task V2.5 — Test Type 5: Separate Model-Based Walk / Exploratory Suite (`walks`):**
   - Emit seeded graph walks and edge-coverage walks into their own dedicated test module (`test_walks.py`, `TrackerWalksTest.java`, `walks.spec.ts`) tagged `@walk` so deterministic regression tests and exploratory graph walks are cleanly separated.
+
