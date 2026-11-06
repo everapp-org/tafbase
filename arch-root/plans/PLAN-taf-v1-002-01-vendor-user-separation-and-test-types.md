@@ -1,6 +1,17 @@
-# Postmortem & Task Handoff: Vendor/User Separation & Multi-Type Test Architecture
+---
+id: PLAN-taf-v1-002-01-vendor-user-separation-and-test-types
+subproject: taf
+status: in-progress
+type: implementation-plan
+authored: 2026-11-06
+authors:
+  - George Petrov
+  - Antigravity
+---
 
-> **Core Architectural Rule (`SPEC-taf-v1-002-01`):**
+# PLAN-taf-v1-002-01 — Vendor/User Separation & Multi-Type Test Architecture
+
+> **Core Architectural Rule ([[SPEC-taf-v1-002-01-the-framework-model]]):**
 > *"The SUT model and the framework model are different objects — the second generates the programs that read the first."*
 >
 > - **Vendor Action (`tafbase` + `framework-spec.dsl` + Target Profile):** Generates the **Test Automation Framework** (`taf-runtime` / `tests_base` equivalent) in Python, Java 21++, TypeScript, or JavaScript. Done by the framework vendor.
@@ -11,9 +22,9 @@
 ## Part 1: Short Postmortem — Why Did This Confusion Happen?
 
 ### 1. Timeline of Two Conflicting Mental Models in `tafbase`
-1. **October 15, 2026 (`SPEC-taf-v1-001-04-tafbase.md`):**
+1. **October 15, 2026 ([[SPEC-taf-v1-001-04-tafbase]]):**
    - `tafbase` started as a **single-stage SUT-to-Suite compiler**: given `suts/ikc3-tracker.sut.model.json`, `taf emit` emitted a single flat directory (`generated/python/ikc3-tracker`) containing both the framework runtime (`conftest.py` / `TafSupport.java`) and the SUT tests (`test_journeys.py` / `TrackerJourneysTest.java`).
-2. **October 27, 2026 (`SPEC-taf-v1-002-01-the-framework-model.md`):**
+2. **October 27, 2026 ([[SPEC-taf-v1-002-01-the-framework-model]]):**
    - The architecture pivoted to **two distinct models**:
      1. **The Framework Model (`taf/dsl/framework-spec.dsl`)** — owned by the **Vendor**, defining what the framework is (step vocabulary, locator ladder, environment contract, artifacts, reporting sinks).
      2. **The SUT Model (`suts/ikc3-tracker.sut.model.json`)** — owned by the **User**, defining the application under test.
@@ -22,13 +33,13 @@
    - Instead, `emitter.emit(sut_model, out_dir)` continued to take `sut_model` as its primary input and **baked SUT-specific constants (`BASE_URL`, `sut.auth` login steps, `viewport`) directly inside the generated framework harness (`conftest.py`, `TafSupport.java`, `fixtures.ts`, `fixtures.mjs`)**.
    - Worse, `taf/runner.py` (`taf run`) defaulted to creating a temporary directory (`/tmp/taf-run-*`), generating both the framework and the tests on the fly, running them, and deleting the directory—treating code generation as a runtime step of test execution.
 4. **Why Phase 3 Repeated It:**
-   - During Phase 3 regeneration, we focused on fixing the 6 deficiencies listed in `RESEARCH-taf-v1-004-01` and achieving 4-language parity (`python`, `java`, `ts`, `js`) on the existing `emitter.emit(model, out_dir)` signature, rather than splitting the Vendor framework artifact (`tests_base`) from the User SUT module (`suts/ikc3-tracker`).
+   - During Phase 3 regeneration, we focused on fixing the 6 deficiencies listed in [[RESEARCH-taf-v1-004-01-evaluation-and-implementation-deficiencies]] and achieving 4-language parity (`python`, `java`, `ts`, `js`) on the existing `emitter.emit(model, out_dir)` signature, rather than splitting the Vendor framework artifact (`tests_base`) from the User SUT module (`suts/ikc3-tracker`).
 
 ---
 
 ## Part 2: Where Are the Different Test Types from the Researched Prototype (`qa_tafbase`)?
 
-In the researched prototype (`qa_tafbase` — `RESEARCH-taf-v1-002-01`, `RESEARCH-taf-v1-003-01`, and `dsl-first/in_depth_docs/case-study-qa-tafbase.md`), the 91.5k-line repository had a reusable engine (**`tests_base`**) and **multiple distinct test types / suite modules**.
+In the researched prototype (`qa_tafbase` — [[RESEARCH-taf-v1-002-01-the-harvest-from-qa-tafbase]], [[RESEARCH-taf-v1-003-01-the-harvest-in-detail]]), the 91.5k-line repository had a reusable engine (**`tests_base`**) and **multiple distinct test types / suite modules**.
 
 In `tafbase` today, **everything was flattened into a single test type: a browser UI `journey`**. Here is the exact accounting of the prototype's test types and where they stand:
 
@@ -38,10 +49,10 @@ In `tafbase` today, **everything was flattened into a single test type: a browse
 | **2** | **Pure API / Backend Contract Tests** & **Hybrid API-Arrange + UI-Act Tests** | `FxoCommands.java`, SOAP/XML & REST templates, `endpoints` | **Half-baked** (`endpoints` + `api`/`save` steps exist *only inside browser journeys*) | A pure API test currently launches a full browser `Page`! Needs a **browserless `api-tests` / `request`-only test type** + `fixtures` (API arrange before UI act). |
 | **3** | **Visual / Golden-Screenshot Regression Suite** (`screenshots` module, `HappyPathBase`, `ScreenshotToolMain`) | `TestBaseScreenshots.java`, `TCID_RunId_Res_Step_{Expected,Actual,Diff}.PNG`, `ThymeleafReportRenderer`, `ApplySelectionUseCase` | **Reduced to 1 step** (`{"compare-screen": "name"}` inside UI journeys) | Missing dedicated **Visual Regression test type**, `Expected/Actual/Diff` side-by-side HTML diff report, device exclusion masks, and the `promote` approval CLI. |
 | **4** | **Data-Driven / Parameterized & Multilingual Tests** | `Quiz.java` (18 languages matrix), Cucumber `Scenario Outline:` + `Examples:` (`exampleCounter`) | **Missing in emitters** (even though GAKS catalog has `CONCEPT-junit-v1-002-01` & `CONCEPT-pytest-v1-002-01`) | Journeys need a `parameters` / `examples` table that emits `@ParameterizedTest` + `@MethodSource` (Java), `@pytest.mark.parametrize` (Python), and `for (const row of ...)` (TS/JS). |
-| **5** | **Model-Based Seeded Walk & Coverage Suite** | New in `tafbase` (`taf/walker.py`, `CONCEPT-qa-v1-010-01-model-based-seeded-walk`) | **Conflated into `journeys`** (`walk-seed-42` emitted inside the same file as hand-authored journeys) | Needs its own generated test file/suite (`test_walks.py` / `TrackerWalksTest.java` / `walks.spec.ts`) and tag (`@Tag("walk")` / `@Tag("exploratory")`). |
+| **5** | **Model-Based Seeded Walk & Coverage Suite** | New in `tafbase` (`taf/walker.py`, [[CONCEPT-qa-v1-010-01-model-based-seeded-walk]]) | **Conflated into `journeys`** (`walk-seed-42` emitted inside the same file as hand-authored journeys) | Needs its own generated test file/suite (`test_walks.py` / `TrackerWalksTest.java` / `walks.spec.ts`) and tag (`@Tag("walk")` / `@Tag("exploratory")`). |
 | **6** | **Environment / Config & Preflight Self-Check Tests** | `AConfigFixerTests.java` (3-layer config verification), `suiteStopReason` preflight | **Hidden inside session fixture** | Should also be runnable as an explicit **Smoke / Preflight Check test type** (`@Tag("preflight")`) that validates URLs, endpoints, and auth before regression runs. |
 | **7** | **Mobile Native / Hybrid App Tests** (`portal_apk`, `portal_ios`) | `AppStepDefsBase.java`, `ApkPom.java`, Appium capabilities, BrowserStack mobile tokens | **Only mobile web viewport emulation** (`target.viewport`) | Requires a Mobile/Appium or device-emulation Target Profile (`device:` matrix in `catalog.dsl`). |
-| **8** | **Out-of-Band / Email Oracle Tests** & **Living Spec Tests** | `MailUtils.java` / `EmailActions.java` (POP3 polling + MFA scrape); Concordion `BaseFixture.java` | **Concept-only** (`CONCEPT-testing-v1-006`, `CONCEPT-testing-v1-007`) | Pluggable oracle adapters in the framework runtime (`MailOracle`, storyboard HTML report). |
+| **8** | **Out-of-Band / Email Oracle Tests** & **Living Spec Tests** | `MailUtils.java` / `EmailActions.java` (POP3 polling + MFA scrape); Concordion `BaseFixture.java` | **Concept-only** ([[CONCEPT-testing-v1-006-01-the-living-spec]], [[CONCEPT-testing-v1-007-01-the-mail-oracle]]) | Pluggable oracle adapters in the framework runtime (`MailOracle`, storyboard HTML report). |
 
 ---
 
@@ -75,4 +86,3 @@ In `tafbase` today, **everything was flattened into a single test type: a browse
   - Emit visual regression journeys with the `TCID_RunId_Resolution_StepId_{Expected,Actual,Diff}.png` artifact grammar, mask locators, and a `taf promote` CLI / HTML diff report for human baseline approval (completing Lane J-10).
 - [ ] **Task V2.5 — Test Type 5: Separate Model-Based Walk / Exploratory Suite (`walks`):**
   - Emit seeded graph walks and edge-coverage walks into their own dedicated test module (`test_walks.py`, `TrackerWalksTest.java`, `walks.spec.ts`) tagged `@walk` so deterministic regression tests and exploratory graph walks are cleanly separated.
-
