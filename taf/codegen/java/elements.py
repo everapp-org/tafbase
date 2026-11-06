@@ -7,13 +7,15 @@ def _page_class(name, st):
     return (_HEADER +
             f'package {_PKG};\n\n'
             "// @concept CONCEPT-pom-v1-001-01-the-page-object\n"
-            "// @concept CONCEPT-playwright-v1-003-01-auto-waiting\n\n"
+            "// @concept CONCEPT-qa-v1-005-01-page-object-model\n"
+            "// @concept CONCEPT-java-v1-002-01-records\n"
+            "// @concept CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability\n\n"
             "import com.microsoft.playwright.Locator;\n"
             "import com.microsoft.playwright.Page;\n"
             "import com.microsoft.playwright.assertions.LocatorAssertions;\n"
             "import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;\n\n"
             f"/** The '{name}' state. Its marker proves arrival. */\n"
-            f"public class {_state_class(name)} {{\n"
+            f"public final class {_state_class(name)} {{\n"
             f'    public static final String ROUTE = "{st.get("route", "")}";\n'
             "    private final Page page;\n"
             "    private final Locator marker;\n\n"
@@ -33,12 +35,14 @@ def _elements_class(m):
     if not m.get("elements"):
         return None
     lines = [_HEADER, f"package {_PKG};\n\n",
-             "// @concept CONCEPT-playwright-v1-001-01-the-locator-ladder\n\n",
+             "// @concept CONCEPT-qa-v1-002-01-the-locator-ladder\n",
+             "// @concept CONCEPT-playwright-v1-002-01-semantic-locators\n\n",
              "import com.microsoft.playwright.Locator;\n",
              "import com.microsoft.playwright.Page;\n",
              "import com.microsoft.playwright.options.AriaRole;\n\n",
              "/** Named locators, one method each — the locator ladder. */\n",
-             "public class Elements {\n"]
+             "public final class Elements {\n",
+             "    private Elements() {}\n"]
     for name, loc in m["elements"].items():
         lines.append(f"    public static Locator {_j(name)}(Page page) {{\n"
                      f"        return {_loc(loc)};\n    }}\n")

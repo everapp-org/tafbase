@@ -3,6 +3,8 @@
 """One test per declared journey — arrange, act, assert.
 
 @concept CONCEPT-testing-v1-001-01-arrange-act-assert
+@concept CONCEPT-qa-v1-001-01-arrange-act-assert
+@concept CONCEPT-istqb-v1-010-01-state-transition-testing
 """
 
 import actions

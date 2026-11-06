@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soft and Polling Assertions · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / pwtest / concepts</div><h1 class="page-title" id="soft-and-polling-assertions">Soft and Polling Assertions <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-pwtest-v1-003-01-expect-soft-and-poll</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>pwtest</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>Playwright 1.40</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/pwtest/concepts/CONCEPT-pwtest-v1-003-01-expect-soft-and-poll.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-qa-v1-007-01-hard-vs-soft-assertions</td></tr><tr><th>contrasts-with</th><td>CONCEPT-junit-v1-003-01-assertall-grouped-assertions</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Playwright Test Runner provides advanced assertion primitives that extend beyond standard terminating assertions:</p>
+<ul>
+<li><strong><code>expect.soft(locator).&lt;matcher&gt;()</code></strong>: Soft assertions evaluate conditions without immediately throwing an error or aborting test execution. If a soft assertion fails, the runner records the failure details and continues running the remaining test steps. At the completion of the test, any accumulated soft failures are reported together.</li>
+<li><strong><code>expect.poll(asyncFn, options).&lt;matcher&gt;()</code></strong>: Polling assertions repeatedly invoke an asynchronous callback function until the returned value satisfies the target matcher or a timeout expires.</li>
+</ul>
+<pre><code class="language-typescript">import { test, expect } from &#39;@playwright/test&#39;;
+
+test(&#39;validates full user card without aborting on first mismatch&#39;, async ({ page }) =&gt; {
+  await page.goto(&#39;https://app.example.com/users/42&#39;);
+
+  const name = page.getByTestId(&#39;user-name&#39;);
+  const role = page.getByTestId(&#39;user-role&#39;);
+  const email = page.getByTestId(&#39;user-email&#39;);
+
+  // Soft assertions: All checks run even if name or role fails
+  await expect.soft(name).toHaveText(&#39;Jordan Lee&#39;);
+  await expect.soft(role).toHaveText(&#39;Admin&#39;);
+  await expect.soft(email).toHaveText(&#39;jordan@example.com&#39;);
+
+  // Polling assertion: Polls an asynchronous backend API until status becomes &#39;ready&#39;
+  await expect.poll(async () =&gt; {
+    const res = await page.request.get(&#39;https://api.example.com/sync-status&#39;);
+    const data = await res.json();
+    return data.status;
+  }, { intervals: [500, 1000], timeout: 10_000 }).toBe(&#39;ready&#39;);
+});
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-qa-v1-007-01-hard-vs-soft-assertions</code>. Complex UI screens display multiple interrelated pieces of data (e.g. dashboards, summaries, or reports). Using standard hard assertions aborts the test on the first mismatch, hiding information about whether the remaining 10 fields on the screen are valid or broken.</p>
+<p>Contrasts with <code>CONCEPT-junit-v1-003-01-assertall-grouped-assertions</code>. In JUnit Jupiter, soft assertions are constrained within a localized closure block (<code>Assertions.assertAll(...)</code>). In Playwright Test, <code>expect.soft()</code> can be interleaved linearly anywhere within natural test workflows, allowing tests to navigate across pages and perform multi-step interactions while accumulating validation findings throughout the entire scenario.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-007-01-hard-vs-soft-assertions.html">Hard Assertions, Soft Assertions, and Auto-Retrying Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-007-01-hard-vs-soft-assertions</span></li></ul><h3>Across languages &amp; tools <span class="count">5</span></h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-003-01-assertall-grouped-assertions.html">Grouped Soft Assertions via assertAll</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-003-01-assertall-grouped-assertions</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-004-01-web-first-assertions.html">Auto-Retrying Web-First Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-004-01-web-first-assertions</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-003-01-assert-introspection.html">Assert Statement AST Introspection</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-003-01-assert-introspection</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-004-01-one-shot-dom-assertions.html">One-Shot DOM Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-004-01-one-shot-dom-assertions</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-002-01-the-failure-funnel.html">The failure funnel</a> <span class="muted">CONCEPT-testing-v1-002-01-the-failure-funnel</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-003-01-assertall-grouped-assertions.html">Grouped Soft Assertions via assertAll</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-003-01-assertall-grouped-assertions</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

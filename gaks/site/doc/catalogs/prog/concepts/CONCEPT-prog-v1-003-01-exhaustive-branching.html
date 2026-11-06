@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exhaustive Pattern Branching · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / prog / concepts</div><h1 class="page-title" id="exhaustive-pattern-branching">Exhaustive Pattern Branching <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-prog-v1-003-01-exhaustive-branching</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>prog</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L1-archetype</td></tr><tr><th>source</th><td><code>catalogs/prog/concepts/CONCEPT-prog-v1-003-01-exhaustive-branching.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>requires</th><td>CONCEPT-prog-v1-002-01-closed-type-union</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Exhaustive pattern branching is a language or static-analysis mechanism that verifies whether a conditional dispatch covers every variant of a closed type union. If any variant is omitted, the compiler or checker rejects the program before execution. Catch-all <code>default</code> branches are intentionally avoided or restricted so that future additions to the union trigger immediate compile-time errors.</p>
+<pre><code>function renderStatus(result: AsyncResult&lt;Data&gt;): String {
+    return match (result) {
+        Success(data)  =&gt; &quot;Loaded: &quot; + data.summary(),
+        Failure(err, m) =&gt; &quot;Failed with &quot; + err + &quot;: &quot; + m,
+        Pending        =&gt; &quot;Loading...&quot;
+    }
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>In traditional dispatch mechanisms (like cascading <code>if/else</code> ladders or switches with arbitrary <code>default</code> clauses), adding a new variant to a domain model silently falls into the default handler. This causes subtle defects to escape into production environments when new features are partially implemented.</p>
+<p>Exhaustive pattern branching turns domain evolution into a compiler-assisted refactoring workflow:</p>
+<ol>
+<li><strong>Refactoring safety:</strong> Adding a new variant to a closed union flags every unhandled call site across the codebase as a compile failure.</li>
+<li><strong>Defensive elimination:</strong> Eliminates runtime <code>throw new IllegalStateException(&quot;Unexpected type&quot;)</code> guards in business logic.</li>
+<li><strong>Data extraction synergy:</strong> Works together with destructuring patterns to unpack payload fields directly into typed lexical variables within the branch scope.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realized by <span class="count">6</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-006-01-pattern-matching-instanceof-and-switch.html">Pattern Matching for instanceof and switch</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-006-01-pattern-matching-instanceof-and-switch</span></li><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-007-01-record-patterns.html">Record Patterns and Nested Destructuring</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-007-01-record-patterns</span></li><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-005-01-switch-expressions.html">Switch Expressions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-005-01-switch-expressions</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-003-01-switch-with-default-throw.html">Switch on Discriminant with Default Guard</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-003-01-switch-with-default-throw</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-003-01-structural-pattern-matching.html">Structural Pattern Matching</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-003-01-structural-pattern-matching</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-003-01-exhaustive-switch-never.html">Exhaustive Switch Narrowing with Never Check</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-003-01-exhaustive-switch-never</span></li></ul><h3>Prerequisites</h3><ul><li><span class="badge">prog</span> <a href="CONCEPT-prog-v1-002-01-closed-type-union.html">Closed Type Union</a> <span class="muted">CONCEPT-prog-v1-002-01-closed-type-union</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

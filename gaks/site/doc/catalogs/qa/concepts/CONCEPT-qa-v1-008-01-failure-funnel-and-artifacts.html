@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Failure Funnel: Diagnostic Artifacts · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / qa / concepts</div><h1 class="page-title" id="the-failure-funnel-diagnostic-artifacts">The Failure Funnel: Diagnostic Artifacts <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>qa</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L1-archetype</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/qa/concepts/CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-istqb-v1-001-01-error-defect-failure, CONCEPT-istqb-v1-015-01-defect-lifecycle</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>The Failure Funnel is an automated test infrastructure pattern that progressively captures multi-tiered diagnostic artifacts upon any test failure or timeout, assembling a complete forensic record without requiring manual re-runs.</p>
+<p>The forensic tiers captured in the funnel include:</p>
+<ol>
+<li><strong>Console &amp; Runner Logs</strong>: Standard out, standard error, browser console messages (<code>console.error</code>, unhandled exceptions), and test framework step logs.</li>
+<li><strong>Failure Screenshot</strong>: A visual raster image (PNG) of the exact viewport state at the instant of failure, revealing modal overlays, clipping, or visual errors.</li>
+<li><strong>DOM Snapshot</strong>: The complete serialized HTML tree at the failure point, enabling inspection of hidden attributes, CSS classes, and aria roles.</li>
+<li><strong>Network Archive (HAR)</strong>: A full recording of all HTTP requests, responses, status codes, response payloads, headers, and timing metrics sent or received by the browser.</li>
+<li><strong>Execution Trace (Timeline Archive)</strong>: A bundled zip containing millisecond-by-millisecond screencasts, DOM snapshots before and after every action, network events, and call stacks, viewable interactively in a trace viewer.</li>
+</ol>
+<pre><code class="language-text">[ Test Execution Passes ] --------&gt; Discard heavy artifacts (keep minimal logs)
+           |
+           +---&gt; [ TEST FAILS ]
+                       |
+                       v
+         +-----------------------------+
+         |     The Failure Funnel      |
+         +-----------------------------+
+         | 1. Capture Console Logs     |
+         | 2. Capture Viewport PNG     |
+         | 3. Dump Serialized DOM      |
+         | 4. Export Network HAR       |
+         | 5. Finalize Execution Trace |
+         +-----------------------------+
+                       |
+                       v
+         [ Attached to CI Run / Defect ]
+</code></pre>
+<pre><code class="language-python"># Fixture capturing forensic artifacts only on test failure
+import pytest
+
+@pytest.fixture
+def page_with_failure_funnel(browser_context, request):
+    # Start tracing with screenshots and DOM snapshots
+    browser_context.tracing.start(screenshots=True, snapshots=True, sources=True)
+    page = browser_context.new_page()
+    
+    yield page
+    
+    # Teardown: inspect test execution result
+    if request.node.rep_call.failed:
+        test_id = request.node.name
+        page.screenshot(path=f&quot;artifacts/{test_id}_failure.png&quot;)
+        browser_context.tracing.stop(path=f&quot;artifacts/{test_id}_trace.zip&quot;)
+    else:
+        # Discard trace on success to conserve storage and bandwidth
+        browser_context.tracing.stop()
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>The Failure Funnel eliminates the ambiguity and lost time associated with headless CI test failures:</p>
+<ol>
+<li><strong>Root-Cause Analysis Without Reproduction</strong>: In headless CI environments, developers cannot watch tests execute. Having full network logs, DOM state, and timeline traces allows engineers to diagnose the defect immediately without attempting tricky local reproductions.</li>
+<li><strong>Distinguishing App Bugs from Infrastructure Drops</strong>: A network HAR immediately clarifies whether an assertion failed because of a front-end bug or because an internal microservice returned a 504 Gateway Timeout.</li>
+<li><strong>Storage Efficiency</strong>: Heavy artifacts (video recordings and full traces) are captured conditionally only when tests fail, keeping CI storage and artifact upload bandwidth lean.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-001-01-error-defect-failure.html">Error, Defect, and Failure Causal Chain</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-001-01-error-defect-failure</span></li><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-015-01-defect-lifecycle.html">Defect Management and Defect Report Lifecycle</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-015-01-defect-lifecycle</span></li></ul><h3>Across languages &amp; tools <span class="count">1</span></h3><ul><li><span class="badge">taf</span> <a href="../../../concepts/CONCEPT-taf-v1-002-01-the-result-sink.html">The result sink</a> <span class="muted">CONCEPT-taf-v1-002-01-the-result-sink</span></li></ul><h3>Realized by <span class="count">7</span></h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-004-01-testwatcher-failure-extension.html">TestWatcher Extension for Failure Artifacts</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-004-01-testwatcher-failure-extension</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts.html">Trace Viewer and Execution Artifacts</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-004-01-automatic-trace-and-screenshot-config.html">Automatic Trace and Artifact Configuration</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-004-01-automatic-trace-and-screenshot-config</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-004-01-makereport-failure-hook.html">Failure Reporting Hook via makereport</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-004-01-makereport-failure-hook</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-006-01-takes-screenshot-and-logs.html">Failure Diagnostics via TakesScreenshot and BiDi Logs</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-006-01-takes-screenshot-and-logs</span></li><li><span class="badge">taf</span> <a href="../../../concepts/CONCEPT-taf-v1-002-01-the-result-sink.html">The result sink</a> <span class="muted">CONCEPT-taf-v1-002-01-the-result-sink</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-002-01-the-failure-funnel.html">The failure funnel</a> <span class="muted">CONCEPT-testing-v1-002-01-the-failure-funnel</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

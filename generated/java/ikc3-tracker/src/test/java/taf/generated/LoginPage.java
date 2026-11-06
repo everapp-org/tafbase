@@ -3,7 +3,9 @@
 package taf.generated;
 
 // @concept CONCEPT-pom-v1-001-01-the-page-object
-// @concept CONCEPT-playwright-v1-003-01-auto-waiting
+// @concept CONCEPT-qa-v1-005-01-page-object-model
+// @concept CONCEPT-java-v1-002-01-records
+// @concept CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
@@ -11,7 +13,7 @@ import com.microsoft.playwright.assertions.LocatorAssertions;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 /** The 'login' state. Its marker proves arrival. */
-public class LoginPage {
+public final class LoginPage {
     public static final String ROUTE = "/index.html?island=board";
     private final Page page;
     private final Locator marker;

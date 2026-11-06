@@ -35,50 +35,50 @@ the gaps as work.</p>
 <tbody><tr>
 <td>1</td>
 <td>Playwright vs Selenium</td>
-<td>—</td>
-<td>gap</td>
+<td><a class="wikilink" href="../catalogs/playwright/concepts/CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy.html" title="Browser, BrowserContext, and Page Isolation Hierarchy">CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy</a>, <a class="wikilink" href="../catalogs/selenium/concepts/CONCEPT-selenium-v1-001-01-webdriver-session-lifecycle.html" title="WebDriver Session Lifecycle and Selenium Manager">CONCEPT-selenium-v1-001-01-webdriver-session-lifecycle</a></td>
+<td>covered</td>
 </tr>
 <tr>
 <td>2</td>
 <td>Project setup (TypeScript assumed)</td>
-<td>—</td>
-<td>gap</td>
+<td><a class="wikilink" href="../catalogs/ts/concepts/CONCEPT-ts-v1-006-01-typed-test-fixture-extension.html" title="Typed Test Fixture Extension">CONCEPT-ts-v1-006-01-typed-test-fixture-extension</a>, <a class="wikilink" href="../catalogs/pwtest/concepts/CONCEPT-pwtest-v1-001-01-test-extend-fixtures.html" title="Typed Fixtures via test.extend">CONCEPT-pwtest-v1-001-01-test-extend-fixtures</a></td>
+<td>covered</td>
 </tr>
 <tr>
 <td>3</td>
 <td>Browser / BrowserContext / Page</td>
-<td><a class="wikilink" href="../concepts/CONCEPT-playwright-v1-002-01-the-browser-context.html" title="The browser context">CONCEPT-playwright-v1-002-01-the-browser-context</a></td>
-<td>part</td>
+<td><a class="wikilink" href="../catalogs/playwright/concepts/CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy.html" title="Browser, BrowserContext, and Page Isolation Hierarchy">CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy</a></td>
+<td>covered</td>
 </tr>
 <tr>
 <td>4</td>
 <td>Auto-waiting, actionability</td>
-<td><a class="wikilink" href="../concepts/CONCEPT-playwright-v1-003-01-auto-waiting.html" title="Auto-waiting assertions">CONCEPT-playwright-v1-003-01-auto-waiting</a></td>
+<td><a class="wikilink" href="../catalogs/playwright/concepts/CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability.html" title="Built-in Auto-Waiting and Actionability Checks">CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability</a></td>
 <td>covered</td>
 </tr>
 <tr>
 <td>5</td>
 <td>locator() vs page.$()</td>
-<td><a class="wikilink" href="../concepts/CONCEPT-playwright-v1-001-01-the-locator-ladder.html" title="The locator ladder">CONCEPT-playwright-v1-001-01-the-locator-ladder</a></td>
-<td>part — locator-vs-$ deserves a line</td>
+<td><a class="wikilink" href="../catalogs/playwright/concepts/CONCEPT-playwright-v1-002-01-semantic-locators.html" title="Semantic Locators and Strict Element Resolution">CONCEPT-playwright-v1-002-01-semantic-locators</a></td>
+<td>covered</td>
 </tr>
 <tr>
 <td>6</td>
 <td>Dynamic elements, flaky tests</td>
-<td>—</td>
-<td>gap</td>
+<td><a class="wikilink" href="../catalogs/qa/concepts/CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness.html" title="Deterministic Execution, Flakiness Quarantine, and Retry Discipline">CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness</a></td>
+<td>covered</td>
 </tr>
 <tr>
 <td>7</td>
 <td>getByRole vs getByText vs css/xpath</td>
-<td><a class="wikilink" href="../concepts/CONCEPT-playwright-v1-001-01-the-locator-ladder.html" title="The locator ladder">CONCEPT-playwright-v1-001-01-the-locator-ladder</a></td>
+<td><a class="wikilink" href="../catalogs/qa/concepts/CONCEPT-qa-v1-002-01-the-locator-ladder.html" title="The Locator Ladder">CONCEPT-qa-v1-002-01-the-locator-ladder</a>, <a class="wikilink" href="../catalogs/playwright/concepts/CONCEPT-playwright-v1-002-01-semantic-locators.html" title="Semantic Locators and Strict Element Resolution">CONCEPT-playwright-v1-002-01-semantic-locators</a></td>
 <td>covered</td>
 </tr>
 <tr>
 <td>8</td>
 <td>Dropdowns, checkboxes, alerts, iframes</td>
-<td>—</td>
-<td>gap</td>
+<td><a class="wikilink" href="../catalogs/playwright/concepts/CONCEPT-playwright-v1-009-01-frame-and-shadow-dom-piercing.html" title="Automatic Shadow DOM Piercing and Frame Locators">CONCEPT-playwright-v1-009-01-frame-and-shadow-dom-piercing</a></td>
+<td>covered</td>
 </tr>
 <tr>
 <td>9</td>
@@ -89,55 +89,55 @@ the gaps as work.</p>
 <tr>
 <td>10</td>
 <td>Screenshots/videos on failure</td>
-<td><a class="wikilink" href="../concepts/CONCEPT-taf-v1-002-01-the-result-sink.html" title="The result sink">CONCEPT-taf-v1-002-01-the-result-sink</a> (our answer is richer: DOM + report)</td>
-<td>part</td>
+<td><a class="wikilink" href="../concepts/CONCEPT-taf-v1-002-01-the-result-sink.html" title="The result sink">CONCEPT-taf-v1-002-01-the-result-sink</a>, <a class="wikilink" href="../catalogs/playwright/concepts/CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts.html" title="Trace Viewer and Execution Artifacts">CONCEPT-playwright-v1-006-01-trace-viewer-and-artifacts</a></td>
+<td>covered</td>
 </tr>
 <tr>
 <td>11</td>
 <td>API testing via request context</td>
-<td>the model&#39;s <code>api</code>/<code>save</code>/<code>expect</code> steps</td>
+<td><a class="wikilink" href="../catalogs/playwright/concepts/CONCEPT-playwright-v1-005-01-api-request-context.html" title="API Request Context for State Seeding">CONCEPT-playwright-v1-005-01-api-request-context</a> + the model&#39;s <code>api</code>/<code>save</code>/<code>expect</code> steps</td>
 <td>covered</td>
 </tr>
 <tr>
 <td>12</td>
 <td>Authentication reuse</td>
-<td>—</td>
-<td>gap</td>
+<td><a class="wikilink" href="../concepts/CONCEPT-dsl-v1-016-01-the-auth-clause.html" title="The auth clause">CONCEPT-dsl-v1-016-01-the-auth-clause</a></td>
+<td>covered</td>
 </tr>
 <tr>
 <td>13</td>
 <td>storageState</td>
-<td>—</td>
-<td>gap</td>
+<td><a class="wikilink" href="../catalogs/playwright/concepts/CONCEPT-playwright-v1-008-01-storage-state-reuse.html" title="Authenticated Storage State Snapshot and Reuse">CONCEPT-playwright-v1-008-01-storage-state-reuse</a></td>
+<td>covered</td>
 </tr>
 <tr>
 <td>14</td>
 <td>Parallel execution, workers</td>
-<td>—</td>
-<td>gap</td>
+<td><a class="wikilink" href="../catalogs/pwtest/concepts/CONCEPT-pwtest-v1-005-01-projects-matrix-and-sharding.html" title="Multi-Project Matrix and Worker Sharding">CONCEPT-pwtest-v1-005-01-projects-matrix-and-sharding</a>, <a class="wikilink" href="../catalogs/pytest/concepts/CONCEPT-pytest-v1-005-01-markers-and-xdist-parallelism.html" title="Markers and xdist Worker Parallelism">CONCEPT-pytest-v1-005-01-markers-and-xdist-parallelism</a></td>
+<td>covered</td>
 </tr>
 <tr>
 <td>15</td>
 <td>Sharding</td>
-<td>—</td>
-<td>gap</td>
+<td><a class="wikilink" href="../catalogs/pwtest/concepts/CONCEPT-pwtest-v1-005-01-projects-matrix-and-sharding.html" title="Multi-Project Matrix and Worker Sharding">CONCEPT-pwtest-v1-005-01-projects-matrix-and-sharding</a></td>
+<td>covered</td>
 </tr>
 <tr>
 <td>16</td>
 <td>Retries, flaky-test investigation</td>
-<td>—</td>
-<td>gap</td>
+<td><a class="wikilink" href="../catalogs/qa/concepts/CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness.html" title="Deterministic Execution, Flakiness Quarantine, and Retry Discipline">CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness</a></td>
+<td>covered</td>
 </tr>
 <tr>
 <td>17</td>
 <td>beforeEach/afterEach</td>
-<td><a class="wikilink" href="../concepts/CONCEPT-java-v1-001-01-the-junit-lifecycle.html" title="The JUnit lifecycle">CONCEPT-java-v1-001-01-the-junit-lifecycle</a>, <a class="wikilink" href="../concepts/CONCEPT-pytest-v1-001-01-the-pytest-fixture.html" title="The pytest fixture">CONCEPT-pytest-v1-001-01-the-pytest-fixture</a></td>
-<td>covered (in two idioms)</td>
+<td><a class="wikilink" href="../catalogs/java/concepts/CONCEPT-java-v1-001-01-junit-lifecycle-annotations.html" title="JUnit 5 Lifecycle Annotations">CONCEPT-java-v1-001-01-junit-lifecycle-annotations</a>, <a class="wikilink" href="../catalogs/pytest/concepts/CONCEPT-pytest-v1-001-01-dependency-injected-fixtures.html" title="Dependency-Injected Fixtures and Scoped Lifecycles">CONCEPT-pytest-v1-001-01-dependency-injected-fixtures</a>, <a class="wikilink" href="../catalogs/pwtest/concepts/CONCEPT-pwtest-v1-001-01-test-extend-fixtures.html" title="Typed Fixtures via test.extend">CONCEPT-pwtest-v1-001-01-test-extend-fixtures</a></td>
+<td>covered (in four idioms)</td>
 </tr>
 <tr>
 <td>18</td>
 <td>Framework architecture: POM + fixtures</td>
-<td><a class="wikilink" href="../concepts/CONCEPT-pom-v1-001-01-the-page-object.html" title="The page object">CONCEPT-pom-v1-001-01-the-page-object</a> + the whole generated layout</td>
+<td><a class="wikilink" href="../catalogs/qa/concepts/CONCEPT-qa-v1-005-01-page-object-model.html" title="Page Object Model and Screenplay Encapsulation">CONCEPT-qa-v1-005-01-page-object-model</a>, <a class="wikilink" href="../concepts/CONCEPT-pom-v1-001-01-the-page-object.html" title="The page object">CONCEPT-pom-v1-001-01-the-page-object</a> + the whole generated layout</td>
 <td>covered — our strongest answer</td>
 </tr>
 <tr>
@@ -206,8 +206,8 @@ three-legged and lands in the market&#39;s assumed idiom. Both are lanes;
 the concept pages for each land as they&#39;re implemented, per ADR-002.</p>
 </article><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
 </main>
-<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">35</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-18 05:04 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

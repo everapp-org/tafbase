@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scoped Values and Structured Concurrency · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / java / concepts</div><h1 class="page-title" id="scoped-values-and-structured-concurrency">Scoped Values and Structured Concurrency <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-java-v1-018-01-scoped-values-and-structured-concurrency</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>java</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>Java 25</td></tr><tr><th>standing</th><td><span class="badge">preview</span></td></tr><tr><th>source</th><td><code>catalogs/java/concepts/CONCEPT-java-v1-018-01-scoped-values-and-structured-concurrency.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-007-01-parallel-fan-out</td></tr><tr><th>requires</th><td>CONCEPT-java-v1-009-01-virtual-threads</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Scoped values (<code>ScopedValue&lt;T&gt;</code>) provide safe, immutable, bounded data sharing across threads and child tasks without <code>ThreadLocal</code> overhead. Structured concurrency (<code>StructuredTaskScope</code>) treats split concurrent subtasks as a single unit of work, guaranteeing that all forks complete or cancel before the enclosing scope closes.</p>
+<pre><code class="language-java">public final static ScopedValue&lt;SecurityContext&gt; CURRENT_USER = ScopedValue.newInstance();
+
+public OrderResponse handleOrder(OrderRequest request) throws Exception {
+    return ScopedValue.where(CURRENT_USER, request.securityContext()).call(() -&gt; {
+        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+            StructuredTaskScope.Subtask&lt;Inventory&gt; inv = scope.fork(() -&gt; checkInventory(request));
+            StructuredTaskScope.Subtask&lt;Pricing&gt; price = scope.fork(() -&gt; calculatePrice(request));
+
+            scope.join();           // join forks
+            scope.throwIfFailed();  // propagate error if any task failed
+
+            return new OrderResponse(inv.get(), price.get());
+        }
+    });
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p><code>ThreadLocal</code> has severe flaws: it is unbounded in lifetime (causing memory leaks in thread pools), mutable from any call site, and incurs costly memory duplication when inherited across thousands of virtual threads. <code>ScopedValue</code> is strictly bounded by a lexical execution scope and is immutable. Unstructured concurrency (<code>CompletableFuture</code>, unmanaged threads) leads to thread leaks, orphaned tasks continuing after caller cancellation, and fragmented diagnostics. <code>StructuredTaskScope</code> ensures that when a subtask fails or times out, sibling subtasks are automatically canceled, restoring clean hierarchical task lifetimes.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-007-01-parallel-fan-out.html">Structured Parallel Fan-Out</a> <span class="muted">CONCEPT-prog-v1-007-01-parallel-fan-out</span></li></ul><h3>Across languages &amp; tools <span class="count">7</span></h3><ul><li><span class="badge">java</span> <a href="CONCEPT-java-v1-009-01-virtual-threads.html">Virtual Threads</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-009-01-virtual-threads</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-007-01-promise-all-and-allsettled.html">Concurrent Promise Fan-Out</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-007-01-promise-all-and-allsettled</span></li><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-005-01-tag-filtering-and-parallel-execution.html">Tag Filtering and Parallel Execution</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-005-01-tag-filtering-and-parallel-execution</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-005-01-projects-matrix-and-sharding.html">Multi-Project Matrix and Worker Sharding</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-005-01-projects-matrix-and-sharding</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-005-01-markers-and-xdist-parallelism.html">Markers and xdist Worker Parallelism</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-005-01-markers-and-xdist-parallelism</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-007-01-taskgroup-and-executor.html">TaskGroup and Executor Concurrency</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-007-01-taskgroup-and-executor</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-007-01-typed-promise-concurrency.html">Typed Promise Concurrency</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-007-01-typed-promise-concurrency</span></li></ul><h3>Prerequisites</h3><ul><li><span class="badge">java</span> <a href="CONCEPT-java-v1-009-01-virtual-threads.html">Virtual Threads</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-009-01-virtual-threads</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

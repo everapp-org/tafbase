@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Seven Testing Principles · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / istqb / concepts</div><h1 class="page-title" id="the-seven-testing-principles">The Seven Testing Principles <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-istqb-v1-003-01-seven-testing-principles</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>istqb</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L0-theory</td></tr><tr><th>since</th><td>CTFL 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/istqb/concepts/CONCEPT-istqb-v1-003-01-seven-testing-principles.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>requires</th><td>CONCEPT-istqb-v1-001-01-error-defect-failure</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>The seven testing principles defined in CTFL v4.0 §1.3 provide the universal rules governing all software testing activities:</p>
+<ol>
+<li><strong>Testing shows the presence of defects, not their absence</strong>: Testing proves that defects exist, but passing all tests can never prove that no defects remain in the software under test.</li>
+<li><strong>Exhaustive testing is impossible</strong>: Testing all possible combinations of inputs, preconditions, and execution paths is mathematically intractable for non-trivial software. Testing must use risk analysis, test techniques, and priorities to focus effort.</li>
+<li><strong>Early testing saves time and money (Shift-Left)</strong>: Defects discovered early in the lifecycle (requirements, architecture, code reviews) cost orders of magnitude less to fix than defects discovered in production or late integration phases.</li>
+<li><strong>Defects cluster together (Pareto Principle)</strong>: A small proportion of system components, modules, or features typically contains the majority of discovered defects and operational failures.</li>
+<li><strong>Beware of the pesticide paradox</strong>: Running the exact same automated tests repeatedly without modification causes them to lose defect-finding efficacy. Tests must be reviewed and evolved with new test cases and techniques to uncover new defects.</li>
+<li><strong>Testing is context-dependent</strong>: Testing is performed differently across different domains; testing a safety-critical medical device requires different techniques and rigor than testing an e-commerce website.</li>
+<li><strong>Absence-of-defects fallacy</strong>: Fixing all discovered defects and building a 100% bug-free system does not guarantee success if the software fails to meet user expectations or business goals.</li>
+</ol>
+<pre><code class="language-text">The Seven Principles at a Glance:
+1. Presence != Absence    --&gt; Passing tests != defect-free software
+2. No Exhaustive Testing  --&gt; Sample domains with EP, BVA, and risk analysis
+3. Shift-Left Testing     --&gt; Lint, review, and test at the earliest phase
+4. Defect Clustering      --&gt; Target testing where bugs historically cluster
+5. Pesticide Paradox      --&gt; Vary test paths, seed mutations, evolve suites
+6. Context Dependent      --&gt; Fit strategy to safety, scale, and domain risk
+7. Absence Fallacy        --&gt; Verifying bug fixes != delivering user value
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>The seven principles form the philosophical foundation for all automated test design:</p>
+<ol>
+<li><strong>Disciplined Automation Strategy</strong>: Because exhaustive testing is impossible, test automation frameworks rely on rigorous input partitioning rather than brute-force loops.</li>
+<li><strong>Managing Test Decay</strong>: The pesticide paradox warns against static automated regression suites that never exercise novel paths; it justifies model-based testing, fuzzing, and continuous test refactoring.</li>
+<li><strong>Combating False Confidence</strong>: The first principle reminds engineering teams that green CI pipelines indicate the absence of <em>known tested regressions</em>, not absolute defect-free reliability.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realized by <span class="count">1</span></h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-010-01-model-based-seeded-walk.html">Model-Based Testing and Seeded Random State-Machine Walk</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-010-01-model-based-seeded-walk</span></li></ul><h3>Prerequisites</h3><ul><li><span class="badge">istqb</span> <a href="CONCEPT-istqb-v1-001-01-error-defect-failure.html">Error, Defect, and Failure Causal Chain</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-001-01-error-defect-failure</span></li></ul><h3>Unlocks <span class="count">1</span></h3><ul><li><span class="badge">istqb</span> <a href="CONCEPT-istqb-v1-007-01-equivalence-partitioning.html">Equivalence Partitioning</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-007-01-equivalence-partitioning</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

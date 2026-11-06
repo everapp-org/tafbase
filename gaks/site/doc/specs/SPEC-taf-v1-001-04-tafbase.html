@@ -167,9 +167,16 @@ verify the API. <code>{name}</code> markers in a path bind from the step&#39;s <
 <ul>
 <li><code>sut.name</code> and <code>sut.base-url</code> are required; <code>elements</code>, <code>actions</code>,
 <code>endpoints</code> may be absent or empty.</li>
+<li><code>sut.auth</code> may declare <code>{&quot;action&quot;: &lt;name&gt;}</code> — sign-in-once: the
+named action runs once per run in a bootstrap context at its <code>from</code>
+state, the session is kept as storage state, and every test&#39;s fresh
+context inherits it. One credential spent per run.</li>
 <li>Step forms: <code>click</code>/<code>check</code>/<code>select</code> take an element name; <code>fill</code>
-takes <code>{element, value}</code>; <code>navigate</code> and <code>wait-for</code> take a state or
-element name; <code>api</code> takes an endpoint name plus optional <code>args</code>;
+takes <code>{element, value}</code> — a value of <code>env:NAME</code> reads the variable
+at run time, and <code>env-pool:NAME</code> splits the variable&#39;s words and
+spends one per call, for single-use values; <code>navigate</code> and
+<code>wait-for</code> take a state or element name;
+<code>api</code> takes an endpoint name plus optional <code>args</code>;
 <code>save</code> takes <code>{name: &quot;$.json.path&quot;}</code>; <code>expect</code> takes <code>{element, assertion}</code> or <code>{saved, assertion}</code>, plus <code>soft: true</code> to collect
 into the soft stack — flushed once at test end; <code>dwell</code> takes
 milliseconds, a number ≥ 0; <code>wait-any</code> takes a list of 2+ element
@@ -216,6 +223,14 @@ guesses and never half-emits. Each refusal is <code>{clause, reason, message}</c
 <tr>
 <td><code>:unknown-element</code></td>
 <td>a step declares no element</td>
+</tr>
+<tr>
+<td><code>:bad-env</code></td>
+<td>an <code>env:</code>/<code>env-pool:</code> value names no variable</td>
+</tr>
+<tr>
+<td><code>:bad-auth</code></td>
+<td><code>sut.auth</code>&#39;s action has no <code>from</code> state to bootstrap from</td>
 </tr>
 <tr>
 <td><code>:unknown-endpoint</code></td>
@@ -292,10 +307,10 @@ report against it.</p>
 indirection, screenshot/video configuration, visual assertions, and
 walk-generation strategies beyond the seeded walk — each is a declared
 lane in <a class="wikilink" href="../plans/PLAN-taf-v1-001-01-tafbase.html" title="PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework">PLAN-taf-v1-001-01-tafbase</a>, none is guessed here.</p>
-</article><section class="backlinks"><h2>Mentioned in <span class="count">2</span></h2><ul><li><a href="../plans/PLAN-taf-v1-001-01-tafbase.html">PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework</a> <span class="muted">PLAN-taf-v1-001-01-tafbase</span></li><li><a href="SPEC-taf-v1-001-03-the-sut-language.html">SPEC-taf-v1-001-03 — the SUT language</a> <span class="muted">SPEC-taf-v1-001-03-the-sut-language</span></li></ul></section>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">3</span></h2><ul><li><a href="../research/RESEARCH-taf-v1-004-01-evaluation-and-implementation-deficiencies.html">Evaluation of project clarity, missing information, and implementation deficiencies</a> <span class="muted">RESEARCH-taf-v1-004-01-evaluation-and-implementation-deficiencies</span></li><li><a href="../plans/PLAN-taf-v1-001-01-tafbase.html">PLAN-taf-v1-001-01 — tafbase: a DSL First test automation framework</a> <span class="muted">PLAN-taf-v1-001-01-tafbase</span></li><li><a href="SPEC-taf-v1-001-03-the-sut-language.html">SPEC-taf-v1-001-03 — the SUT language</a> <span class="muted">SPEC-taf-v1-001-03-the-sut-language</span></li></ul></section>
 </main>
-<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">35</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-18 05:04 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

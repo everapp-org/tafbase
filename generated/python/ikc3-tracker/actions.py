@@ -35,7 +35,7 @@ def log_in_with_code(page, base_url, soft=None):
         taf_journal.note("click start-new-instead")
         elements.start_new_instead(page).click()
     except Exception:
-        pass  # maybe: the step did not apply
+        print("maybe: step skipped")
 
 def open_board(page, base_url, soft=None):
     taf_journal.note("→ open the ticket board")

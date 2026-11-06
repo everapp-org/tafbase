@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The dry run · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / concepts</div><h1 class="page-title" id="the-dry-run">The dry run <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-taf-v1-008-01-the-dry-run</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>taf</td></tr><tr><th>date</th><td>2026-10-27</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>source</th><td><code>concepts/CONCEPT-taf-v1-008-01-the-dry-run.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-27</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p><code>taf dry-run</code> reports a run without executing one. It prints three
+things: the tests a run would execute (the manifest&#39;s truth), the
+<code>TAF_*</code> contract as this shell sets it, and findings — <code>missing</code>,
+<code>off</code>, <code>note</code>, <code>ok</code>. Video unset is <code>off</code>: the run leaves no
+recording. A <code>compare-screen</code> step with no golden file is <code>missing</code>:
+the run fails on it. <code>--suite &lt;dir&gt;</code> adds the emitted suite to the
+check — a stale manifest names itself. <code>--probe</code> touches the network:
+the SUT answers or it does not.</p>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>A run that fails for a reason a person could have read beforehand
+spends a test cycle on a fact. The model loader&#39;s rule — report every
+reason, never die on the first — applies to a run&#39;s context too. The
+dry run is the report form of that rule; <code>requires:</code> (the preflight,
+<a class="wikilink" href="CONCEPT-taf-v1-005-01-the-preflight.html" title="The preflight">CONCEPT-taf-v1-005-01-the-preflight</a>) is the gate form. A report
+says &quot;video is off&quot;; a gate refuses to start.</p>
+<h2 id="in-this-project">In this project<a class="anchor" href="#in-this-project" aria-label="Link to this section">#</a></h2>
+<p><code>taf/dryrun.py</code> builds the report; <code>taf/__main__.py</code> wires the
+subcommand. Exit code is 0 always — the person decides, not the tool.
+Opt-in variables (<code>TAF_VIDEO</code>, <code>TAF_IKC3_WS</code>, <code>TAF_DEBUG</code>) report
+<code>off</code> when unset, not <code>missing</code> — an opt-in feature is not a defect.
+What the model <em>needs</em> reports <code>missing</code>: goldens, a stale suite, an
+unreachable SUT under <code>--probe</code>.</p>
+<h2 id="touch-it">Touch it<a class="anchor" href="#touch-it" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-bash">taf suts/ikc3-tracker.sut.model.json            # dry-run is the default command
+taf dry-run suts/ikc3-tracker.sut.model.json \
+    --suite generated/python/ikc3-tracker --probe
+taf dry-run suts/ikc3-tracker.sut.model.json --json
+</code></pre>
+<h2 id="neighbors">Neighbors<a class="anchor" href="#neighbors" aria-label="Link to this section">#</a></h2>
+<p><a class="wikilink" href="CONCEPT-taf-v1-005-01-the-preflight.html" title="The preflight">CONCEPT-taf-v1-005-01-the-preflight</a>,
+<a class="wikilink" href="CONCEPT-taf-v1-003-01-the-environment.html" title="The environment contract">CONCEPT-taf-v1-003-01-the-environment</a>,
+<a class="wikilink" href="CONCEPT-taf-v1-004-01-the-artifacts.html" title="The artifacts">CONCEPT-taf-v1-004-01-the-artifacts</a></p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">2</span></h2><ul><li><a href="CONCEPT-taf-v1-003-01-the-environment.html">The environment contract</a> <span class="muted">CONCEPT-taf-v1-003-01-the-environment</span></li><li><a href="CONCEPT-taf-v1-005-01-the-preflight.html">The preflight</a> <span class="muted">CONCEPT-taf-v1-005-01-the-preflight</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

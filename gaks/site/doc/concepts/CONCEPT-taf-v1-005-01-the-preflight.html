@@ -29,21 +29,30 @@ loader applies statically, applied to a run&#39;s prerequisites. A suite
 that knows its requirements stops spending test failures on
 infrastructure facts.</p>
 <h2 id="in-this-project">In this project<a class="anchor" href="#in-this-project" aria-label="Link to this section">#</a></h2>
-<p>Planned — lane L-12. The static analogue exists: <code>taf check</code>&#39;s refusals
-list every reason instead of dying on the first; <code>requires:</code> would be
-the run-time version of the same contract.</p>
+<p>Partly landed — lane L-12. The static analogue exists: <code>taf check</code>&#39;s
+refusals list every reason instead of dying on the first. The report
+form exists: <code>taf dry-run</code> names what a run lacks
+(<a class="wikilink" href="CONCEPT-taf-v1-008-01-the-dry-run.html" title="The dry run">CONCEPT-taf-v1-008-01-the-dry-run</a>). The gate form begins:
+<code>taf run</code> probes by default and refuses to start while a probe
+finding is missing — before a browser opens. <code>--no-probe</code> skips the
+gate entirely: probes never run, env needs warn instead of refusing.
+Still planned: <code>requires:</code> — the declared gate, the run-time version
+of the same contract.</p>
 <h2 id="touch-it">Touch it<a class="anchor" href="#touch-it" aria-label="Link to this section">#</a></h2>
 <pre><code class="language-bash">.venv/bin/python -m taf check suts/ikc3-tracker.sut.model.json
 # refusals — the static form of the same idea
+.venv/bin/python -m taf dry-run suts/ikc3-tracker.sut.model.json
+# findings — the report form
 </code></pre>
 <h2 id="neighbors">Neighbors<a class="anchor" href="#neighbors" aria-label="Link to this section">#</a></h2>
-<p><a class="wikilink" href="CONCEPT-taf-v1-002-01-the-result-sink.html" title="The result sink">CONCEPT-taf-v1-002-01-the-result-sink</a>,
+<p><a class="wikilink" href="CONCEPT-taf-v1-008-01-the-dry-run.html" title="The dry run">CONCEPT-taf-v1-008-01-the-dry-run</a>,
+<a class="wikilink" href="CONCEPT-taf-v1-002-01-the-result-sink.html" title="The result sink">CONCEPT-taf-v1-002-01-the-result-sink</a>,
 <a class="wikilink" href="CONCEPT-testing-v1-004-01-the-rerun.html" title="The rerun">CONCEPT-testing-v1-004-01-the-rerun</a> — a preflight failure shouldn&#39;t
 file 40 reports, it should file one.</p>
-</article><section class="backlinks"><h2>Mentioned in <span class="count">2</span></h2><ul><li><a href="../research/RESEARCH-taf-v1-003-01-the-harvest-in-detail.html">The harvest in detail — evidence appendix</a> <span class="muted">RESEARCH-taf-v1-003-01-the-harvest-in-detail</span></li><li><a href="CONCEPT-testing-v1-004-01-the-rerun.html">The rerun</a> <span class="muted">CONCEPT-testing-v1-004-01-the-rerun</span></li></ul></section>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">4</span></h2><ul><li><a href="CONCEPT-taf-v1-008-01-the-dry-run.html">The dry run</a> <span class="muted">CONCEPT-taf-v1-008-01-the-dry-run</span></li><li><a href="CONCEPT-dsl-v1-015-01-the-env-value.html">The env: value</a> <span class="muted">CONCEPT-dsl-v1-015-01-the-env-value</span></li><li><a href="../research/RESEARCH-taf-v1-003-01-the-harvest-in-detail.html">The harvest in detail — evidence appendix</a> <span class="muted">RESEARCH-taf-v1-003-01-the-harvest-in-detail</span></li><li><a href="CONCEPT-testing-v1-004-01-the-rerun.html">The rerun</a> <span class="muted">CONCEPT-testing-v1-004-01-the-rerun</span></li></ul></section>
 </main>
-<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">35</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">3</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">4</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
 </div>
-<footer class="foot">Built 2026-10-18 05:04 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
 </body>
 </html>

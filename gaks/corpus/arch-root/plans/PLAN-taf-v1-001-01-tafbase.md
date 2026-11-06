@@ -119,6 +119,18 @@ in ~4 s (T-taf-004, opt-in `TAF_LIVE=1`; `TAF_BASE_URL` retargets the
 emitted suites without regenerating). The `.ikc-dock-theme` markers and
 `?island=` routes verified as real. The filing half is lane C-3's.
 
+**Progress (2026-10-27).** The deployed tracker signs in: the model
+grew a `login` state and a `log-in` edge, and journeys start there.
+Credentials drove the `env:` value (CONCEPT-dsl-v1-015-01) — a `fill`
+of `env:NAME` reads the variable at run time, so the model names the
+need and never holds the secret. Needs are derived from use:
+`taf dry-run` reports an unset one `missing`, `taf run` refuses on it,
+`taf env` prints it as a fill-in line. SPEC gains the clause and the
+`:bad-env` refusal. One-time codes added `env-pool:` (a list spent in
+order) and `sut.auth` (CONCEPT-dsl-v1-016-01): sign in once per run,
+keep the session as storage state, every test's fresh context
+inherits it — isolation kept, one code per run.
+
 ### ▶ Lane TAF/PLAN-taf-v1-001-01/F-6 — the SUT graph (MBT)
 
 The model grows from journeys to a graph: states and transitions as data,
@@ -200,6 +212,20 @@ vocabulary replaces a 300-line runtime factory.
 `taf run --last-failed` replays a rerun manifest; `--debug` keeps the
 browser and breaks on failure; `requires:` declares suite preflight
 (mail server, service up) that fails fast.
+
+**Progress (2026-10-27).** `taf run` is the cycle in one command —
+check (the loader refuses), emit (a temp suite, or `--suite` for a
+committed one), execute (pytest; `mvn test` for `--lang java`); the
+exit code is the runner's and args after `--` reach it. The gate is
+on by default: a missing finding refuses before a browser opens —
+a dead SUT, an unset `env:` need (`--no-probe` skips the gate; needs
+warn, they do not refuse). The run profile is also inline —
+`--slowmo`, `--video`, `--headless`, `--sink`, `--debug`, `--rerun`,
+`--base-url`, `--results` set the `TAF_*` contract for the child, no
+shell exports needed. Around it: `taf dry-run` reports what a run
+would do and lacks (CONCEPT-taf-v1-008-01); `taf env` prints the
+`TAF_*` contract as export lines a console evals. Still open:
+`requires:` in the model, `--last-failed` as a `run` spelling.
 
 **Release note (draft)**
 - New: a failed run replays only its failures; a debug run pauses at the

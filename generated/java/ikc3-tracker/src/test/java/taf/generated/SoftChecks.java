@@ -3,6 +3,7 @@
 package taf.generated;
 
 // @concept CONCEPT-testing-v1-002-01-the-failure-funnel
+// @concept CONCEPT-qa-v1-007-01-hard-vs-soft-assertions
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 /** `soft` expects collect here instead of failing on the spot;
     the fixture flushes once at test end — the test still fails,
     but a run shows the whole damage, not the first hit only. */
-public class SoftChecks {
+public final class SoftChecks {
     public final List<String> failures = new ArrayList<>();
 
     public void check(String label, Runnable assertion) {

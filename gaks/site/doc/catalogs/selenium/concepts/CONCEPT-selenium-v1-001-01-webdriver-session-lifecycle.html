@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebDriver Session Lifecycle and Selenium Manager · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / selenium / concepts</div><h1 class="page-title" id="webdriver-session-lifecycle-and-selenium-manager">WebDriver Session Lifecycle and Selenium Manager <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-selenium-v1-001-01-webdriver-session-lifecycle</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>selenium</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>Selenium 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/selenium/concepts/CONCEPT-selenium-v1-001-01-webdriver-session-lifecycle.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-qa-v1-004-01-session-and-context-isolation</td></tr><tr><th>contrasts-with</th><td>CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>In the W3C WebDriver specification implemented by Selenium, a browser session corresponds to an independent browser instance controlled over HTTP via the W3C WebDriver wire protocol. </p>
+<p>Starting in Selenium 4.6+, <code>SeleniumManager</code> automatically resolves, downloads, and configures matching browser driver binaries (such as <code>chromedriver</code>, <code>geckodriver</code>, or <code>msedgedriver</code>) at runtime, removing the need for manual driver path setup or external managers.</p>
+<p>A session lifecycle follows three explicit phases:</p>
+<ol>
+<li><strong>Creation</strong>: <code>new ChromeDriver(options)</code> negotiates capabilities with the browser driver process and launches an OS browser process.</li>
+<li><strong>Interaction</strong>: Commands are dispatched as standard W3C HTTP wire protocol requests.</li>
+<li><strong>Termination</strong>: <code>driver.quit()</code> dispatches a <code>DELETE /session/{session_id}</code> command to kill the driver and close all associated browser windows and processes.</li>
+</ol>
+<pre><code class="language-java">import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+
+public class SessionLifecycleDemo {
+    public static void runTest() {
+        // SeleniumManager automatically locates and launches the matching driver binary
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments(&quot;--headless=new&quot;);
+        
+        WebDriver driver = new ChromeDriver(options);
+        try {
+            driver.get(&quot;https://app.example.com&quot;);
+            System.out.println(&quot;Page title: &quot; + driver.getTitle());
+        } finally {
+            // Explicitly terminates the W3C session and kills OS browser processes
+            driver.quit();
+        }
+    }
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-qa-v1-004-01-session-and-context-isolation</code>. Ensuring that test executions execute in pristine environments with isolated cookies and storage is essential for test independence.</p>
+<p>Contrasts with <code>CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy</code>. In Selenium, session isolation is tightly coupled to the OS process lifecycle: each <code>new ChromeDriver()</code> call spawns an entire browser process, which incurs significant CPU and memory overhead (often 1 to 3 seconds per test startup). In contrast, Playwright decouples the browser process from lightweight incognito <code>BrowserContext</code> instances, allowing fresh isolation in milliseconds without relaunching the host browser binary.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-004-01-session-and-context-isolation.html">Session and Context Isolation</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-004-01-session-and-context-isolation</span></li></ul><h3>Across languages &amp; tools <span class="count">7</span></h3><ul><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-016-01-the-auth-clause.html">The auth clause</a> <span class="muted">CONCEPT-dsl-v1-016-01-the-auth-clause</span></li><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle.html">Per-Method Test Instance Lifecycle and Fixtures</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-008-01-storage-state-reuse.html">Authenticated Storage State Snapshot and Reuse</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-008-01-storage-state-reuse</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy.html">Browser, BrowserContext, and Page Isolation Hierarchy</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-001-01-test-extend-fixtures.html">Typed Fixtures via test.extend</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-001-01-test-extend-fixtures</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-001-01-dependency-injected-fixtures.html">Dependency-Injected Fixtures and Scoped Lifecycles</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-001-01-dependency-injected-fixtures</span></li><li><span class="badge">selenium</span> <a href="CONCEPT-selenium-v1-010-01-remote-webdriver-and-grid.html">RemoteWebDriver and Distributed Selenium Grid</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-010-01-remote-webdriver-and-grid</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy.html">Browser, BrowserContext, and Page Isolation Hierarchy</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../../../research/RESEARCH-taf-v1-001-01-the-interview-surface.html">The interview surface</a> <span class="muted">RESEARCH-taf-v1-001-01-the-interview-surface</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hard Assertions, Soft Assertions, and Auto-Retrying Assertions · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / qa / concepts</div><h1 class="page-title" id="hard-assertions-soft-assertions-and-auto-retrying-assertions">Hard Assertions, Soft Assertions, and Auto-Retrying Assertions <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-qa-v1-007-01-hard-vs-soft-assertions</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>qa</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L1-archetype</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/qa/concepts/CONCEPT-qa-v1-007-01-hard-vs-soft-assertions.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-istqb-v1-012-01-test-oracle</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Automated test frameworks utilize three distinct assertion paradigms depending on execution context, criticality, and timing:</p>
+<ol>
+<li><strong>Hard Assertions</strong>: Standard assertions that throw an exception immediately upon the first condition failure, halting test execution instantly. Subsequent lines in the test case are never executed. Ideal for prerequisite validations where proceeding would be futile or cause cascading misleading errors.</li>
+<li><strong>Soft Assertions (Collected Assertions)</strong>: Assertions that record validation failures in a collector without aborting test execution immediately. The test continues executing subsequent assertions, and all accumulated discrepancies are reported together at the end of the test. Ideal for verifying complex multi-field forms, tables, or dashboards.</li>
+<li><strong>Auto-Retrying Web-First Assertions</strong>: Dynamic assertions designed for asynchronous user interfaces. Instead of checking a condition once at a fixed instant, they repeatedly re-evaluate the expectation against the live DOM until it passes or a configurable timeout expires (e.g., <code>expect(locator).to_have_text(...)</code>).</li>
+</ol>
+<pre><code class="language-python"># 1. Hard Assertion: Stop immediately if login failed
+assert page.get_by_role(&quot;heading&quot;, name=&quot;Dashboard&quot;).is_visible(), &quot;Dashboard failed to load&quot;
+
+# 2. Soft Assertion: Verify all user profile fields in one pass
+def test_user_profile_fields(page, soft_assert):
+    soft_assert.equal(page.get_by_test_id(&quot;first-name&quot;).input_value(), &quot;Jane&quot;)
+    soft_assert.equal(page.get_by_test_id(&quot;last-name&quot;).input_value(), &quot;Doe&quot;)
+    soft_assert.equal(page.get_by_test_id(&quot;email&quot;).input_value(), &quot;jane@example.com&quot;)
+    soft_assert.assert_all()  # Reports all mismatches at once
+
+# 3. Auto-Retrying Web-First Assertion: Polls DOM until async API response renders
+from playwright.sync_api import expect
+expect(page.get_by_test_id(&quot;notification-toast&quot;)).to_have_text(&quot;Profile Saved&quot;, timeout=5000)
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Matching the appropriate assertion paradigm to the verification task avoids common automation traps:</p>
+<ol>
+<li><strong>Avoiding the 1-Bug-Per-Run Feedback Loop</strong>: With hard assertions alone, verifying a form with 10 fields requires 10 full test runs if multiple fields are broken, because the test aborts on the first error. Soft assertions capture all 10 discrepancies in a single execution.</li>
+<li><strong>Eliminating Race Conditions in UI Tests</strong>: Checking <code>assert element.is_visible()</code> synchronously will fail if the front-end takes 50 milliseconds to finish rendering. Auto-retrying assertions eliminate timing race conditions by polling smoothly until the expected condition is met.</li>
+<li><strong>Failing Fast on Fatal Preconditions</strong>: Hard assertions remain essential when a failure renders further test steps meaningless (e.g., if navigating to the page resulted in a 500 Internal Server Error).</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-012-01-test-oracle.html">Test Oracle and Expected Result Determination</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-012-01-test-oracle</span></li></ul><h3>Across languages &amp; tools <span class="count">3</span></h3><ul><li><span class="badge">qa</span> <a href="CONCEPT-qa-v1-001-01-arrange-act-assert.html">Arrange-Act-Assert Pattern</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-001-01-arrange-act-assert</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-001-01-arrange-act-assert.html">Arrange–Act–Assert</a> <span class="muted">CONCEPT-testing-v1-001-01-arrange-act-assert</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-003-01-the-golden-file.html">The golden file</a> <span class="muted">CONCEPT-testing-v1-003-01-the-golden-file</span></li></ul><h3>Realized by <span class="count">6</span></h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-003-01-assertall-grouped-assertions.html">Grouped Soft Assertions via assertAll</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-003-01-assertall-grouped-assertions</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-004-01-web-first-assertions.html">Auto-Retrying Web-First Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-004-01-web-first-assertions</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-003-01-expect-soft-and-poll.html">Soft and Polling Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-003-01-expect-soft-and-poll</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-003-01-assert-introspection.html">Assert Statement AST Introspection</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-003-01-assert-introspection</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-004-01-one-shot-dom-assertions.html">One-Shot DOM Assertions</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-004-01-one-shot-dom-assertions</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-002-01-the-failure-funnel.html">The failure funnel</a> <span class="muted">CONCEPT-testing-v1-002-01-the-failure-funnel</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

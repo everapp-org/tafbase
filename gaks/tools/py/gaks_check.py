@@ -235,6 +235,10 @@ def validate_rules(rules):
         problems.append('"kinds" is not a list of {prefix, ...}')
     if not isinstance(rules.get('subprojects'), list):
         problems.append('"subprojects" is not a list')
+    if 'catalogs' in rules and (
+            not isinstance(rules['catalogs'], list)
+            or any(not isinstance(c, str) for c in rules['catalogs'])):
+        problems.append('"catalogs" is not a list of strings')
     ps = rules.get('page-states')
     if not isinstance(ps, dict) or 'words' not in ps or not _is_object(ps.get('words')):
         problems.append('"page-states" has no "words"')

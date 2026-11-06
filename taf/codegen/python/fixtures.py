@@ -16,7 +16,7 @@ def _auth_fixture(m):
     cls = _state_class(m["actions"][act]["from"])
     return '''
 # @concept CONCEPT-dsl-v1-016-01-the-auth-clause
-# @concept CONCEPT-playwright-v1-004-01-the-storage-state
+# @concept CONCEPT-playwright-v1-008-01-storage-state-reuse
 @pytest.fixture(scope="session")
 def auth_state(browser, base_url, run_dir):
     """One sign-in per run — the session kept as storage state; every
@@ -50,8 +50,10 @@ def auth_state(browser, base_url, run_dir):
 def _conftest(m):
     conf = _HEADER + '''"""Fixtures for the generated suite.
 
-@concept CONCEPT-pytest-v1-001-01-the-pytest-fixture
-@concept CONCEPT-playwright-v1-002-01-the-browser-context
+@concept CONCEPT-pytest-v1-001-01-dependency-injected-fixtures
+@concept CONCEPT-python-v1-006-01-pytest-yield-fixture
+@concept CONCEPT-python-v1-010-01-os-environ-get
+@concept CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy
 """
 
 import os

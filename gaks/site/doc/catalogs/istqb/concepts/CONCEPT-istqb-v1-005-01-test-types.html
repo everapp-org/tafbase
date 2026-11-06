@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test Types: Functional, Non-Functional, Black-Box, and White-Box · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / istqb / concepts</div><h1 class="page-title" id="test-types-functional-non-functional-black-box-and-white-box">Test Types: Functional, Non-Functional, Black-Box, and White-Box <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-istqb-v1-005-01-test-types</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>istqb</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L0-theory</td></tr><tr><th>since</th><td>CTFL 4.0</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/istqb/concepts/CONCEPT-istqb-v1-005-01-test-types.md</code></td></tr></table><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Test types characterize testing activities according to their specific quality objectives and basis of test derivation, as defined in CTFL v4.0 §2.2.2:</p>
+<ul>
+<li><strong>Functional Testing</strong>: Evaluates functions that the system performs (&quot;what&quot; the system does). Tests evaluate correctness, completeness, and appropriateness against functional specifications, user stories, and business requirements.</li>
+<li><strong>Non-Functional Testing</strong>: Evaluates quality characteristics of system behavior (&quot;how well&quot; the system does it). Categories include performance efficiency (load, stress, latency), security (vulnerability, authorization), reliability (fault tolerance, recoverability), usability, accessibility, and maintainability.</li>
+<li><strong>Black-Box Testing (Specification-Based)</strong>: Test design techniques derived from analyzing documentation, requirements, or behavior without knowledge of internal program structure or code implementation.</li>
+<li><strong>White-Box Testing (Structure-Based)</strong>: Test design techniques derived from analyzing internal code structure, architecture, statements, control-flow branches, and data flows.</li>
+</ul>
+<pre><code class="language-text">                     +----------------------------------------------+
+                     |                 Test Types                   |
+                     +----------------------------------------------+
+                                     /             \
+                       [Objective]  /               \  [Derivation]
+                                   v                 v
+           +-----------------------------+     +-----------------------------+
+           | Functional vs Non-Functional|     |   Black-Box vs White-Box    |
+           +-----------------------------+     +-----------------------------+
+           | Functional: &quot;What it does&quot;  |     | Black-Box: Spec-based,      |
+           |   - User journeys           |     |   internal code hidden      |
+           |   - Business rules          |     | White-Box: Structure-based, |
+           | Non-Functional: &quot;How well&quot;  |     |   statement &amp; branch paths  |
+           |   - Latency, load, security |     |                             |
+           +-----------------------------+     +-----------------------------+
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Test types provide a multi-dimensional taxonomy that prevents teams from over-indexing on simple functional happy-paths:</p>
+<ol>
+<li><strong>Orthogonal Coverage</strong>: A system may be 100% functionally correct according to black-box requirements while failing catastrophically under concurrent load (non-functional failure) or containing dead, unreachable code branches (white-box structural gap).</li>
+<li><strong>Technique Selection</strong>: Identifying whether a test is black-box or white-box dictates the applicable design techniques (e.g., Equivalence Partitioning and Boundary Value Analysis for black-box vs. Statement/Branch Coverage for white-box).</li>
+<li><strong>Comprehensive Quality Assurances</strong>: Production readiness requires verifying functional correctness, architectural execution paths, and operational performance metrics across every release.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realized by <span class="count">1</span></h3><ul><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-002-01-the-locator-ladder.html">The Locator Ladder</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-002-01-the-locator-ladder</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

@@ -6,6 +6,10 @@ authored: 2026-10-15
 authors:
   - George Petrov
   - Devin
+layer: L2-taf
+realizes:
+  - CONCEPT-istqb-v1-015-01-defect-lifecycle
+  - CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts
 ---
 
 # The result sink

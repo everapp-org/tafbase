@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generic Function Signatures and Type Predicates · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / ts / concepts</div><h1 class="page-title" id="generic-function-signatures-and-type-predicates">Generic Function Signatures and Type Predicates <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-ts-v1-009-01-generic-function-signature</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>ts</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>TypeScript 1.6</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/ts/concepts/CONCEPT-ts-v1-009-01-generic-function-signature.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-009-01-higher-order-function</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>In TypeScript, first-class callables and higher-order functions are typed using generic function signatures (<code>&lt;T, R&gt;(item: T) =&gt; R</code>) and user-defined type predicates (<code>x is SubType</code>). Generic signatures preserve input and output type relationships across functional transformations, while type predicate signatures allow higher-order filtering functions to narrow collection element types statically.</p>
+<pre><code class="language-ts">export function isNonNullable&lt;T&gt;(value: T): value is NonNullable&lt;T&gt; {
+  return value !== null &amp;&amp; value !== undefined;
+}
+
+export function compactList&lt;T&gt;(items: readonly (T | null | undefined)[]): T[] {
+  // Array.filter with type predicate narrows result type from (T | null | undefined)[] to T[]
+  return items.filter(isNonNullable);
+}
+
+export function memoize&lt;Args extends readonly unknown[], Result&gt;(
+  fn: (...args: Args) =&gt; Result
+): (...args: Args) =&gt; Result {
+  const cache = new Map&lt;string, Result&gt;();
+  return (...args: Args): Result =&gt; {
+    const key = JSON.stringify(args);
+    if (!cache.has(key)) {
+      cache.set(key, fn(...args));
+    }
+    return cache.get(key)!;
+  };
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Without generic signatures, higher-order functions must resort to <code>any</code> or loose base types, erasing specific argument and return types. Furthermore, standard filtering operations like removing <code>null</code> values from a list (<code>list.filter(x =&gt; x !== null)</code>) previously retained the nullable type, requiring unsafe casts (<code>as string[]</code>).</p>
+<p>Generic signatures and type predicates realize <code>CONCEPT-prog-v1-009-01-higher-order-function</code>:</p>
+<ol>
+<li><strong>Type propagation:</strong> The precise return type of a passed function flows seamlessly into the return type of the enclosing higher-order wrapper.</li>
+<li><strong>Static filtering narrowing:</strong> Type predicates (<code>x is T</code>) instruct the compiler that returning <code>true</code> guarantees the refined type for subsequent operations.</li>
+<li><strong>Flexible composition:</strong> Enables utility decorators, retry handlers, and memoization helpers without losing original parameter typings.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-009-01-higher-order-function.html">First-Class Callable and Higher-Order Function</a> <span class="muted">CONCEPT-prog-v1-009-01-higher-order-function</span></li></ul><h3>Across languages &amp; tools <span class="count">3</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-014-01-lambdas-and-method-references.html">Lambdas, Method References, and Functional Interfaces</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-014-01-lambdas-and-method-references</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-009-01-arrow-functions-and-closures.html">Arrow Functions and Lexical Closures</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-009-01-arrow-functions-and-closures</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-009-01-callable-and-protocol.html">Callable and Protocol Interfaces</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-009-01-callable-and-protocol</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

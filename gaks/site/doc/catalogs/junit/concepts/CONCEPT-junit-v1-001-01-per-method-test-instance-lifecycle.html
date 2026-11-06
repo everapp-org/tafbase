@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Per-Method Test Instance Lifecycle and Fixtures · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / junit / concepts</div><h1 class="page-title" id="per-method-test-instance-lifecycle-and-fixtures">Per-Method Test Instance Lifecycle and Fixtures <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>junit</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-tool</td></tr><tr><th>since</th><td>JUnit 5.10</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/junit/concepts/CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle.md</code></td></tr></table><details class="props-more"><summary>All properties (2 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-006-01-scoped-test-fixture, CONCEPT-qa-v1-004-01-session-and-context-isolation</td></tr><tr><th>contrasts-with</th><td>CONCEPT-pytest-v1-001-01-dependency-injected-fixtures, CONCEPT-pwtest-v1-001-01-test-extend-fixtures</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>JUnit Jupiter adheres by default to the <code>TestInstance.Lifecycle.PER_METHOD</code> lifecycle model. For every individual test method annotated with <code>@Test</code>, <code>@RepeatedTest</code>, or <code>@ParameterizedTest</code>, JUnit creates a brand new instance of the test class.</p>
+<p>Under this model:</p>
+<ul>
+<li>Instance fields are freshly instantiated for each test execution, eliminating mutable state leakage between methods.</li>
+<li><code>@BeforeEach</code> methods execute prior to each test method on the freshly constructed instance.</li>
+<li><code>@AfterEach</code> methods execute after each test method completes (even if the test throws an exception), guaranteeing teardown.</li>
+<li>Class-level setup (<code>@BeforeAll</code>, <code>@AfterAll</code>) requires <code>static</code> methods unless class-level lifecycle (<code>@TestInstance(Lifecycle.PER_CLASS)</code>) is explicitly declared.</li>
+</ul>
+<pre><code class="language-java">import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class CartServiceTest {
+
+    private CartService cartService; // Fresh reference created per test method
+
+    @BeforeEach
+    void setUp() {
+        cartService = new CartService();
+        cartService.initialize();
+    }
+
+    @AfterEach
+    void tearDown() {
+        cartService.clear();
+    }
+
+    @Test
+    void addsItemSuccessfully() {
+        cartService.addItem(&quot;item-1&quot;, 2);
+        assertEquals(2, cartService.getItemCount());
+    }
+
+    @Test
+    void startsWithZeroItems() {
+        // Safe from contamination: cartService is a brand new instance here
+        assertEquals(0, cartService.getItemCount());
+    }
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Realizes <code>CONCEPT-prog-v1-006-01-scoped-test-fixture</code> and <code>CONCEPT-qa-v1-004-01-session-and-context-isolation</code>. Reusing object state across multiple test methods is a primary cause of test order dependencies and intermittent test failures. Creating a distinct object instance per test method guarantees clean slate isolation.</p>
+<p>Contrasts with <code>CONCEPT-pytest-v1-001-01-dependency-injected-fixtures</code> and <code>CONCEPT-pwtest-v1-001-01-test-extend-fixtures</code>. In JUnit Jupiter, fixture scoping is tied directly to Java object orientation and method annotation lifecycles (<code>@BeforeEach</code>/<code>@AfterEach</code>). In contrast, pytest and Playwright Test use functional dependency injection where tests declare named fixtures as parameters, allowing arbitrary multi-level fixture composition without class hierarchy inheritance.</p>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-006-01-scoped-test-fixture.html">Scoped Test Fixture Lifecycle</a> <span class="muted">CONCEPT-prog-v1-006-01-scoped-test-fixture</span></li><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-004-01-session-and-context-isolation.html">Session and Context Isolation</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-004-01-session-and-context-isolation</span></li></ul><h3>Across languages &amp; tools <span class="count">12</span></h3><ul><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-016-01-the-auth-clause.html">The auth clause</a> <span class="muted">CONCEPT-dsl-v1-016-01-the-auth-clause</span></li><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-001-01-junit-lifecycle-annotations.html">JUnit 5 Lifecycle Annotations</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-001-01-junit-lifecycle-annotations</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-006-01-async-fixture-callback.html">Async Fixture Callback Lifecycle</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-006-01-async-fixture-callback</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-008-01-storage-state-reuse.html">Authenticated Storage State Snapshot and Reuse</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-008-01-storage-state-reuse</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy.html">Browser, BrowserContext, and Page Isolation Hierarchy</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-001-01-test-extend-fixtures.html">Typed Fixtures via test.extend</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-001-01-test-extend-fixtures</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-001-01-dependency-injected-fixtures.html">Dependency-Injected Fixtures and Scoped Lifecycles</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-001-01-dependency-injected-fixtures</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-006-01-pytest-yield-fixture.html">Pytest Yield Fixture</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-006-01-pytest-yield-fixture</span></li><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-004-01-session-and-context-isolation.html">Session and Context Isolation</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-004-01-session-and-context-isolation</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-010-01-remote-webdriver-and-grid.html">RemoteWebDriver and Distributed Selenium Grid</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-010-01-remote-webdriver-and-grid</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-001-01-webdriver-session-lifecycle.html">WebDriver Session Lifecycle and Selenium Manager</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-001-01-webdriver-session-lifecycle</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-006-01-typed-test-fixture-extension.html">Typed Test Fixture Extension</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-006-01-typed-test-fixture-extension</span></li></ul><h3>Contrasts with</h3><ul><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-001-01-dependency-injected-fixtures.html">Dependency-Injected Fixtures and Scoped Lifecycles</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-001-01-dependency-injected-fixtures</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-001-01-test-extend-fixtures.html">Typed Fixtures via test.extend</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-001-01-test-extend-fixtures</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

@@ -83,8 +83,9 @@ def test_unset_clears_every_var():
     unsets = [l.split()[1] for l in out.splitlines()
               if l.startswith("unset ")]
     assert set(unsets) == {"TAF_BASE_URL", "TAF_RESULTS", "TAF_HEADLESS",
-                           "TAF_SLOWMO", "TAF_VIDEO", "TAF_DEBUG",
-                           "TAF_RERUN", "TAF_IKC3_WS", "TAF_SUT_CODES"}
+                           "TAF_SLOWMO", "TAF_ARRIVE_MS", "TAF_VIDEO",
+                           "TAF_DEBUG", "TAF_RERUN", "TAF_IKC3_WS",
+                           "TAF_SUT_CODES"}
 
 
 # T-env-006 — fish gets its own spelling

@@ -104,13 +104,22 @@ def test_keep_preserves_the_emitted_suite(monkeypatch):
     shutil.rmtree(suite)
 
 
-# T-run-006 — --lang java calls mvn, not pytest
+# T-run-006 — --lang java calls mvn, not pytest; --lang ts/js calls npx playwright test
 def test_java_runs_mvn_test(monkeypatch):
     seen = {}
     monkeypatch.setattr(runner, "_exec", fake_exec(seen))
     runner.run(tracker(), env=dict(NEEDS), lang="java")
     cmd = seen["cmd"]
     assert cmd[0] == "mvn" and "pom.xml" in cmd[-2] and cmd[-1] == "test"
+
+
+def test_ts_and_js_run_playwright_test(monkeypatch):
+    for lang in ("ts", "js"):
+        seen = {}
+        monkeypatch.setattr(runner, "_exec", fake_exec(seen))
+        runner.run(tracker(), env=dict(NEEDS), lang=lang)
+        cmd = seen["cmd"]
+        assert cmd[:3] == ["npx", "playwright", "test"]
 
 
 # T-run-007 — the CLI splits at -- and forwards the runner args;

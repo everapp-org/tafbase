@@ -25,22 +25,38 @@ answers "where do I start?"
 
 ## The path
 
-1. What a test is → [[CONCEPT-testing-v1-001-01-arrange-act-assert]]
-2. Finding things on a page → [[CONCEPT-playwright-v1-001-01-the-locator-ladder]]
-3. Knowing where you are → the state marker (SPEC-taf-v1-001-04, `states`)
-4. The model → [[CONCEPT-dsl-v1-001-01-the-sut-model]]
-5. From model to suite → the emitter and the manifest (SPEC-taf-v1-001-04)
-6. Your own toolchain → [[CONCEPT-python-v1-002-01-the-virtual-environment]]
-7. pytest mechanics → [[CONCEPT-pytest-v1-001-01-the-pytest-fixture]]
-8. Playwright mechanics → [[CONCEPT-playwright-v1-002-01-the-browser-context]],
-   [[CONCEPT-playwright-v1-003-01-auto-waiting]]
-9. Organizing a suite → [[CONCEPT-pom-v1-001-01-the-page-object]]
-10. Configuring a run → [[CONCEPT-taf-v1-003-01-the-environment]]
-11. Closing the loop → [[CONCEPT-taf-v1-002-01-the-result-sink]]
-12. Java parity — what "equivalent suite" means →
-    [[CONCEPT-java-v1-001-01-the-junit-lifecycle]]
-13. The graph — walks, seeds, coverage →
-    [[CONCEPT-dsl-v1-002-01-the-seeded-walk]]
+1. Foundations of testing (ISTQB CTFL v4.0) → [[CONCEPT-istqb-v1-001-01-error-defect-failure]],
+   [[CONCEPT-istqb-v1-010-01-state-transition-testing]],
+   [[CONCEPT-istqb-v1-012-01-test-oracle]]
+2. What a test is → [[CONCEPT-qa-v1-001-01-arrange-act-assert]] &
+   [[CONCEPT-testing-v1-001-01-arrange-act-assert]]
+3. Finding things on a page → [[CONCEPT-qa-v1-002-01-the-locator-ladder]] &
+   [[CONCEPT-playwright-v1-002-01-semantic-locators]]
+4. Knowing where you are → the state marker (SPEC-taf-v1-001-04, `states`)
+5. The model → [[CONCEPT-dsl-v1-001-01-the-sut-model]]
+6. From model to suite → the emitter and the manifest (SPEC-taf-v1-001-04)
+7. Language archetypes → [[CONCEPT-prog-v1-001-01-immutable-data-carrier]],
+   [[CONCEPT-prog-v1-006-01-scoped-test-fixture]],
+   [[CONCEPT-prog-v1-010-01-external-environment-binding]]
+8. Python & pytest lane → [[CONCEPT-python-v1-001-01-frozen-dataclass]],
+   [[CONCEPT-pytest-v1-001-01-dependency-injected-fixtures]]
+9. Playwright mechanics → [[CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy]],
+   [[CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability]]
+10. Organizing a suite → [[CONCEPT-qa-v1-005-01-page-object-model]] &
+    [[CONCEPT-pom-v1-001-01-the-page-object]]
+11. Configuring a run → [[CONCEPT-taf-v1-003-01-the-environment]]
+12. Closing the loop → [[CONCEPT-taf-v1-002-01-the-result-sink]]
+13. Java 21++ & JUnit 5 lane →
+    [[CONCEPT-java-v1-001-01-junit-lifecycle-annotations]],
+    [[CONCEPT-java-v1-002-01-records]],
+    [[CONCEPT-java-v1-019-01-jspecify-and-nullaway]]
+14. TypeScript & JavaScript `@playwright/test` lanes →
+    [[CONCEPT-ts-v1-006-01-typed-test-fixture-extension]],
+    [[CONCEPT-js-v1-006-01-async-fixture-callback]],
+    [[CONCEPT-pwtest-v1-001-01-test-extend-fixtures]]
+15. The graph — walks, seeds, coverage →
+    [[CONCEPT-dsl-v1-002-01-the-seeded-walk]] &
+    [[CONCEPT-qa-v1-010-01-model-based-seeded-walk]]
 
 Every entry is a checked citation — the corpus checker refuses a link to
 a page that does not exist.

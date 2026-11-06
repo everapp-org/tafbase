@@ -1,7 +1,8 @@
 """The SUT model loader — lane TAF/PLAN-taf-v1-001-01/A-1.
 
 @concept CONCEPT-dsl-v1-001-01-the-sut-model
-@concept CONCEPT-playwright-v1-001-01-the-locator-ladder
+@concept CONCEPT-qa-v1-002-01-the-locator-ladder
+@concept CONCEPT-playwright-v1-002-01-semantic-locators
 @concept CONCEPT-dsl-v1-015-01-the-env-value
 
 Implements SPEC-taf-v1-001-04: loads a sut.model.json document, validates
@@ -11,19 +12,43 @@ emitters never see it. One form only — nothing is guessed.
 """
 
 import json
+import keyword
+import re
 
-# THE LOCATOR LADDER (CONCEPT-playwright-v1-001-01): a locator dict is valid when it
+from taf import ops
+
+# THE LOCATOR LADDER (CONCEPT-qa-v1-002-01): a locator dict is valid when it
 # carries at least one of these keys. Order is the preference; `css`/`xpath`
 # are the last-resort rung and flag the element `fragile` in the manifest.
 # Derived from taf/dsl/framework-spec.dsl — the validator is a spec
 # consumer like the emitters (SPEC-taf-v1-002-02).
 def _derive():
     from taf import spec as _s
-    return _s.rungs(), _s.forms()
+    return _s.rungs(), _s.forms(), set(_s.spec()["contract"]["refusals"])
 
-LOCATOR_RUNGS, STEP_FORMS = _derive()
+LOCATOR_RUNGS, STEP_FORMS, DECLARED_REFUSALS = _derive()
 
 REQUIRED_TOP = ("sut", "states", "journeys")
+
+_JAVA_JS_RESERVED = frozenset({
+    "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
+    "class", "const", "continue", "debugger", "default", "delete", "do",
+    "double", "else", "enum", "export", "extends", "false", "final", "finally",
+    "float", "for", "function", "goto", "if", "implements", "import", "in",
+    "instanceof", "int", "interface", "let", "long", "native", "new", "null",
+    "package", "private", "protected", "public", "return", "short", "static",
+    "strictfp", "super", "switch", "synchronized", "this", "throw", "throws",
+    "transient", "true", "try", "typeof", "var", "void", "volatile", "while",
+    "with", "yield",
+})
+
+
+def _valid_identifier(name):
+    if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]*", name):
+        return False
+    if keyword.iskeyword(ops.snake(name)) or ops.camel(name) in _JAVA_JS_RESERVED:
+        return False
+    return True
 
 
 class ModelRefusal(Exception):
@@ -31,6 +56,8 @@ class ModelRefusal(Exception):
 
 
 def _refusal(clause, reason, message):
+    if reason not in DECLARED_REFUSALS:
+        raise AssertionError("undeclared refusal reason: %s" % reason)
     return {"clause": clause, "reason": reason, "message": message}
 
 
@@ -181,6 +208,16 @@ def validate(doc):
     journeys = doc.get("journeys") or {}
     endpoints = doc.get("endpoints") or {}
 
+    for sec_name, sec_map in (("states", states), ("elements", elements),
+                              ("actions", actions), ("journeys", journeys),
+                              ("endpoints", endpoints)):
+        if isinstance(sec_map, dict):
+            for k in sec_map:
+                if not _valid_identifier(k):
+                    refusals.append(_refusal(
+                        f"{sec_name}.{k}", "bad-identifier",
+                        f"'{k}' is not a valid identifier"))
+
     if not states and not journeys:
         refusals.append(_refusal("document", "empty-model",
                                  "no states and no journeys: nothing to test"))
@@ -255,8 +292,28 @@ def validate(doc):
                 cursor = ato if ato is not None else cursor
                 if cursor is not None:
                     visited.add(cursor)
+                for inner in act.get("do") or []:
+                    if isinstance(inner, dict):
+                        nav = inner.get("navigate")
+                        if nav in states:
+                            visited.add(nav)
+                        wf = inner.get("wait-for")
+                        if isinstance(wf, dict) and wf.get("state") in states:
+                            visited.add(wf["state"])
             else:
                 _check_step(s, elements, states, endpoints, "%s.steps[%d]" % (clause, i), refusals)
+                if isinstance(s, dict):
+                    nav = s.get("navigate")
+                    if nav in states:
+                        cursor = nav
+                        visited.add(nav)
+                    wf = s.get("wait-for")
+                    if isinstance(wf, dict) and wf.get("state") in states:
+                        visited.add(wf["state"])
+        if fstate is not None and fstate in states and steps and cursor in states and cursor != fstate:
+            refusals.append(_refusal(
+                "%s.expect-final" % clause, "edge-gap",
+                "journey ends at state %r but expect-final names %r" % (cursor, fstate)))
 
     auth = sut.get("auth")
     if auth is not None:

@@ -2,22 +2,29 @@
 // edit the model and regenerate.
 package taf.generated;
 
-// @concept CONCEPT-java-v1-001-01-the-junit-lifecycle
-// @concept CONCEPT-playwright-v1-002-01-the-browser-context
+// @concept CONCEPT-java-v1-001-01-junit-lifecycle-annotations
+// @concept CONCEPT-java-v1-019-01-jspecify-and-nullaway
+// @concept CONCEPT-java-v1-025-01-files-readstring-and-writestring
+// @concept CONCEPT-junit-v1-004-01-testwatcher-failure-extension
+// @concept CONCEPT-playwright-v1-001-01-browser-context-page-hierarchy
 
 import com.microsoft.playwright.*;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.*;
 
-/** The fixture's Java face: one browser for the run, one fresh context
+/** The fixture's Java 21++ face: one browser for the run, one fresh context
     per test — isolation by construction. */
 public abstract class BaseTest {
     // @concept CONCEPT-taf-v1-003-01-the-environment
     protected static String baseUrl =
         System.getenv().getOrDefault("TAF_BASE_URL", "http://127.0.0.1:4856");
-    private static Playwright playwright;
-    private static Browser browser;
+    private static @Nullable Playwright playwright;
+    private static @Nullable Browser browser;
+    @SuppressWarnings("NullAway.Init")
     protected BrowserContext context;
+    @SuppressWarnings("NullAway.Init")
     protected Page page;
+    @SuppressWarnings("NullAway.Init")
     protected SoftChecks soft;
     private boolean failed;
     // @concept CONCEPT-testing-v1-004-01-the-rerun
@@ -26,11 +33,12 @@ public abstract class BaseTest {
 
     @BeforeAll
     static void launch() {
-        playwright = Playwright.create();
+        var pw = Playwright.create();
+        playwright = pw;
         // Headed by default — a learner should see the journey happen.
         // TAF_HEADLESS=1 for CI; TAF_SLOWMO=<ms> slows each action.
         boolean headless = "1".equals(System.getenv("TAF_HEADLESS"));
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+        browser = pw.chromium().launch(new BrowserType.LaunchOptions()
             .setHeadless(headless)
             .setSlowMo(Double.parseDouble(
                 System.getenv().getOrDefault("TAF_SLOWMO", "0"))));
@@ -47,7 +55,38 @@ public abstract class BaseTest {
     // @concept CONCEPT-taf-v1-004-01-the-artifacts
     protected static String runDir =
         System.getenv().getOrDefault("TAF_RESULTS", "results")
-        + "/" + new java.text.SimpleDateFormat("yyyyMMdd-HHmmss").format(new java.util.Date());
+        + "/" + java.time.LocalDateTime.now(java.time.ZoneId.systemDefault()).format(
+            java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+
+    @org.junit.jupiter.api.extension.RegisterExtension
+    final org.junit.jupiter.api.extension.ExecutionCondition rerunFilter =
+            ctx -> {
+        if (System.getenv("TAF_RERUN") == null || ctx.getTestMethod().isEmpty()) {
+            return org.junit.jupiter.api.extension.ConditionEvaluationResult.enabled("normal run");
+        }
+        var resultsRoot = java.nio.file.Paths.get(
+            System.getenv().getOrDefault("TAF_RESULTS", "results"));
+        if (!java.nio.file.Files.isDirectory(resultsRoot)) {
+            return org.junit.jupiter.api.extension.ConditionEvaluationResult.enabled("no prior results");
+        }
+        try (var stream = java.nio.file.Files.list(resultsRoot)) {
+            var latest = stream
+                .map(d -> d.resolve("failed.txt"))
+                .filter(java.nio.file.Files::isRegularFile)
+                .max(java.util.Comparator.comparing(p -> p.toString()));
+            if (latest.isPresent()) {
+                var keep = java.util.Set.of(
+                    java.nio.file.Files.readString(latest.get()).trim().split("\\s+"));
+                var display = ctx.getDisplayName();
+                var method = ctx.getTestMethod().get().getName();
+                if (!keep.contains(display) && !keep.contains(method)) {
+                    return org.junit.jupiter.api.extension.ConditionEvaluationResult.disabled(
+                        "TAF_RERUN: not in last failed.txt");
+                }
+            }
+        } catch (java.io.IOException ignored) { /* best-effort */ }
+        return org.junit.jupiter.api.extension.ConditionEvaluationResult.enabled("in failed.txt");
+    };
 
     @BeforeEach
     void fresh(org.junit.jupiter.api.TestInfo info) throws java.io.IOException {
@@ -55,10 +94,11 @@ public abstract class BaseTest {
         TafJournal.begin(runDir, info.getDisplayName());
         System.out.println("── " + info.getDisplayName() + " ──");
         var opts = new Browser.NewContextOptions()
-            .setStorageStatePath(java.nio.file.Paths.get(authState));
+            .setStorageStatePath(java.nio.file.Paths.get(java.util.Objects.requireNonNull(authState)));
         if (System.getenv("TAF_VIDEO") != null)
             opts.setRecordVideoDir(TafJournal.testDir());
-        context = browser.newContext(opts);
+        var b = java.util.Objects.requireNonNull(browser, "browser not initialized");
+        context = b.newContext(opts);
         page = context.newPage();
     }
 
@@ -105,7 +145,7 @@ public abstract class BaseTest {
                             .setPath(TafJournal.testDir().resolve("screenshot.png")));
                         java.nio.file.Files.writeString(
                             TafJournal.testDir().resolve("dom.html"), page.content());
-                    } catch (Exception ignored) { }
+                    } catch (Exception ignored) { /* best-effort */ }
                 }
                 TafJournal.event("fail", "\"test\": \""
                     + info.getDisplayName().replace("\"", "'") + "\"");
@@ -123,15 +163,22 @@ public abstract class BaseTest {
 
 
     // @concept CONCEPT-dsl-v1-016-01-the-auth-clause
-    // @concept CONCEPT-playwright-v1-004-01-the-storage-state
-    private static String authState;
+    // @concept CONCEPT-playwright-v1-008-01-storage-state-reuse
+    private static @Nullable String authState;
     static void signInOnce() {
-        var c = browser.newContext();
+        var b = java.util.Objects.requireNonNull(browser, "browser not initialized");
+        var c = b.newContext();
         var pg = c.newPage();
         try {
             new LoginPage(pg).gotoRoute(baseUrl);
             Actions.logInWithCode(pg, baseUrl, null);
         } catch (RuntimeException e) {
+            try {
+                var setupDir = java.nio.file.Paths.get(runDir, "setup");
+                java.nio.file.Files.createDirectories(setupDir);
+                java.nio.file.Files.writeString(setupDir.resolve("dom.html"), pg.content());
+                pg.screenshot(new Page.ScreenshotOptions().setPath(setupDir.resolve("screenshot.png")));
+            } catch (Exception ignored) { /* best-effort */ }
             if (System.getenv("TAF_DEBUG") != null) pg.pause();
             throw e;
         }
@@ -142,8 +189,8 @@ public abstract class BaseTest {
     }
     @AfterAll
     static void shutdown() throws java.io.IOException {
-        browser.close();
-        playwright.close();
+        if (browser != null) browser.close();
+        if (playwright != null) playwright.close();
         java.nio.file.Files.createDirectories(java.nio.file.Paths.get(runDir));
         java.nio.file.Files.writeString(
             java.nio.file.Paths.get(runDir, "failed.txt"),

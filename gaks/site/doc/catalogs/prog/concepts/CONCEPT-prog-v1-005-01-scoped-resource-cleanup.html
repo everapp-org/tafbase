@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scoped Deterministic Resource Cleanup · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / prog / concepts</div><h1 class="page-title" id="scoped-deterministic-resource-cleanup">Scoped Deterministic Resource Cleanup <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-prog-v1-005-01-scoped-resource-cleanup</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>prog</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L1-archetype</td></tr><tr><th>source</th><td><code>catalogs/prog/concepts/CONCEPT-prog-v1-005-01-scoped-resource-cleanup.md</code></td></tr></table><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Scoped deterministic resource cleanup binds the lifecycle of an external system handle (such as an open file descriptor, network socket, database transaction, or browser session) directly to the boundary of a lexical scope. When execution exits the scope—whether through normal completion, an early <code>return</code>, or an uncaught exception—the resource&#39;s registered disposal routine is guaranteed to execute immediately without relying on garbage collection.</p>
+<pre><code>scoped (val conn = DatabasePool.acquire()) {
+    conn.execute(&quot;UPDATE accounts SET active = true&quot;)
+} // conn.release() invoked deterministically upon leaving this block
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Garbage collectors manage memory allocations effectively, but they provide no timely guarantees for operating system handles, file locks, or network connections. Waiting for a finalizer or GC cycle to close a connection pool or socket leads to file descriptor exhaustion, deadlocks, and corrupted state under load.</p>
+<p>Deterministic scope cleanup resolves resource contention:</p>
+<ol>
+<li><strong>Guaranteed release under errors:</strong> Exceptions thrown during intermediate operations cannot leak acquired resources.</li>
+<li><strong>Predictable release timing:</strong> Resources are freed the moment they are no longer needed, minimizing lock durations and memory footprints.</li>
+<li><strong>Composability:</strong> Scopes can be nested or chained, ensuring cleanup occurs in reverse order of acquisition.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realized by <span class="count">4</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-012-01-try-with-resources-and-cleaner.html">Deterministic try-with-resources, AutoCloseable, and Cleaner</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-012-01-try-with-resources-and-cleaner</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-005-01-try-finally-and-explicit-resource-management.html">Try-Finally and Explicit Resource Management</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-005-01-try-finally-and-explicit-resource-management</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-005-01-context-manager.html">Python Context Manager</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-005-01-context-manager</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-005-01-using-disposable.html">Explicit Resource Management with Using and Disposable</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-005-01-using-disposable</span></li></ul><h3>Unlocks <span class="count">1</span></h3><ul><li><span class="badge">prog</span> <a href="CONCEPT-prog-v1-006-01-scoped-test-fixture.html">Scoped Test Fixture Lifecycle</a> <span class="muted">CONCEPT-prog-v1-006-01-scoped-test-fixture</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

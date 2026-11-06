@@ -1,7 +1,8 @@
 """taf record — drive a browser by hand, leave with model clauses.
 
 @concept CONCEPT-dsl-v1-001-01-the-sut-model
-@concept CONCEPT-playwright-v1-001-01-the-locator-ladder
+@concept CONCEPT-qa-v1-002-01-the-locator-ladder
+@concept CONCEPT-playwright-v1-002-01-semantic-locators
 
 The recorder drafts; the human declares. A headed browser opens at the
 SUT; every click and fill is caught, mapped to the locator ladder's

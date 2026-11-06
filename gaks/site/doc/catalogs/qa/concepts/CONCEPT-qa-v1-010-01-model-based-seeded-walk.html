@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model-Based Testing and Seeded Random State-Machine Walk · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / qa / concepts</div><h1 class="page-title" id="model-based-testing-and-seeded-random-state-machine-walk">Model-Based Testing and Seeded Random State-Machine Walk <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-qa-v1-010-01-model-based-seeded-walk</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>qa</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L1-archetype</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/qa/concepts/CONCEPT-qa-v1-010-01-model-based-seeded-walk.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-istqb-v1-010-01-state-transition-testing, CONCEPT-istqb-v1-003-01-seven-testing-principles</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Model-Based Testing (MBT) with Seeded Random State-Machine Walks is an automated test generation architecture where tests are derived automatically from a formal behavioral model of the system under test (such as a directed state machine or labeled transition graph).</p>
+<p>Instead of executing static, hand-written linear scripts, a test generator traverses the state graph using a pseudo-random walk algorithm initialized with a deterministic <strong>integer seed</strong>:</p>
+<ul>
+<li><strong>State Graph Model</strong>: Nodes represent system states and views; edges represent user actions, API calls, or events, annotated with preconditions, actions, and expected assertions.</li>
+<li><strong>Seeded Walk Engine</strong>: Given a fixed seed (e.g., <code>seed = 48291</code>), the generator computes a deterministic sequence of transitions across the model, asserting state invariants at each step.</li>
+<li><strong>Coverage Tracking</strong>: The engine records visited states, transitions, and combinations (0-switch, 1-switch coverage), terminating when coverage goals or step budgets are reached.</li>
+<li><strong>Deterministic Replay</strong>: If a walk encounters an assertion failure or crash at step 42, running the walk with the exact same seed (<code>--seed 48291</code>) reproduces the identical path and failure every time.</li>
+</ul>
+<pre><code class="language-text">               +--------------+   view_cart()   +-----------+
+      +------&gt; | CATALOG_VIEW | --------------&gt; | CART_VIEW |
+      |        +--------------+                 +-----------+
+      |               |                               |
+add_item()      search()                          checkout()
+      |               v                               v
+      +------- +--------------+                 +-----------+
+               | SEARCH_VIEW  |                 |  PAYMENT  |
+               +--------------+                 +-----------+
+                      ^                               |
+                      +------- [Seeded Random Walk] --+
+</code></pre>
+<pre><code class="language-python">import random
+
+class SeededModelWalker:
+    def __init__(self, model, seed: int):
+        self.model = model
+        self.rng = random.Random(seed)
+        self.path = []
+
+    def execute_walk(self, max_steps: int = 50):
+        current_state = self.model.initial_state()
+        for step in range(max_steps):
+            available_transitions = self.model.get_valid_transitions(current_state)
+            if not available_transitions:
+                break
+            # Deterministic selection based on seed RNG
+            chosen_transition = self.rng.choice(available_transitions)
+            self.path.append(chosen_transition.name)
+            current_state = chosen_transition.execute_and_verify()
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Seeded model walks solve the fundamental tension between exploring new paths and maintaining test determinism:</p>
+<ol>
+<li><strong>Defeating the Pesticide Paradox</strong>: Hand-written tests execute the exact same happy-path sequence on every run, missing subtle bugs triggered by unorthodox navigation flows (e.g., adding an item, searching, deleting an item, pressing back, then checking out). Seeded walks explore diverse, complex permutations that human authors rarely write.</li>
+<li><strong>Guaranteed 100% Reproducibility</strong>: Unlike unseeded chaos monkeys or naive fuzzers whose bugs are notoriously hard to reproduce, a seeded walk failure is 100% reproducible simply by passing the failing seed number.</li>
+<li><strong>High Return on Investment</strong>: Writing a single state machine model enables the generation of hundreds of unique test journeys and automated edge-case exploration with zero additional test authoring overhead.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-010-01-state-transition-testing.html">State Transition Testing</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-010-01-state-transition-testing</span></li><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-003-01-seven-testing-principles.html">The Seven Testing Principles</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-003-01-seven-testing-principles</span></li></ul><h3>Across languages &amp; tools <span class="count">2</span></h3><ul><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-002-01-the-seeded-walk.html">The seeded walk</a> <span class="muted">CONCEPT-dsl-v1-002-01-the-seeded-walk</span></li><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-001-01-the-sut-model.html">The SUT model</a> <span class="muted">CONCEPT-dsl-v1-001-01-the-sut-model</span></li></ul><h3>Realized by <span class="count">1</span></h3><ul><li><span class="badge">dsl</span> <a href="../../../concepts/CONCEPT-dsl-v1-002-01-the-seeded-walk.html">The seeded walk</a> <span class="muted">CONCEPT-dsl-v1-002-01-the-seeded-walk</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../../../concepts/CONCEPT-taf-v1-001-01-the-learning-path.html">The learning path</a> <span class="muted">CONCEPT-taf-v1-001-01-the-learning-path</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

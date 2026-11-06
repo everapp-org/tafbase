@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scoped Test Fixture Lifecycle · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / prog / concepts</div><h1 class="page-title" id="scoped-test-fixture-lifecycle">Scoped Test Fixture Lifecycle <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-prog-v1-006-01-scoped-test-fixture</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>prog</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L1-archetype</td></tr><tr><th>source</th><td><code>catalogs/prog/concepts/CONCEPT-prog-v1-006-01-scoped-test-fixture.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>requires</th><td>CONCEPT-prog-v1-005-01-scoped-resource-cleanup</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>A scoped test fixture provides a controlled, isolated execution environment for automated test cases. It encapsulates the prerequisite setup (such as seeding test databases, starting mock servers, or spinning up browser contexts) and couples it with guaranteed teardown logic executed when the test or suite boundary completes. Fixtures are composable and can be scoped hierarchically (per-suite, per-file, per-worker, or per-test).</p>
+<pre><code>fixture temporaryDirectory(): Directory {
+    setup:
+        val dir = Files.createTempDirectory(&quot;test-run&quot;)
+    yield dir
+    teardown:
+        Files.deleteRecursively(dir)
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Automated tests frequently suffer from test pollution, order-dependency, and flakiness when side effects from one test leak into subsequent tests. Manual setup and teardown methods (such as uncoordinated <code>beforeAll</code> / <code>afterAll</code> hooks) easily drift, skip cleanup on assertion failures, or accumulate global mutable state.</p>
+<p>Scoped test fixtures establish isolated, reproducible test runs:</p>
+<ol>
+<li><strong>Isolated environments:</strong> Each test receives pristine state, preventing cascading failures across test suites.</li>
+<li><strong>Deterministic teardown:</strong> Cleanup runs reliably even when assertions fail or unexpected timeouts occur.</li>
+<li><strong>Dependency injection:</strong> Tests declare only the fixtures they need as parameters, keeping tests concise and decoupled from infrastructure orchestration.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realized by <span class="count">8</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-001-01-junit-lifecycle-annotations.html">JUnit 5 Lifecycle Annotations</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-001-01-junit-lifecycle-annotations</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-006-01-async-fixture-callback.html">Async Fixture Callback Lifecycle</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-006-01-async-fixture-callback</span></li><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle.html">Per-Method Test Instance Lifecycle and Fixtures</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-001-01-test-extend-fixtures.html">Typed Fixtures via test.extend</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-001-01-test-extend-fixtures</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-001-01-dependency-injected-fixtures.html">Dependency-Injected Fixtures and Scoped Lifecycles</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-001-01-dependency-injected-fixtures</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-006-01-pytest-yield-fixture.html">Pytest Yield Fixture</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-006-01-pytest-yield-fixture</span></li><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-004-01-session-and-context-isolation.html">Session and Context Isolation</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-004-01-session-and-context-isolation</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-006-01-typed-test-fixture-extension.html">Typed Test Fixture Extension</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-006-01-typed-test-fixture-extension</span></li></ul><h3>Prerequisites</h3><ul><li><span class="badge">prog</span> <a href="CONCEPT-prog-v1-005-01-scoped-resource-cleanup.html">Scoped Deterministic Resource Cleanup</a> <span class="muted">CONCEPT-prog-v1-005-01-scoped-resource-cleanup</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../../../concepts/CONCEPT-taf-v1-001-01-the-learning-path.html">The learning path</a> <span class="muted">CONCEPT-taf-v1-001-01-the-learning-path</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frozen Array Literals and Read-Only Views · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / js / concepts</div><h1 class="page-title" id="frozen-array-literals-and-read-only-views">Frozen Array Literals and Read-Only Views <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-js-v1-008-01-frozen-array-and-map-set</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>js</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>ES2015</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/js/concepts/CONCEPT-js-v1-008-01-frozen-array-and-map-set.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-008-01-immutable-collection-literal</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>In JavaScript, immutable array collections are constructed by passing array literals to <code>Object.freeze([...])</code>. Freezing an array prevents adding elements (<code>push</code>, <code>unshift</code>), removing elements (<code>pop</code>, <code>shift</code>), splicing, or reassigning existing indices. For keyed collections (<code>Map</code> and <code>Set</code>), immutability is realized by wrapping instances in read-only proxy objects that throw errors when mutating methods (<code>set</code>, <code>delete</code>, <code>add</code>, <code>clear</code>) are invoked.</p>
+<pre><code class="language-js">export const HTTP_METHODS = Object.freeze([&#39;GET&#39;, &#39;POST&#39;, &#39;PUT&#39;, &#39;DELETE&#39;]);
+// HTTP_METHODS.push(&#39;PATCH&#39;); // Throws TypeError in strict mode
+
+export function createReadOnlySet(iterable) {
+  const innerSet = new Set(iterable);
+  return {
+    has: (item) =&gt; innerSet.has(item),
+    get size() { return innerSet.size; },
+    [Symbol.iterator]: () =&gt; innerSet.values(),
+  };
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Arrays and collections in JavaScript are mutable by default. Mutating methods like <code>sort()</code> and <code>reverse()</code> modify the calling array in place rather than returning a copy. When collections are shared as configuration sets or cached lookup lists, inadvertent in-place mutation causes unpredictable regressions.</p>
+<p>Frozen arrays and read-only views realize <code>CONCEPT-prog-v1-008-01-immutable-collection-literal</code>:</p>
+<ol>
+<li><strong>Mutation immunity:</strong> Prevents accidental modification of constant lookup tables and global configuration collections.</li>
+<li><strong>Safe sharing:</strong> Enables modules to return arrays directly without defensive copying (<code>[...items]</code>).</li>
+<li><strong>API clarity:</strong> Clearly communicates that a returned collection is unmodifiable and represents a fixed snapshot.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-008-01-immutable-collection-literal.html">Immutable Collection Literal</a> <span class="muted">CONCEPT-prog-v1-008-01-immutable-collection-literal</span></li></ul><h3>Across languages &amp; tools <span class="count">3</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-011-01-immutable-collection-factories.html">Unmodifiable Collection Factories</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-011-01-immutable-collection-factories</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-008-01-tuple-and-frozenset.html">Built-in Immutable Collections</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-008-01-tuple-and-frozenset</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-008-01-readonly-array-and-const-tuple.html">Readonly Collection Types and Const Tuples</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-008-01-readonly-array-and-const-tuple</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

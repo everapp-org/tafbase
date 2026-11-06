@@ -6,6 +6,10 @@ authored: 2026-10-14
 authors:
   - George Petrov
   - Devin
+layer: L2-taf
+realizes:
+  - CONCEPT-qa-v1-001-01-arrange-act-assert
+  - CONCEPT-istqb-v1-012-01-test-oracle
 ---
 
 # Arrange–Act–Assert

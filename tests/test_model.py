@@ -264,3 +264,20 @@ def test_load_raises_with_all_refusals():
         model.loads(json.dumps(bad))
     reasons = {r["reason"] for r in e.value.refusals}
     assert {"missing-field", "unknown-action", "unreachable"} <= reasons
+
+
+def test_bad_identifier_refuses_reserved_words_and_invalid_chars():
+    doc = minimal()
+    doc["elements"]["class"] = {"role": "button", "name": "Bad"}
+    doc["states"]["123-bad"] = {"marker": {"css": ".x"}}
+    rs = refusals_of(doc)
+    clauses = {r["clause"] for r in rs if r["reason"] == "bad-identifier"}
+    assert {"elements.class", "states.123-bad"} <= clauses
+
+
+def test_expect_final_mismatch_is_an_edge_gap():
+    doc = minimal()
+    doc["journeys"]["go"]["expect-final"] = {"state": "a"}
+    rs = refusals_of(doc)
+    assert any(r["reason"] == "edge-gap" and "expect-final" in r["clause"] for r in rs)
+

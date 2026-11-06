@@ -2,7 +2,8 @@
 # edit the model and regenerate.
 """Named locators, one function each — the locator ladder.
 
-@concept CONCEPT-playwright-v1-001-01-the-locator-ladder
+@concept CONCEPT-qa-v1-002-01-the-locator-ladder
+@concept CONCEPT-playwright-v1-002-01-semantic-locators
 """
 
 def handle(page):

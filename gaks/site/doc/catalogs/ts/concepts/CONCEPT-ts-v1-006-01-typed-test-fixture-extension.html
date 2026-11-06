@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typed Test Fixture Extension · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / ts / concepts</div><h1 class="page-title" id="typed-test-fixture-extension">Typed Test Fixture Extension <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-ts-v1-006-01-typed-test-fixture-extension</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>ts</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>TypeScript 4.5</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/ts/concepts/CONCEPT-ts-v1-006-01-typed-test-fixture-extension.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-006-01-scoped-test-fixture</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>In TypeScript test runners (such as <code>@playwright/test</code> and Vitest), test fixtures are strongly typed and extended using <code>test.extend&lt;MyFixtures&gt;()</code>. Each fixture definition provides setup and teardown by destructuring dependencies, performing setup actions, awaiting <code>use(fixtureValue)</code>, and executing teardown logic. The runner automatically infers fixture types and validates dependency graphs at compile time.</p>
+<pre><code class="language-ts">// Playwright Test / Modern TS fixture extension
+export interface TestContext {
+  tempDir: string;
+}
+
+// Extends base test runner with strongly typed fixtures:
+// export const test = baseTest.extend&lt;TestContext&gt;({
+//   tempDir: async ({}, use) =&gt; {
+//     const dir = await fs.promises.mkdtemp(&#39;/tmp/ts-&#39;);
+//     await use(dir);
+//     await fs.promises.rm(dir, { recursive: true, force: true });
+//   },
+// });
+</code></pre>
+<pre><code class="language-ts">export type FixtureFunction&lt;T&gt; = (use: (value: T) =&gt; Promise&lt;void&gt;) =&gt; Promise&lt;void&gt;;
+
+export async function withIsolatedContext&lt;T&gt;(resource: T, runTest: (ctx: T) =&gt; Promise&lt;void&gt;): Promise&lt;void&gt; {
+  console.log(&quot;Setting up typed test fixture&quot;);
+  try {
+    await runTest(resource);
+  } finally {
+    console.log(&quot;Tearing down typed test fixture&quot;);
+  }
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>In JavaScript test frameworks, passing mock objects or test state through <code>this</code> context or global hooks lacks type safety. Developers frequently misspell fixture property names or access uninitialized fixtures without the compiler catching the defect.</p>
+<p>Typed fixture extension realizes <code>CONCEPT-prog-v1-006-01-scoped-test-fixture</code>:</p>
+<ol>
+<li><strong>Compile-time auto-completion:</strong> Tests declare fixtures as destructured arguments, and TypeScript validates that every requested fixture exists and matches its expected type.</li>
+<li><strong>Deterministic execution graph:</strong> The runner resolves dependencies between fixtures automatically, setting up and tearing down resources in the correct dependency order.</li>
+<li><strong>Strict test isolation:</strong> Eliminates mutable test suite instances by injecting pristine, typed fixture instances into each test.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-006-01-scoped-test-fixture.html">Scoped Test Fixture Lifecycle</a> <span class="muted">CONCEPT-prog-v1-006-01-scoped-test-fixture</span></li></ul><h3>Across languages &amp; tools <span class="count">7</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-001-01-junit-lifecycle-annotations.html">JUnit 5 Lifecycle Annotations</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-001-01-junit-lifecycle-annotations</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-006-01-async-fixture-callback.html">Async Fixture Callback Lifecycle</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-006-01-async-fixture-callback</span></li><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle.html">Per-Method Test Instance Lifecycle and Fixtures</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-001-01-per-method-test-instance-lifecycle</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-001-01-test-extend-fixtures.html">Typed Fixtures via test.extend</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-001-01-test-extend-fixtures</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-001-01-dependency-injected-fixtures.html">Dependency-Injected Fixtures and Scoped Lifecycles</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-001-01-dependency-injected-fixtures</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-006-01-pytest-yield-fixture.html">Pytest Yield Fixture</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-006-01-pytest-yield-fixture</span></li><li><span class="badge">qa</span> <a href="../../qa/concepts/CONCEPT-qa-v1-004-01-session-and-context-isolation.html">Session and Context Isolation</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-004-01-session-and-context-isolation</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">2</span></h2><ul><li><a href="../../../research/RESEARCH-taf-v1-001-01-the-interview-surface.html">The interview surface</a> <span class="muted">RESEARCH-taf-v1-001-01-the-interview-surface</span></li><li><a href="../../../concepts/CONCEPT-taf-v1-001-01-the-learning-path.html">The learning path</a> <span class="muted">CONCEPT-taf-v1-001-01-the-learning-path</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

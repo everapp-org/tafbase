@@ -6,6 +6,10 @@ authored: 2026-10-16
 authors:
   - George Petrov
   - Devin
+layer: L2-taf
+realizes:
+  - CONCEPT-qa-v1-008-01-failure-funnel-and-artifacts
+  - CONCEPT-qa-v1-007-01-hard-vs-soft-assertions
 ---
 
 # The failure funnel

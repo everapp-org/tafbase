@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The env: value · tafbase</title>
+<link rel="stylesheet" href="../../assets/site.css">
+<script src="../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../index.html">Home</a><a href="../../tree.html">Tree</a><a href="../../decisions.html">Decisions</a><a href="../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../tree.html">Tree</a> / concepts</div><h1 class="page-title" id="the-env-value">The env: value <span class="badge state-draft" title="draft">draft</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-dsl-v1-015-01-the-env-value</td></tr><tr><th>status</th><td>draft <span class="badge state-draft" title="draft">draft</span></td></tr><tr><th>subproject</th><td>dsl</td></tr><tr><th>date</th><td>2026-10-27</td></tr><tr><th>authors</th><td>George Petrov, Devin</td></tr><tr><th>kind</th><td><a href="../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>source</th><td><code>concepts/CONCEPT-dsl-v1-015-01-the-env-value.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>authored</th><td>2026-10-27</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>A <code>fill</code> value of the form <code>env:NAME</code> is a need, not a literal: the
+emitted code reads the variable <code>NAME</code> at run time. The model carries
+the name; the environment carries the value. Python spells it
+<code>os.environ[&quot;NAME&quot;]</code>, Java
+<code>Objects.requireNonNull(System.getenv(&quot;NAME&quot;), …)</code> — same clause,
+each language&#39;s own reading.</p>
+<pre><code class="language-json">{&quot;fill&quot;: {&quot;element&quot;: &quot;secret&quot;, &quot;value&quot;: &quot;env:TAF_SUT_SECRET&quot;}}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>A credential in a model is a credential in the repository — the model
+is committed, diffed, and emitted twice. <code>env:</code> is how the model
+declares <em>that</em> a run needs a value without holding <em>what</em> it is.
+<code>taf model.env_needs</code> collects every need, so <code>taf dry-run</code> reports an
+unset one as <code>missing</code>, <code>taf run</code> refuses on it before a browser
+opens, and <code>taf env</code> prints it as a fill-in line — the need surfaces
+everywhere a run is prepared, while the secret stays in the shell.</p>
+<h2 id="in-this-project">In this project<a class="anchor" href="#in-this-project" aria-label="Link to this section">#</a></h2>
+<p><code>model.env_needs(m)</code> in <code>taf/model.py</code> is the single scan the
+emitters, the dry run, and the gate all use — one definition of
+&quot;needed&quot;, many readers. The tracker&#39;s sign-in uses it:
+<code>suts/ikc3-tracker.sut.model.json</code> fills <code>handle</code> and <code>secret</code> from
+<code>env:TAF_SUT_HANDLE</code> / <code>env:TAF_SUT_SECRET</code>.</p>
+<h2 id="touch-it">Touch it<a class="anchor" href="#touch-it" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-bash">export TAF_SUT_HANDLE=ada TAF_SUT_SECRET=…
+taf suts/ikc3-tracker.sut.model.json          # env needs → ok
+taf env suts/ikc3-tracker.sut.model.json      # needs → fill-in lines
+</code></pre>
+<h2 id="neighbors">Neighbors<a class="anchor" href="#neighbors" aria-label="Link to this section">#</a></h2>
+<p><a class="wikilink" href="CONCEPT-taf-v1-003-01-the-environment.html" title="The environment contract">CONCEPT-taf-v1-003-01-the-environment</a> — the contract the value
+travels in. <a class="wikilink" href="CONCEPT-dsl-v1-014-01-the-two-inputs.html" title="The two inputs — declared and derived">CONCEPT-dsl-v1-014-01-the-two-inputs</a> — env: is a third
+voice in the same choir: neither declared data nor derived, but
+needed. <a class="wikilink" href="CONCEPT-taf-v1-005-01-the-preflight.html" title="The preflight">CONCEPT-taf-v1-005-01-the-preflight</a> — a need unset is a
+gate&#39;s first finding.</p>
+</article><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="CONCEPT-dsl-v1-016-01-the-auth-clause.html">The auth clause</a> <span class="muted">CONCEPT-dsl-v1-016-01-the-auth-clause</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

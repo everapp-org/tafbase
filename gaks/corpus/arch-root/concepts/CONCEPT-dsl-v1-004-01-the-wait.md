@@ -6,6 +6,9 @@ authored: 2026-10-16
 authors:
   - George Petrov
   - Devin
+layer: L2-dsl
+realizes:
+  - CONCEPT-qa-v1-003-01-synchronization-and-actionability
 ---
 
 # The wait
@@ -45,5 +48,5 @@ Add `{"wait-for": {"state": "tot"}}` to a `do` list and run
 
 ## Neighbors
 
-[[CONCEPT-playwright-v1-003-01-auto-waiting]] (the mechanism),
+[[CONCEPT-playwright-v1-003-01-auto-waiting-and-actionability]] (the mechanism),
 [[CONCEPT-dsl-v1-003-01-the-dwell]] (observation, not correctness).

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deterministic Execution, Flakiness Quarantine, and Retry Discipline · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / qa / concepts</div><h1 class="page-title" id="deterministic-execution-flakiness-quarantine-and-retry-discipline">Deterministic Execution, Flakiness Quarantine, and Retry Discipline <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>qa</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L1-archetype</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/qa/concepts/CONCEPT-qa-v1-009-01-deterministic-replay-and-flakiness.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-istqb-v1-013-01-confirmation-vs-regression-testing</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Deterministic Execution, Flakiness Quarantine, and Retry Discipline is a reliability governance architecture designed to eliminate intermittent non-deterministic test results (&quot;flakiness&quot;) and maintain developer trust in automated test suites:</p>
+<ol>
+<li><strong>Deterministic Execution</strong>: Designing tests and test environments such that given the exact same source code commit, the test produces the identical pass or fail outcome 100% of the time. Non-deterministic sources (random data, system clock/timezones, animation timers, network latency, unordered async events) are mocked, seeded, or explicitly synchronized.</li>
+<li><strong>Strict Retry Discipline</strong>: Automated test retries (e.g., retrying a failing test up to 2 times in CI) are used solely as a temporary operational shock-absorber for deployment pipelines. A test that passes on retry is explicitly flagged as <strong>Flaky</strong> in telemetry, not as a normal clean pass. Retries must never be used to mask or normalize defects.</li>
+<li><strong>Flakiness Quarantine</strong>: Any test exhibiting non-deterministic behavior above a strict threshold is automatically or immediately moved into a non-blocking Quarantine suite. The test continues running to collect diagnostic data, but cannot block pull request merges until its root cause is diagnosed, fixed, and verified over multiple consecutive clean runs.</li>
+</ol>
+<pre><code class="language-text">Test Fails on Run 1
+        |
+        v
+[ Retry Execution (Run 2) ]
+        |
+        +---- Passes? ----&gt; Mark as FLAKY (Record Metric, Alert Team)
+        |                   --&gt; If Flakiness &gt; 2%: Move to Quarantine Suite
+        |
+        +---- Fails?  ----&gt; Mark as TRUE FAILURE (Block PR)
+</code></pre>
+<pre><code class="language-python"># Flaky test quarantined out of the blocking PR pipeline
+import pytest
+
+@pytest.mark.quarantine(reason=&quot;Flaky race condition on payment webhook, DEF-1082&quot;)
+def test_async_webhook_payment_confirmation(page):
+    page.goto(&quot;/checkout&quot;)
+    # ...
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Test flakiness is toxic to engineering organizations:</p>
+<ol>
+<li><strong>The &quot;Cry Wolf&quot; Effect</strong>: When automated tests fail intermittently due to flakiness, engineers begin ignoring CI test failures and re-running failed builds repeatedly, eventually allowing real defects and regressions into production.</li>
+<li><strong>Protecting CI Velocity</strong>: Quarantining flaky tests protects pull request throughput and prevents blocked developer pipelines while investigations proceed.</li>
+<li><strong>Accountability via Telemetry</strong>: Treating flakiness as a defect with dedicated metrics ensures that timing issues, unhandled asynchronous events, and fragile locators receive engineering attention rather than being swept under the rug of blind retries.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">istqb</span> <a href="../../istqb/concepts/CONCEPT-istqb-v1-013-01-confirmation-vs-regression-testing.html">Confirmation Testing vs. Regression Testing</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-istqb-v1-013-01-confirmation-vs-regression-testing</span></li></ul><h3>Across languages &amp; tools <span class="count">5</span></h3><ul><li><span class="badge">junit</span> <a href="../../junit/concepts/CONCEPT-junit-v1-005-01-tag-filtering-and-parallel-execution.html">Tag Filtering and Parallel Execution</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-junit-v1-005-01-tag-filtering-and-parallel-execution</span></li><li><span class="badge">pwtest</span> <a href="../../pwtest/concepts/CONCEPT-pwtest-v1-005-01-projects-matrix-and-sharding.html">Multi-Project Matrix and Worker Sharding</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pwtest-v1-005-01-projects-matrix-and-sharding</span></li><li><span class="badge">pytest</span> <a href="../../pytest/concepts/CONCEPT-pytest-v1-005-01-markers-and-xdist-parallelism.html">Markers and xdist Worker Parallelism</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-pytest-v1-005-01-markers-and-xdist-parallelism</span></li><li><span class="badge">qa</span> <a href="CONCEPT-qa-v1-004-01-session-and-context-isolation.html">Session and Context Isolation</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-qa-v1-004-01-session-and-context-isolation</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-004-01-the-rerun.html">The rerun</a> <span class="muted">CONCEPT-testing-v1-004-01-the-rerun</span></li></ul><h3>Realized by <span class="count">4</span></h3><ul><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-010-01-clock-and-deterministic-time.html">Deterministic Browser Clock Control</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-010-01-clock-and-deterministic-time</span></li><li><span class="badge">playwright</span> <a href="../../playwright/concepts/CONCEPT-playwright-v1-007-01-network-interception-route.html">Network Interception and Route Mocking</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-playwright-v1-007-01-network-interception-route</span></li><li><span class="badge">selenium</span> <a href="../../selenium/concepts/CONCEPT-selenium-v1-007-01-bidi-network-interception.html">W3C WebDriver BiDi Network Interception</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-selenium-v1-007-01-bidi-network-interception</span></li><li><span class="badge">testing</span> <a href="../../../concepts/CONCEPT-testing-v1-004-01-the-rerun.html">The rerun</a> <span class="muted">CONCEPT-testing-v1-004-01-the-rerun</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../../../research/RESEARCH-taf-v1-001-01-the-interview-surface.html">The interview surface</a> <span class="muted">RESEARCH-taf-v1-001-01-the-interview-surface</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

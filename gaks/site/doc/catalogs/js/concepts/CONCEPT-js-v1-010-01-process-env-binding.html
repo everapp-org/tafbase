@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Process Environment Binding with Nullish Fallback · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / js / concepts</div><h1 class="page-title" id="process-environment-binding-with-nullish-fallback">Process Environment Binding with Nullish Fallback <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-js-v1-010-01-process-env-binding</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>js</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L2-language</td></tr><tr><th>since</th><td>Node 18</td></tr><tr><th>standing</th><td><span class="badge">recommended</span></td></tr><tr><th>source</th><td><code>catalogs/js/concepts/CONCEPT-js-v1-010-01-process-env-binding.md</code></td></tr></table><details class="props-more"><summary>All properties (1 more)</summary><table class="props"><tr><th>realizes</th><td>CONCEPT-prog-v1-010-01-external-environment-binding</td></tr></table></details><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>In Node.js and modern JavaScript server runtimes, environment variables are exposed via the global <code>process.env</code> object. Configuration binding combines <code>process.env</code> lookups with the nullish coalescing operator (<code>??</code>) to provide explicit defaults, convert strings to numeric or boolean types, and freeze the resulting configuration object at module initialization.</p>
+<pre><code class="language-js">export function loadServerConfig(env = process.env) {
+  const port = parseInt(env.PORT ?? &#39;3000&#39;, 10);
+  const nodeEnv = env.NODE_ENV ?? &#39;development&#39;;
+  const apiTimeout = parseInt(env.API_TIMEOUT_MS ?? &#39;5000&#39;, 10);
+
+  if (Number.isNaN(port)) {
+    throw new TypeError(`Invalid PORT environment variable: ${env.PORT}`);
+  }
+
+  return Object.freeze({ port, nodeEnv, apiTimeout });
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Directly accessing <code>process.env</code> in business logic leads to fragmented defaults, hidden type conversions (since all <code>process.env</code> properties are strings), and missed validation errors. An invalid port string like <code>&quot;abc&quot;</code> would fail deep within server startup rather than during initial config parsing.</p>
+<p>Centralized <code>process.env</code> binding realizes <code>CONCEPT-prog-v1-010-01-external-environment-binding</code>:</p>
+<ol>
+<li><strong>Type coercion and validation:</strong> Converts raw strings into validated numbers and booleans with immediate error checking.</li>
+<li><strong>Deterministic defaults:</strong> Provides fallback values for local developer machines while respecting deployment overrides.</li>
+<li><strong>Immutable settings:</strong> Freezing the configuration object ensures runtime modules cannot tamper with global application settings.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realizes</h3><ul><li><span class="badge">prog</span> <a href="../../prog/concepts/CONCEPT-prog-v1-010-01-external-environment-binding.html">External Environment Binding</a> <span class="muted">CONCEPT-prog-v1-010-01-external-environment-binding</span></li></ul><h3>Across languages &amp; tools <span class="count">4</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-031-01-system-getenv-binding.html">Environment Variable Binding via System.getenv</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-031-01-system-getenv-binding</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-010-01-os-environ-get.html">Environment Lookup with Fallback</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-010-01-os-environ-get</span></li><li><span class="badge">taf</span> <a href="../../../concepts/CONCEPT-taf-v1-003-01-the-environment.html">The environment contract</a> <span class="muted">CONCEPT-taf-v1-003-01-the-environment</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-010-01-typed-env-config.html">Validated Environment Configuration Binding</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-010-01-typed-env-config</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">1</span></h2><ul><li><a href="../../../concepts/CONCEPT-taf-v1-003-01-the-environment.html">The environment contract</a> <span class="muted">CONCEPT-taf-v1-003-01-the-environment</span></li></ul></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>

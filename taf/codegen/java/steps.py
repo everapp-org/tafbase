@@ -38,7 +38,7 @@ def _emit_step(step, endpoints, pad):
     if form != "maybe":
         # every step captions itself — narration rides the .srt
         return ([f'{pad}try {{ TafJournal.note({_q(_caption(form, arg))}); }}'
-                 f' catch (java.io.IOException ignored) {{}}'] +
+                 f' catch (java.io.IOException ignored) {{ /* best-effort */ }}'] +
                 _emit_step_body(step, endpoints, pad))
     return _emit_step_body(step, endpoints, pad)
 

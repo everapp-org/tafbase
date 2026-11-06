@@ -1,10 +1,12 @@
 """The §3.5 coverage gate — every coordinate in taf/dsl/framework-spec.dsl
-is pinned by an emission in BOTH languages. A form or rung that no
-emitter can spell fails here, not in a generated file."""
+is pinned by an emission in ALL FOUR languages (Python, Java, TS, JS).
+A form or rung that any emitter cannot spell fails here, not in a generated file."""
 
 from taf import spec
 from taf.codegen.java import steps as jsteps, common as jcommon
 from taf.codegen.python import steps as psteps, common as pcommon
+from taf.codegen.ts import steps as tsteps, common as tcommon
+from taf.codegen.js import steps as jssteps, common as jscommon
 
 
 ELEMENTS = {"code": {"css": "#code-in"}, "go": {"role": "button",
@@ -48,7 +50,7 @@ LOCS = [
 ]
 
 
-def test_every_form_emits_in_both_languages():
+def test_every_form_emits_in_all_four_languages():
     vocab = spec.forms()
     covered = set()
     for step in STEPS:
@@ -57,26 +59,29 @@ def test_every_form_emits_in_both_languages():
         assert form in vocab, "a tested form missing from the spec: %s" % form
         jl = jsteps._emit_step(step, ENDPOINTS, "    ")
         pl = psteps._emit_step(step, STATES, ENDPOINTS, "    ")
-        assert not any("unsupported step" in l for l in jl + pl), \
-            "unspellable form %s: %r" % (form, jl + pl)
+        tl = tsteps._emit_step(step, STATES, ENDPOINTS, "    ")
+        jsl = jssteps._emit_step(step, STATES, ENDPOINTS, "    ")
+        all_lines = jl + pl + tl + jsl
+        assert not any("unsupported step" in l for l in all_lines), \
+            "unspellable form %s: %r" % (form, all_lines)
     assert set(vocab) == covered, \
         "spec forms with no coverage: %s" % (set(vocab) - covered)
 
 
-def test_every_rung_emits_in_both_languages():
+def test_every_rung_emits_in_all_four_languages():
     rungs = spec.rungs()
     covered = set()
     for loc in LOCS:
         rung = next(iter(loc))
         covered.add(rung)
         assert rung in rungs, "a tested rung missing from the spec: %s" % rung
-        assert "page." in jcommon._loc(loc)
-        assert "page." in pcommon._loc(loc)
+        for cm in (jcommon, pcommon, tcommon, jscommon):
+            assert "page." in cm._loc(loc)
     assert set(rungs) == covered, \
         "spec rungs with no coverage: %s" % (set(rungs) - covered)
 
 
-def test_css_quotes_escape_in_both_languages():
+def test_css_quotes_escape_in_all_four_languages():
     loc = {"css": '[data-import-id="top-bar/report-a-fault"]'}
-    assert '\\"' in jcommon._loc(loc)
-    assert '\\"' in pcommon._loc(loc)
+    for cm in (jcommon, pcommon, tcommon, jscommon):
+        assert '\\"' in cm._loc(loc)

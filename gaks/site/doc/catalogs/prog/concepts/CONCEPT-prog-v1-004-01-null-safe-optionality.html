@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Null-Safe Optionality · tafbase</title>
+<link rel="stylesheet" href="../../../../assets/site.css">
+<script src="../../../../assets/site.js" defer></script>
+</head>
+<body>
+<header class="top">
+<a class="brand" href="../../../../index.html">tafbase</a>
+<nav class="topnav"><a href="../../../../index.html">Home</a><a href="../../../../tree.html">Tree</a><a href="../../../../decisions.html">Decisions</a><a href="../../../../checks.html">Checks</a></nav>
+<form class="topsearch" action="../../../../search.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search the corpus"></form>
+</header>
+<div class="shell">
+<main class="main">
+<div class="crumbs"><a href="../../../../tree.html">Tree</a> / catalogs / prog / concepts</div><h1 class="page-title" id="null-safe-optionality">Null-Safe Optionality <span class="badge state-accepted" title="accepted">accepted</span></h1><table class="props"><tr><th>id</th><td>CONCEPT-prog-v1-004-01-null-safe-optionality</td></tr><tr><th>status</th><td>accepted <span class="badge state-accepted" title="accepted">accepted</span></td></tr><tr><th>subproject</th><td>prog</td></tr><tr><th>kind</th><td><a href="../../../../reports/CONCEPT.html">Concept</a></td></tr><tr><th>layer</th><td>L1-archetype</td></tr><tr><th>source</th><td><code>catalogs/prog/concepts/CONCEPT-prog-v1-004-01-null-safe-optionality.md</code></td></tr></table><article class="doc"><h2 id="definition">Definition<a class="anchor" href="#definition" aria-label="Link to this section">#</a></h2>
+<p>Null-safe optionality is a type system discipline where references are non-nullable by default. The possibility of absence must be explicitly expressed in the type declaration (such as <code>T | Null</code> or <code>Optional&lt;T&gt;</code>). Dereferencing an optional value without checking for existence or using null-safe traversal (such as optional chaining and nullish coalescing) is treated as a static error.</p>
+<pre><code>function getHostPort(config: ServerConfig?): Int {
+    val port = config?.network?.port ?? 8080
+    return port
+}
+</code></pre>
+<h2 id="why-it-exists">Why it exists<a class="anchor" href="#why-it-exists" aria-label="Link to this section">#</a></h2>
+<p>Unchecked null references represent one of the most prolific causes of production outages. When any reference can invisibly be <code>null</code>, every layer of code either performs redundant defensive checks or risks unexpected null pointer dereferences deep within execution stacks.</p>
+<p>Null-safe optionality brings structural predictability to absent data:</p>
+<ol>
+<li><strong>Explicit API contracts:</strong> Callers immediately recognize whether an operation can legitimately yield nothing, without relying on ambiguous docstrings.</li>
+<li><strong>Elimination of defensive boilerplate:</strong> Because non-optional references are guaranteed present by construction, intermediate domain services do not need repetitive validation checks.</li>
+<li><strong>Safe composition:</strong> Safe navigation operators (<code>?.</code>) and fallback coalescing (<code>??</code>) allow concise traversal of nested optional data without deep conditional nesting.</li>
+</ol>
+</article><section class="ontology"><h2>Concept ontology</h2><h3>Realized by <span class="count">5</span></h3><ul><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-019-01-jspecify-and-nullaway.html">Compile-Time Null Safety with JSpecify and NullAway</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-019-01-jspecify-and-nullaway</span></li><li><span class="badge">java</span> <a href="../../java/concepts/CONCEPT-java-v1-013-01-optional-discipline.html">Optional Return Discipline</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-java-v1-013-01-optional-discipline</span></li><li><span class="badge">js</span> <a href="../../js/concepts/CONCEPT-js-v1-004-01-nullish-coalescing-and-optional-chaining.html">Nullish Coalescing and Optional Chaining</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-js-v1-004-01-nullish-coalescing-and-optional-chaining</span></li><li><span class="badge">python</span> <a href="../../python/concepts/CONCEPT-python-v1-004-01-none-aware-typing.html">None-Aware Strict Typing</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-python-v1-004-01-none-aware-typing</span></li><li><span class="badge">ts</span> <a href="../../ts/concepts/CONCEPT-ts-v1-004-01-strict-null-checks.html">Strict Null Checks</a> <span class="muted">(recommended)</span> <span class="muted">CONCEPT-ts-v1-004-01-strict-null-checks</span></li></ul></section><section class="backlinks"><h2>Mentioned in <span class="count">0</span></h2><p class="muted">No page links here.</p></section>
+</main>
+<nav class="side" aria-label="Kinds"><h2>Kinds</h2><ul><li><a href="../../../../reports/ADR.html">Decision record</a> <span class="count">3</span></li><li><a href="../../../../reports/PLAN.html">Plan</a> <span class="count">1</span></li><li><a href="../../../../reports/F.html">Feature</a> <span class="count">1</span></li><li><a href="../../../../reports/RESEARCH.html">Research</a> <span class="count">4</span></li><li><a href="../../../../reports/CONCEPT.html">Concept</a> <span class="count">163</span></li><li><a href="../../../../reports/SPEC.html">Specification</a> <span class="count">6</span></li><li><a href="../../../../reports/other.html">Other pages</a> <span class="count">0</span></li></ul></nav>
+</div>
+<footer class="foot">Built 2026-11-06 20:40 UTC from gaks.json 0.11.0. A projection of the Markdown: do not edit it by hand.</footer>
+</body>
+</html>
