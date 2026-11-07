@@ -10,6 +10,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Golden-screenshot regression — the artifact grammar:
@@ -75,7 +76,7 @@ public final class VisualComparator {
     }
 
     /** The run's side-by-side report — visual-report.html in the run dir. */
-    public static Path writeReport(Path runDir) throws IOException {
+    public static @Nullable Path writeReport(Path runDir) throws IOException {
         if (ROWS.isEmpty()) return null;
         StringBuilder rows = new StringBuilder();
         for (String[] r : ROWS) {

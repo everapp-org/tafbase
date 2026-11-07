@@ -23,7 +23,7 @@ import org.junit.jupiter.api.extension.TestWatcher;
  * Browserless — api journeys never open a Page. One playwright + one
  * APIRequestContext per suite; the journal, soft checks, rerun and
  * fault-report behavior are identical to BaseTest's.
- * @concept CONCEPT-testing-v1-009-01-the-api-oracle
+ * @concept CONCEPT-playwright-v1-005-01-api-request-context
  */
 @ExtendWith(RerunCondition.class)
 public abstract class ApiBaseTest implements TestWatcher {

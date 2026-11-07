@@ -88,7 +88,7 @@ public abstract class BaseTest implements TestWatcher {
     void setUp(TestInfo info) throws IOException {
         testId = info.getDisplayName();
         TafJournal.begin(runDir, testId);
-        BrowserContext.NewContextOptions opts = new BrowserContext.NewContextOptions();
+        Browser.NewContextOptions opts = new Browser.NewContextOptions();
         String auth = System.getProperty("taf.auth.state");
         if (auth != null && !auth.isBlank()) {
             opts.setStorageStatePath(Path.of(auth));

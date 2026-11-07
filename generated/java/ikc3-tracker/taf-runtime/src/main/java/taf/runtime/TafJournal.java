@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -18,8 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public final class TafJournal {
     private static final ObjectMapper JSON = new ObjectMapper();
     private static long start;
-    private static Path dir;
-    private static Path journalFile;
+    private static @Nullable Path dir;
+    private static @Nullable Path journalFile;
     private static final List<long[]> noteTimes = new ArrayList<>();
     private static final List<String> noteLabels = new ArrayList<>();
     private static String lastOutcome = "passed";

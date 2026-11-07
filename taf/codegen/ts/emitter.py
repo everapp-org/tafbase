@@ -62,8 +62,8 @@ def _tsconfig_json():
     return json.dumps({
         "compilerOptions": {
             "target": "ES2022",
-            "module": "NodeNext",
-            "moduleResolution": "NodeNext",
+            "module": "ESNext",
+            "moduleResolution": "bundler",
             "strict": True,
             "esModuleInterop": True,
             "skipLibCheck": True,

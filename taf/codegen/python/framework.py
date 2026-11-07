@@ -71,7 +71,7 @@ class SoftChecks:
 
 _API_CLIENT = _HEADER + '''"""ApiClient — the browserless request side of the framework.
 
-@concept CONCEPT-testing-v1-009-01-the-api-oracle
+@concept CONCEPT-playwright-v1-005-01-api-request-context
 
 An api journey never opens a Page: the `api` fixture hands it a
 Playwright APIRequestContext — same wire engine, no chromium.

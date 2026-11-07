@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * A thin wrapper over APIRequestContext — the object api journeys'
  * `request` field exposes for steps the vocabulary does not spell yet.
- * @concept CONCEPT-testing-v1-009-01-the-api-oracle
+ * @concept CONCEPT-playwright-v1-005-01-api-request-context
  */
 public final class ApiClient {
     private final APIRequestContext ctx;

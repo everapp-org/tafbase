@@ -60,7 +60,7 @@ export class SoftChecks {
 """
 
 
-_API_CLIENT = _FW_HEADER + """// @concept CONCEPT-testing-v1-009-01-the-api-oracle
+_API_CLIENT = _FW_HEADER + """// @concept CONCEPT-playwright-v1-005-01-api-request-context
 
 import { request as pwRequest } from "@playwright/test";
 
