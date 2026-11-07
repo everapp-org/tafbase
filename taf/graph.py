@@ -61,7 +61,12 @@ def walk(m, start, seed, steps, cover=False):
     if not seq:
         raise _refuse("walk", "dead-end",
                       f"state '{start}' has no outgoing actions")
-    return {"start": start, "steps": seq, "expect-final": {"state": here}}
+    return {"start": start, "steps": seq,
+            "expect-final": {"state": here},
+            # @concept CONCEPT-qa-v1-010-01-model-based-seeded-walk
+            # the walk sorts into its own suite file — exploratory,
+            # never mixed with hand-authored regression journeys
+            "type": "walk", "tags": ["walk", "exploratory"]}
 
 
 def with_journeys(m, extra):

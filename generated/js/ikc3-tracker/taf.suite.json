@@ -1,0 +1,14 @@
+{
+  "base-url": "http://127.0.0.1:4856",
+  "env-needs": [
+    "TAF_SUT_CODES"
+  ],
+  "framework": "./taf-runtime",
+  "journey-types": {
+    "api": 1,
+    "ui": 3,
+    "visual": 1
+  },
+  "lang": "js",
+  "sut": "ikc3-tracker"
+}

@@ -1,151 +1,121 @@
-"""taf run — emit and execute: the full cycle in one command — lane
-TAF/PLAN-taf-v1-001-01/L-12.
+"""taf run — execute an emitted suite — lane
+TAF/PLAN-taf-v1-002-01.
 
-@concept CONCEPT-taf-v1-005-01-the-preflight
 @concept CONCEPT-taf-v1-003-01-the-environment
-@concept CONCEPT-taf-v1-008-01-the-dry-run
+@concept CONCEPT-taf-v1-005-01-the-preflight
 
-The phases the person used to run by hand: check (the loader refuses a
-broken model before anything else), emit (a temp suite, or --suite for
-a committed one), execute (pytest; mvn test for --lang java). The
-TAF_* contract flows through the environment — `taf env` sets it, the
-runner inherits it. Exit code is the runner's. --probe is the first
-gate: a missing probe finding refuses before a browser opens.
+The run no longer emits: `taf emit-tests` produced the suite, `taf
+run <dir>` executes it. The suite's taf.suite.json names its
+toolchain, its framework dir, its base-url and its env needs — the
+preflight checks those, then pytest, Maven, or Playwright runs the
+committed suite.
 """
-
+import glob
+import json
 import os
-import shutil
 import subprocess
 import sys
-import tempfile
 
 from taf import dryrun
-from taf.codegen.python import emitter as emit_python
-from taf.codegen.java import emitter as emit_java
 
-
-def _emitter_for(lang):
-    if lang == "python":
-        return emit_python
-    if lang == "java":
-        return emit_java
-    if lang == "ts":
-        from taf.codegen.ts import emitter as emit_ts
-        return emit_ts
-    if lang == "js":
-        from taf.codegen.js import emitter as emit_js
-        return emit_js
-    raise ValueError("unknown lang: %r" % lang)
+PROFILES = {
+    "headed": {},
+    "ci": {"TAF_HEADLESS": "1", "TAF_VIDEO": "1"},
+    "debug": {"TAF_DEBUG": "1", "TAF_VIDEO": "1", "TAF_SLOWMO": "400"},
+}
 
 
 def _exec(cmd, cwd=None, env=None):
-    """The runner subprocess — patched out in tests."""
-    return subprocess.run(cmd, cwd=cwd, env=env)
+    """The subprocess seam — tests patch this."""
+    return subprocess.call(cmd, cwd=cwd, env=env)
 
 
-def _child_env(env, base_url=None, results=None, headless=False,
-               slowmo=None, arrive_ms=None, video=False, debug=False,
-               rerun=False):
-    """Run-profile flags become the TAF_* contract of the child's
-    environment — an explicit flag wins over the shell's setting."""
-    child = dict(env)
-    if base_url:
-        child["TAF_BASE_URL"] = base_url
-    if results:
-        child["TAF_RESULTS"] = results
-    if headless:
-        child["TAF_HEADLESS"] = "1"
-    if slowmo is not None:
-        child["TAF_SLOWMO"] = str(slowmo)
-    if arrive_ms is not None:
-        child["TAF_ARRIVE_MS"] = str(arrive_ms)
-    if video:
-        child["TAF_VIDEO"] = "1"
-    if debug:
-        child["TAF_DEBUG"] = "1"
-    if rerun:
-        child["TAF_RERUN"] = "1"
-    return child
+def _emitter_for(lang):
+    from taf.codegen.python import emitter as py_em
+    from taf.codegen.java import emitter as java_em
+    from taf.codegen.ts import emitter as ts_em
+    from taf.codegen.js import emitter as js_em
+    return {"python": py_em, "java": java_em,
+            "ts": ts_em, "js": js_em}[lang]
 
 
-def _profile_bits(child):
-    """The effective run profile, one line of the header: headed,
-    slowmo 300ms, video, sink."""
-    bits = ["headless" if child.get("TAF_HEADLESS") == "1" else "headed"]
-    if child.get("TAF_SLOWMO") not in (None, "0"):
-        bits.append("slowmo %sms" % child["TAF_SLOWMO"])
-    if child.get("TAF_VIDEO"):
-        bits.append("video")
-    if child.get("TAF_DEBUG"):
-        bits.append("debug")
-    if child.get("TAF_RERUN"):
-        bits.append("rerun")
-    if child.get("TAF_IKC3_WS"):
-        bits.append("sink")
-    return ", ".join(bits)
+def suite_meta(suite):
+    """taf.suite.json of an emitted suite, or None."""
+    p = os.path.join(suite, "taf.suite.json")
+    if os.path.exists(p):
+        with open(p, encoding="utf-8") as f:
+            return json.load(f)
+    return None
 
 
-def run(m, suite=None, lang="python", extra=(), probe=False, keep=False,
+def _infer_lang(suite):
+    """The toolchain a suite dir looks like — when taf.suite.json is
+    absent (a hand-assembled suite, an older emit)."""
+    if os.path.exists(os.path.join(suite, "pom.xml")):
+        return "java"
+    if glob.glob(os.path.join(suite, "*.spec.ts")):
+        return "ts"
+    if glob.glob(os.path.join(suite, "*.spec.mjs")):
+        return "js"
+    return "python"
+
+
+def _command(lang, suite, extra):
+    if lang == "python":
+        return [sys.executable, "-m", "pytest", suite] + list(extra or [])
+    if lang == "java":
+        return ["mvn", "-f", os.path.join(suite, "pom.xml"), "test"] \
+            + list(extra or [])
+    # npx playwright test — the config inside the suite names its own
+    # testDir; args pass through for filters like --grep.
+    return ["npx", "playwright", "test"] + list(extra or [])
+
+
+def run(suite, lang=None, extra=None, probe=True,
         env=None, profile=None, setenv=None):
-    """check -> emit -> execute; returns the runner's exit code.
-    `profile` is the run-profile flags (see _child_env); `setenv` is
-    --set NAME=VALUE pairs, arbitrary vars for the child."""
+    """Preflight the suite's declared env needs + an optional SUT probe,
+    then execute the emitted suite in place. Returns the runner's exit
+    code — a missing need or an unanswered probe exits 2, the honest
+    refusal."""
     env = os.environ if env is None else env
-    profile = dict(profile or {})
-    sink = profile.pop("sink", None)
-    child = _child_env(env, **profile)
-    child.update(setenv or {})
-    base = child.get("TAF_BASE_URL") or m["sut"]["base-url"]
-    if sink is True:
-        # bare --sink — the bus lives on the SUT's own host, resolved
-        # only now that the effective base_url is known
-        child["TAF_IKC3_WS"] = dryrun._bus_url(base)
-    elif sink:
-        child["TAF_IKC3_WS"] = sink
-    tmp = None
-    if suite is None:
-        tmp = tempfile.mkdtemp(prefix="taf-run-")
-        suite = tmp
-        _emitter_for(lang).emit(m, suite)
-        origin = "emitted (%s)" % ("kept" if keep else "temp")
-    else:
-        origin = "committed"
-    print("taf run — %s @ %s · %d test(s) · %s · suite: %s (%s)"
-          % (m["sut"]["name"], base, len(m["journeys"]),
-             _profile_bits(child), suite, origin), flush=True)
-    try:
-        needs = [f for f in dryrun._needs_findings(m, child)
-                 if f["level"] == "missing"]
-        if probe:
-            missing = needs + [f for f in dryrun._probe_findings(m, child)
-                               if f["level"] == "missing"]
-            if missing:
-                for f in missing:
-                    print("  preflight missing  %s — %s"
-                          % (f["what"], f["detail"]), flush=True)
-                    if f.get("hint"):
-                        print("      ↳ %s" % f["hint"], flush=True)
-                print("refusing to run — fix the missing, "
-                      "or --no-probe skips the gate", flush=True)
-                return 1
-        elif needs:
-            # --no-probe escapes the refusal, not the truth: say it,
-            # then run anyway.
-            for f in needs:
-                print("  preflight warning  %s — %s"
-                      % (f["what"], f["detail"]), flush=True)
-                if f.get("hint"):
-                    print("      ↳ %s" % f["hint"], flush=True)
-        if lang == "java":
-            cmd = (["mvn", "-q", "-f", os.path.join(suite, "pom.xml"),
-                    "test"] + list(extra))
-            return _exec(cmd, env=child).returncode
-        if lang in ("ts", "js"):
-            cmd = ["npx", "playwright", "test"] + list(extra)
-            return _exec(cmd, cwd=suite, env=child).returncode
-        cmd = ([sys.executable, "-m", "pytest", "-q"] + list(extra)
-               + [suite])
-        return _exec(cmd, env=child).returncode
-    finally:
-        if tmp and not keep:
-            shutil.rmtree(tmp, ignore_errors=True)
+    if not os.path.isdir(suite):
+        print("refuse: no suite at %s — emit first:\n"
+              "  taf emit-tests <model> --lang %s -o %s"
+              % (suite, lang or "python", suite))
+        return 2
+    meta = suite_meta(suite) or {}
+    lang = lang or meta.get("lang") or _infer_lang(suite)
+    needs = meta.get("env-needs") or []
+    base = meta.get("base-url") or ""
+
+    findings = dryrun._needs_findings_for(needs, env)
+    if probe:
+        findings += dryrun._probe_findings_for(base, env)
+    missing = [f for f in findings if f["level"] == "missing"]
+    if missing and probe:
+        print("refuse — the run lacks what it needs:")
+        for f in missing:
+            print("  %-24s %s" % (f["what"], f["detail"]))
+            if f.get("hint"):
+                print("    ↳ %s" % f["hint"])
+        return 2
+    if missing:
+        print("preflight warning — needs unmet (running anyway):")
+        for f in missing:
+            print("  %-24s %s" % (f["what"], f["detail"]))
+
+    child = dict(env)
+    for var, val in (PROFILES.get(profile or "") or {}).items():
+        child.setdefault(var, val)
+    if setenv:
+        child.update(setenv)
+    # the suite's recorded framework path wins unless the console set one
+    fw = meta.get("framework")
+    if fw and "TAF_FRAMEWORK" not in child and not os.path.isabs(fw):
+        cand = os.path.normpath(os.path.join(suite, fw))
+        if os.path.isdir(cand):
+            child["TAF_FRAMEWORK"] = cand
+    cmd = _command(lang, suite, extra)
+    print("run: %s" % " ".join(cmd))
+    return _exec(cmd, cwd=suite if lang in ("ts", "js") else None,
+                 env=child)

@@ -151,9 +151,26 @@ def _check_step(step, elements, states, endpoints, clause, refusals):
                     refusals.append(_refusal(clause, "unknown-element",
                                            "wait-any names no element: %r" % (name,)))
     elif form == "compare-screen":
-        if not isinstance(arg, str) or not arg:
+        if isinstance(arg, dict):
+            if not isinstance(arg.get("name"), str) or not arg["name"]:
+                refusals.append(_refusal(
+                    clause, "bad-compare-screen",
+                    "compare-screen dict needs a snapshot name: %r" % (arg,)))
+            mask = arg.get("mask") or []
+            if not isinstance(mask, list):
+                refusals.append(_refusal(
+                    clause, "bad-compare-screen",
+                    "compare-screen mask takes element names: %r" % (mask,)))
+            else:
+                for el in mask:
+                    if el not in elements:
+                        refusals.append(_refusal(
+                            clause, "unknown-element",
+                            "compare-screen mask names no element: %r" % el))
+        elif not isinstance(arg, str) or not arg:
             refusals.append(_refusal(clause, "bad-compare-screen",
-                                     "compare-screen takes a snapshot name: %r" % (arg,)))
+                                     "compare-screen takes a snapshot name or "
+                                     "{name, mask}: %r" % (arg,)))
     elif form == "maybe":
         if not isinstance(arg, dict):
             refusals.append(_refusal(clause, "bad-maybe",
@@ -165,6 +182,89 @@ def _check_step(step, elements, states, endpoints, clause, refusals):
         if el is not None and el not in elements:
             refusals.append(_refusal(clause, "unknown-element",
                                      "expect names no element: %r" % el))
+
+
+def _step_strings(node):
+    """Every string inside a step's arg tree — where ${name}
+    placeholders live."""
+    if isinstance(node, str):
+        yield node
+    elif isinstance(node, dict):
+        for v in node.values():
+            yield from _step_strings(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from _step_strings(v)
+
+
+def _check_journey_extras(name, j, elements, refusals):
+    """type / tags / examples — the clauses that sort a journey into
+    its suite file and parametrize it."""
+    clause = "journeys.%s" % name
+    t = j.get("type")
+    if t is not None and t not in ops.JOURNEY_TYPES:
+        refusals.append(_refusal(
+            clause, "bad-journey-type",
+            "type is one of %s, not %r" % (", ".join(ops.JOURNEY_TYPES), t)))
+    tags = j.get("tags") or []
+    if not isinstance(tags, list) or any(not _valid_identifier(x) for x in tags):
+        refusals.append(_refusal(
+            "%s.tags" % clause, "bad-identifier",
+            "tags is a list of identifiers (smoke, regression, ...): %r" % (tags,)))
+    steps = j.get("steps", [])
+    jtype = ops.journey_type({"journeys": {name: j}}, name)
+    if jtype == "api":
+        if not all(isinstance(s, dict) and ops._step_api_safe(s) for s in steps):
+            refusals.append(_refusal(
+                clause, "bad-journey-type",
+                "an api journey writes inline browserless steps only "
+                "(api, dwell, expect on saved values)"))
+        if (j.get("expect-final") or {}).get("state") is not None:
+            refusals.append(_refusal(
+                "%s.expect-final" % clause, "bad-journey-type",
+                "an api journey has no page — expect-final cannot name a state"))
+    rows = j.get("examples")
+    used = {k for s in steps for txt in _step_strings(s)
+            for k in ops.placeholder_keys(txt)}
+    if rows is not None:
+        if not all(isinstance(s, dict) for s in steps):
+            refusals.append(_refusal(
+                "%s.examples" % clause, "bad-examples",
+                "examples parametrize inline steps — a journey naming "
+                "actions cannot take rows"))
+        if not isinstance(rows, list) or not rows \
+                or not all(isinstance(r, dict) and r for r in rows):
+            refusals.append(_refusal(
+                "%s.examples" % clause, "bad-examples",
+                "examples is a non-empty list of row objects: %r" % (rows,)))
+        else:
+            keys = set(rows[0])
+            for i, r in enumerate(rows):
+                if set(r) != keys:
+                    refusals.append(_refusal(
+                        "%s.examples[%d]" % (clause, i), "bad-examples",
+                        "row keys differ from the first row: %s vs %s"
+                        % (sorted(r), sorted(keys))))
+                for k, v in r.items():
+                    if not _valid_identifier(k):
+                        refusals.append(_refusal(
+                            "%s.examples" % clause, "bad-identifier",
+                            "example key %r is not a valid identifier" % k))
+                    if not isinstance(v, (str, int, float, bool)):
+                        refusals.append(_refusal(
+                            "%s.examples[%d]" % (clause, i), "bad-examples",
+                            "row values are scalars, not %r" % (v,)))
+            missing = used - keys
+            if missing:
+                refusals.append(_refusal(
+                    "%s.examples" % clause, "bad-examples",
+                    "steps reference ${%s} but no row declares it"
+                    % "}, ${".join(sorted(missing))))
+    elif used:
+        refusals.append(_refusal(
+            clause, "bad-examples",
+            "${%s} placeholders need an examples table"
+            % "}, ${".join(sorted(used))))
 
 
 def _collect_dupes(node, path, refusals):
@@ -254,9 +354,13 @@ def validate(doc):
         clause = "journeys.%s" % name
         if not isinstance(j, dict):
             continue
+        _check_journey_extras(name, j, elements, refusals)
+        jtype = ops.journey_type({"journeys": {name: j}}, name)
         start = j.get("start")
-        if start is None:
+        if start is None and jtype != "api":
             refusals.append(_refusal(clause, "missing-field", "a journey needs a start state"))
+        if start is None:
+            cursor = None
         elif start not in states:
             refusals.append(_refusal(clause, "unknown-state",
                                      "start names no state: %r" % start))

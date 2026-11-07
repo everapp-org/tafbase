@@ -37,7 +37,7 @@ def _actions(m):
     ]
     if m.get("elements"):
         lines.append("import * as elements from \"./elements\";\n")
-    lines.append("import { tafJournal } from \"./taf_journal\";\n")
-    lines.append("import type { SoftChecks } from \"./fixtures\";\n\n")
+    lines.append("import { tafJournal } from \"%s\";\n" % _fw("taf_journal"))
+    lines.append("import type { SoftChecks } from \"%s\";\n\n" % _fw("soft-checks"))
     lines.append(text)
     return "".join(lines)

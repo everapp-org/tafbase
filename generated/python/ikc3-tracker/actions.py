@@ -6,7 +6,7 @@ from pages import ROUTES, BoardPage
 from playwright.sync_api import expect
 import os
 import elements
-import taf_journal
+from taf_runtime import journal as taf_journal
 
 def log_in(page, base_url, soft=None):
     taf_journal.note("→ sign in with handle and secret")

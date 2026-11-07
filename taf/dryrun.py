@@ -48,6 +48,10 @@ def _env_table(m, env):
          "one folder per run"),
         ("TAF_IKC3_WS", env.get("TAF_IKC3_WS") or "off",
          "a red test files a fault report"),
+        ("TAF_FRAMEWORK", env.get("TAF_FRAMEWORK") or "sibling taf-runtime/",
+         "the emitted framework the suite binds to"),
+        ("TAF_GOLDENS", env.get("TAF_GOLDENS") or "<suite>/goldens",
+         "golden baselines for compare-screen"),
     ]
     declared = set(spec.spec()["contract"]["env"])
     assert {v for v, _, _ in rows} == declared, (
@@ -84,8 +88,10 @@ def _golden_names(m):
     for j in m["journeys"].values():
         for st in _journey_steps(m, j):
             for form, arg in _walk_step(st):
-                if form == "compare-screen" and arg not in names:
-                    names.append(arg)
+                if form == "compare-screen":
+                    n = arg.get("name") if isinstance(arg, dict) else arg
+                    if n and n not in names:
+                        names.append(n)
     return names
 
 
@@ -169,8 +175,14 @@ def _model_findings(m, suite):
 def _needs_findings(m, env):
     """env: variables the model reads at run time — a need unset is
     missing, no network required (@concept CONCEPT-dsl-v1-015-01)."""
+    return _needs_findings_for(model.env_needs(m), env)
+
+
+def _needs_findings_for(needs, env):
+    """The same findings from a bare list of variable names — `taf run`
+    reads them off taf.suite.json, no model in memory."""
     out = []
-    for name in model.env_needs(m):
+    for name in needs:
         if env.get(name):
             out.append(_finding("ok", "env %s" % name, "set"))
         else:
@@ -247,8 +259,14 @@ def _toolchain_findings(lang):
 
 
 def _probe_findings(m, env):
+    return _probe_findings_for(m["sut"]["base-url"], env)
+
+
+def _probe_findings_for(model_base_url, env):
+    """The same probes from a bare base-url — `taf run` takes it off
+    taf.suite.json, no model in memory."""
     out = []
-    url = env.get("TAF_BASE_URL") or m["sut"]["base-url"]
+    url = env.get("TAF_BASE_URL") or model_base_url
     try:
         with urllib.request.urlopen(url, timeout=3) as r:
             out.append(_finding("ok", "sut",
@@ -314,7 +332,8 @@ def report(m, env=None, suite=None, lang="python", probe=False):
         forms = [f for st in _journey_steps(m, j)
                  for f, _ in _walk_step(st)]
         tests.append({"test": t["test"], "journey": t["journey"],
-                      "start": j["start"], "actions": t["actions"],
+                      "type": t["type"], "tags": t["tags"],
+                      "start": j.get("start"), "actions": t["actions"],
                       "steps": forms,
                       "final": (j.get("expect-final") or {}).get("state")})
     findings = (_needs_findings(m, env) +

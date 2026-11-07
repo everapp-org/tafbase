@@ -26,6 +26,21 @@ def _needs_of(steps, kind):
     return any(_step_needs(s) == kind for s in steps)
 
 
+def _saves(steps):
+    """True when a step list reads an api `save` map — the emitted
+    test declares `saved = {}` before the first api call."""
+    for s in steps:
+        if isinstance(s, dict) and len(s) == 1:
+            form, arg = next(iter(s.items()))
+            if form == "api" and isinstance(arg, dict) and arg.get("save"):
+                return True
+            if form == "maybe" and _saves([arg]):
+                return True
+            if form == "expect" and isinstance(arg, dict) and "value" in arg:
+                return True
+    return False
+
+
 def _step_state(step):
     """The state a wait-for step waits on, through a maybe wrap."""
     if not isinstance(step, dict) or len(step) != 1:
@@ -62,7 +77,7 @@ def _actions(m):
              "from playwright.sync_api import expect\n" if "expect(" in text else "",
              "import os\n" if uses_env else "",
              "import elements\n" if m.get("elements") else "",
-             "import taf_journal\n\n"]
+             "from taf_runtime import journal as taf_journal\n\n"]
     lines.append(text)
     return "".join(lines)
 

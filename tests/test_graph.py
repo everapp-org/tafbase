@@ -84,7 +84,11 @@ def test_cli_walk_then_emit_merges(tmp_path):
     out = tmp_path / "suite"
     emit_python.emit(graph.with_journeys(m, json.loads(r.stdout)["journeys"]),
                      str(out))
-    tests = (out / "test_journeys.py").read_text()
+    # the walk lands in its own suite file — never mixed with
+    # hand-authored regression journeys
+    tests = (out / "test_walks.py").read_text()
     assert "def test_walked(" in tests
+    assert "@pytest.mark.walk" in tests
     man = json.loads((out / "taf.manifest.json").read_text())
-    assert any(t["journey"] == "walked" for t in man["tests"])
+    t = [t for t in man["tests"] if t["journey"] == "walked"]
+    assert t and t[0]["type"] == "walk"
