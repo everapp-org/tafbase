@@ -64,10 +64,18 @@ def test_the_manifest_traces_tests_to_model(tmp_path):
     assert t["test_board_to_tot"]["states"] == ["board", "tot"]
 
 
-def test_conftest_is_real_playwright(tmp_path):
-    c = read(emit(tmp_path), "conftest.py")
-    assert "sync_playwright" in c and "browser.new_context" in c
-    assert '"http://127.0.0.1:4856"' in c
+def test_conftest_is_the_bootstrap(tmp_path):
+    out = emit(tmp_path)
+    c = read(out, "conftest.py")
+    # the suite's only glue: find taf_runtime, load its plugin
+    assert 'pytest_plugins = ["taf_runtime.fixtures"]' in c
+    assert "TAF_FRAMEWORK" in c
+    # the real playwright layer lives in the vendor package — SUT-free
+    fx = read(out, "taf-runtime/taf_runtime/fixtures.py")
+    assert "sync_playwright" in fx and "browser.new_context" in fx
+    # the SUT's base-url belongs to the suite's own binding
+    sc = read(out, "sut_config.py")
+    assert '"http://127.0.0.1:4856"' in sc
 
 
 def test_elements_and_endpoints_emit_when_declared(tmp_path):

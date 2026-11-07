@@ -2,14 +2,14 @@
 // edit the model and regenerate.
 // @concept CONCEPT-testing-v1-001-01-arrange-act-assert
 // @concept CONCEPT-qa-v1-001-01-arrange-act-assert
+// One test per declared journey — arrange, act, assert.
 
 import { test, expect } from "./fixtures";
-import { LoginPage, BoardPage, TotPage } from "./pages";
 import * as actions from "./actions";
 import * as elements from "./elements";
-import { tafJournal } from "./taf_journal";
+import { BoardPage, TotPage } from "./pages";
 
-test("theBoardIsUp", async ({ page, baseUrl, soft }) => {
+test("theBoardIsUp", { tag: ["@ui"] }, async ({ page, baseUrl, soft }) => {
   // arrange
   const sut = new BoardPage(page);
   await sut.goto(baseUrl);
@@ -19,7 +19,7 @@ test("theBoardIsUp", async ({ page, baseUrl, soft }) => {
   await new BoardPage(page).expectArrived();
 });
 
-test("boardToTot", async ({ page, baseUrl, soft }) => {
+test("boardToTot", { tag: ["@smoke", "@ui"] }, async ({ page, baseUrl, soft }) => {
   // arrange
   const sut = new BoardPage(page);
   await sut.goto(baseUrl);
@@ -31,7 +31,7 @@ test("boardToTot", async ({ page, baseUrl, soft }) => {
   await new TotPage(page).expectArrived();
 });
 
-test("filesAFaultReport", async ({ page, baseUrl, soft }) => {
+test("filesAFaultReport", { tag: ["@ui"] }, async ({ page, baseUrl, soft }) => {
   // arrange
   const sut = new BoardPage(page);
   await sut.goto(baseUrl);

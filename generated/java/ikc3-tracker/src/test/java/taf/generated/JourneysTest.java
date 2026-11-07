@@ -4,17 +4,19 @@ package taf.generated;
 
 // @concept CONCEPT-testing-v1-001-01-arrange-act-assert
 // @concept CONCEPT-qa-v1-001-01-arrange-act-assert
-// @concept CONCEPT-istqb-v1-010-01-state-transition-testing
 
-import org.junit.jupiter.api.Test;
 import com.microsoft.playwright.*;
 import org.jspecify.annotations.Nullable;
+import taf.runtime.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/** One @Test per declared journey — arrange, act, assert. */
-public class JourneysTest extends BaseTest {
+/** One test per declared journey — arrange, act, assert. */
+public final class JourneysTest extends taf.runtime.BaseTest {
 
+    @Tag("ui")
     @Test
     void theBoardIsUp() {
         // arrange
@@ -26,6 +28,8 @@ public class JourneysTest extends BaseTest {
         new BoardPage(page).expectArrived();
     }
 
+    @Tag("smoke")
+    @Tag("ui")
     @Test
     void boardToTot() {
         // arrange
@@ -39,6 +43,7 @@ public class JourneysTest extends BaseTest {
         new TotPage(page).expectArrived();
     }
 
+    @Tag("ui")
     @Test
     void filesAFaultReport() {
         // arrange

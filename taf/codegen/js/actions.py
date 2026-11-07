@@ -42,6 +42,6 @@ def _actions(m):
     ]
     if m.get("elements"):
         lines.append("import * as elements from \"./elements.mjs\";\n")
-    lines.append("import { tafJournal } from \"./taf_journal.mjs\";\n\n")
+    lines.append("import { tafJournal } from \"%s\";\n\n" % _fw("taf_journal.mjs"))
     lines.append(text)
     return "".join(lines)

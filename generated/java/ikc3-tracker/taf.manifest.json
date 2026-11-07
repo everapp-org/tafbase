@@ -7,7 +7,11 @@
       "states": [
         "board"
       ],
-      "test": "test_the_board_is_up"
+      "tags": [
+        "ui"
+      ],
+      "test": "test_the_board_is_up",
+      "type": "ui"
     },
     {
       "actions": [
@@ -18,7 +22,12 @@
         "board",
         "tot"
       ],
-      "test": "test_board_to_tot"
+      "tags": [
+        "smoke",
+        "ui"
+      ],
+      "test": "test_board_to_tot",
+      "type": "ui"
     },
     {
       "actions": [
@@ -29,7 +38,34 @@
         "board",
         "board"
       ],
-      "test": "test_files_a_fault_report"
+      "tags": [
+        "ui"
+      ],
+      "test": "test_files_a_fault_report",
+      "type": "ui"
+    },
+    {
+      "actions": [],
+      "journey": "make-a-tot-over-the-api",
+      "states": [],
+      "tags": [
+        "api",
+        "smoke"
+      ],
+      "test": "test_make_a_tot_over_the_api",
+      "type": "api"
+    },
+    {
+      "actions": [],
+      "journey": "the-board-looks-right",
+      "states": [
+        "board"
+      ],
+      "tags": [
+        "visual"
+      ],
+      "test": "test_the_board_looks_right",
+      "type": "visual"
     }
   ]
 }
