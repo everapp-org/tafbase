@@ -52,6 +52,12 @@ def _env_table(m, env):
          "the emitted framework the suite binds to"),
         ("TAF_GOLDENS", env.get("TAF_GOLDENS") or "<suite>/goldens",
          "golden baselines for compare-screen"),
+        ("TAF_SECURITY_MODE", env.get("TAF_SECURITY_MODE") or (m.get("security") or {}).get("mode") or "shield",
+         "workbench security posture (shield|audit|raw|off)"),
+        ("TAF_WB_HUD", env.get("TAF_WB_HUD") or (m.get("security") or {}).get("hud") or "docked",
+         "workbench HUD display (docked|toast-on-alert|detached)"),
+        ("TAF_LIBRARY_DIR", env.get("TAF_LIBRARY_DIR") or "reader-library",
+         "standalone library root for trails, highlights, and archives"),
     ]
     declared = set(spec.spec()["contract"]["env"])
     assert {v for v, _, _ in rows} == declared, (

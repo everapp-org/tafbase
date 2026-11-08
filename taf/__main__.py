@@ -20,7 +20,7 @@ from taf import dryrun, graph, model, runner
 
 
 _CMDS = ("check", "walk", "emit", "emit-tests", "emit-framework",
-         "dry-run", "env", "run", "record", "promote")
+         "dry-run", "env", "run", "record", "studio", "promote")
 
 _EPILOG = """\
 the cycle: emit-tests → run → promote
@@ -177,6 +177,31 @@ def main(argv=None):
     rc.add_argument("--name", default="recorded",
                     help="the draft's title — the journey name to merge as")
     rc.add_argument("--base-url", help="override the model's base-url")
+    rc.add_argument("--workbench", action="store_true",
+                    help="launch with the unified Browser Workbench "
+                         "(Dashboard + Reader + Security Watchdog)")
+    rc.add_argument("--security-mode", choices=list(model.SECURITY_MODES),
+                    help="override security posture (shield|audit|raw|off)")
+    rc.add_argument("--hud", choices=list(model.SECURITY_HUDS),
+                    help="override HUD display (docked|toast-on-alert|detached)")
+
+    st = sub.add_parser("studio",
+                        help="launch the Browser Workbench "
+                             "(TAF Studio + Standalone Reader + Page Watchdog)")
+    st.add_argument("model")
+    st.add_argument("--out", default=None,
+                    help="draft path (default: recorded-<name>.json)")
+    st.add_argument("--name", default="studio",
+                    help="session draft title")
+    st.add_argument("--base-url", help="override the model's base-url")
+    st.add_argument("--security-mode", choices=list(model.SECURITY_MODES),
+                    help="security posture (shield|audit|raw|off)")
+    st.add_argument("--hud", choices=list(model.SECURITY_HUDS),
+                    help="HUD display (docked|toast-on-alert|detached)")
+    st.add_argument("--library-dir", default=None,
+                    help="standalone library root (default: TAF_LIBRARY_DIR or reader-library)")
+    st.add_argument("--cdp", default=None,
+                    help="attach to an existing Chrome via CDP URL (e.g. http://127.0.0.1:9222)")
 
     p = sub.add_parser("promote",
                        help="approve *_Actual.png shots as the new "
@@ -242,6 +267,19 @@ def main(argv=None):
                 slowmo=args.slowmo, arrive_ms=args.arrive_ms,
                 video=args.video, debug=args.debug,
                 rerun=args.rerun, sink=args.sink, unset=args.unset))
+            return 0
+
+        if args.cmd == "studio" or (args.cmd == "record" and getattr(args, "workbench", False)):
+            from taf import workbench as taf_wb
+            base = (args.base_url or os.environ.get("TAF_BASE_URL")
+                    or m["sut"]["base-url"])
+            out = args.out or "recorded-%s.json" % args.name
+            taf_wb.launch_studio(
+                m, base_url=base, out=out, title=args.name,
+                security_mode=getattr(args, "security_mode", None),
+                hud_mode=getattr(args, "hud", None),
+                library_dir=getattr(args, "library_dir", None),
+                cdp_url=getattr(args, "cdp", None))
             return 0
 
         if args.cmd == "record":

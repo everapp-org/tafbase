@@ -4,6 +4,7 @@
 @concept CONCEPT-qa-v1-002-01-the-locator-ladder
 @concept CONCEPT-playwright-v1-002-01-semantic-locators
 @concept CONCEPT-dsl-v1-015-01-the-env-value
+@spec SPEC-taf-v1-003-01-the-browser-workbench
 
 Implements SPEC-taf-v1-001-04: loads a sut.model.json document, validates
 every clause, and reports every refusal as {"clause", "reason", "message"}.
@@ -29,6 +30,20 @@ def _derive():
 LOCATOR_RUNGS, STEP_FORMS, DECLARED_REFUSALS = _derive()
 
 REQUIRED_TOP = ("sut", "states", "journeys")
+
+SECURITY_MODES = ("shield", "audit", "raw", "off")
+SECURITY_HUDS = ("docked", "toast-on-alert", "detached")
+SECURITY_SINKS = (
+    "password-read",
+    "global-keylogger",
+    "cookie-read",
+    "storage-read",
+    "unexpected-egress",
+    "dynamic-eval",
+    "clipboard-write",
+    "overlay-trap",
+    "phishing-marker",
+)
 
 _JAVA_JS_RESERVED = frozenset({
     "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
@@ -267,6 +282,58 @@ def _check_journey_extras(name, j, elements, refusals):
             % "}, ${".join(sorted(used))))
 
 
+def _check_security(sec, refusals):
+    """Validate the optional top-level `security` block (SPEC-taf-v1-003-01)."""
+    if not isinstance(sec, dict):
+        refusals.append(_refusal(
+            "security", "bad-security",
+            "security must be a JSON object: %r" % (sec,)))
+        return
+    allowed_keys = {
+        "mode", "hud", "allowed-origins",
+        "third-party-patterns", "forbid-sinks",
+    }
+    for k in sec:
+        if k != "__dupes__" and k not in allowed_keys:
+            refusals.append(_refusal(
+                "security.%s" % k, "bad-security",
+                "unknown security field %r (allowed: %s)"
+                % (k, ", ".join(sorted(allowed_keys)))))
+    mode = sec.get("mode")
+    if mode is not None and mode not in SECURITY_MODES:
+        refusals.append(_refusal(
+            "security.mode", "bad-security",
+            "security.mode must be one of %s, not %r"
+            % (", ".join(SECURITY_MODES), mode)))
+    hud = sec.get("hud")
+    if hud is not None and hud not in SECURITY_HUDS:
+        refusals.append(_refusal(
+            "security.hud", "bad-security",
+            "security.hud must be one of %s, not %r"
+            % (", ".join(SECURITY_HUDS), hud)))
+    for list_key in ("allowed-origins", "third-party-patterns"):
+        val = sec.get(list_key)
+        if val is not None:
+            if not isinstance(val, list) or not all(isinstance(x, str) and x for x in val):
+                refusals.append(_refusal(
+                    "security.%s" % list_key, "bad-security",
+                    "security.%s must be a list of non-empty strings: %r"
+                    % (list_key, val)))
+    sinks = sec.get("forbid-sinks")
+    if sinks is not None:
+        if not isinstance(sinks, list) or not all(isinstance(x, str) for x in sinks):
+            refusals.append(_refusal(
+                "security.forbid-sinks", "bad-security",
+                "security.forbid-sinks must be a list of sink names: %r" % (sinks,)))
+        else:
+            for s in sinks:
+                if s not in SECURITY_SINKS:
+                    refusals.append(_refusal(
+                        "security.forbid-sinks", "bad-security",
+                        "unknown security sink %r (have %s)"
+                        % (s, ", ".join(SECURITY_SINKS))))
+
+
 def _collect_dupes(node, path, refusals):
     if isinstance(node, dict):
         for d in node.get("__dupes__") or []:
@@ -438,6 +505,9 @@ def validate(doc):
                 visited.add(act["from"])
                 if act.get("to"):
                     visited.add(act["to"])
+
+    if "security" in doc:
+        _check_security(doc["security"], refusals)
 
     for name in states:
         if name not in visited:
