@@ -10,3 +10,4 @@ node_modules/
 /recorded.json
 /recorded*.json
 /report*.json
+.vscode/

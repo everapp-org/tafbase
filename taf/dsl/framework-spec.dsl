@@ -301,6 +301,9 @@ contract {
   env TAF_IKC3_WS    "ws:// URL of the IKC3 fault-report bus"
   env TAF_FRAMEWORK  "emitted framework dir the suite binds to"
   env TAF_GOLDENS    "golden baselines dir (default: <suite>/goldens)"
+  env TAF_SECURITY_MODE "workbench security posture: shield (default) | audit | raw | off"
+  env TAF_WB_HUD     "workbench HUD display: docked | toast-on-alert | detached"
+  env TAF_LIBRARY_DIR "standalone library root for trails, highlights, and archives"
 
   refusal not-json
   refusal empty-model
@@ -322,6 +325,7 @@ contract {
   refusal bad-auth
   refusal bad-journey-type
   refusal bad-examples
+  refusal bad-security
   refusal edge-gap
   refusal mixed-steps
   refusal unreachable
